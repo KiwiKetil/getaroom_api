@@ -1,0 +1,28 @@
+﻿Features
+│
+├── Dapper
+│   └── MySqlConnectionFactory.cs
+│
+├── Endpoints
+│   └── [Your Endpoint Files]
+│
+├── Mappers
+│   └── [Your Mapper Files]
+│
+├── Models
+│   ├── [Your Entity Classes]
+│   └── [Your DTO Classes]
+│
+├── Repository
+│   ├── Interfaces
+│   │   └── [Your Interface Files]
+│   └── Repositories
+│       └── [Your Repository Files]
+│
+├── Services
+│   ├── Interfaces
+│   │   └── [Your Service Interface Files]
+│   └── [Your Service Implementation Files]
+│
+└── SystemHealthChecks
+    └── [Your Health Check Files]
