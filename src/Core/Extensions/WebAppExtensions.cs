@@ -23,15 +23,19 @@ public static class WebAppExtensions
 
     public static IServiceCollection RegisterServices(this IServiceCollection services, IConfiguration configuration)    
     {
+        // Swagger
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen();
 
-        services.AddSingleton(new MySqlConnectionFactory(configuration.GetConnectionString("defaultConnection")!));
+        // MySqlConnectionFactory
+        var connectionString = configuration.GetConnectionString("defaultConnection");
+        if (string.IsNullOrEmpty(connectionString))
+        {
+            throw new InvalidOperationException("Connection string 'defaultConnection' is not configured.");
+        }
+        services.AddSingleton(new MySqlConnectionFactory(connectionString));
 
-        //services.AddSingleton(serviceProvider =>
-        //{            
-        //    return new MySqlConnectionFactory(configuration.GetConnectionString("defaultConnection")!);
-        //});
+        //
 
         return services;
     }

@@ -23,7 +23,7 @@
     <Folder Include="Features\Validators\" />
     <Folder Include="Features\Repository\Interfaces\" />
     <Folder Include="Features\Services\Interfaces\" />
-    <Folder Include="Features\Mappers\" />
+    <Folder Include="Features\Mapper\" />
   </ItemGroup>
 
 </Project>

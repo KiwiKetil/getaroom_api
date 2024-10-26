@@ -4,20 +4,9 @@ using System.Data;
 
 namespace RoomSchedulerAPI.Core.Dapper;
 
-public class MySqlConnectionFactory
+public class MySqlConnectionFactory(string connectionString)
 {
-    private readonly string _connectionString;
-
-    public MySqlConnectionFactory(string connectionString)
-    {
-
-        if (string.IsNullOrEmpty(connectionString))
-        {
-            throw new InvalidOperationException("Connection string cannot be null or empty.");            
-        }
-
-        _connectionString = connectionString;
-    }
+    private readonly string _connectionString = connectionString;
 
     public IDbConnection CreateConnection()
     {
