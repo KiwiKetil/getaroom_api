@@ -19,8 +19,7 @@
 
   <ItemGroup>
     <Folder Include="Features\Models\DTOs\" />
-    <Folder Include="Features\Extensions\" />
-    <Folder Include="Features\ExceptionHandler\" />
+    <Folder Include="Core\JWT\" />
     <Folder Include="Features\Validators\" />
     <Folder Include="Features\Repository\Interfaces\" />
     <Folder Include="Features\Services\Interfaces\" />

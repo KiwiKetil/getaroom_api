@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace RoomSchedulerAPI.Features.Diagnostics;
+namespace RoomSchedulerAPI.Core.Diagnostics;
 
 public static class ApiHealthCheck
 {

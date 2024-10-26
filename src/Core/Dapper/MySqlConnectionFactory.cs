@@ -1,7 +1,8 @@
-﻿using MySql.Data.MySqlClient;
+﻿using Microsoft.Extensions.Logging;
+using MySql.Data.MySqlClient;
 using System.Data;
 
-namespace RoomSchedulerAPI.Features.Dapper;
+namespace RoomSchedulerAPI.Core.Dapper;
 
 public class MySqlConnectionFactory
 {
@@ -9,9 +10,10 @@ public class MySqlConnectionFactory
 
     public MySqlConnectionFactory(string connectionString)
     {
+
         if (string.IsNullOrEmpty(connectionString))
         {
-            throw new InvalidOperationException("Connection string cannot be null or empty.");
+            throw new InvalidOperationException("Connection string cannot be null or empty.");            
         }
 
         _connectionString = connectionString;

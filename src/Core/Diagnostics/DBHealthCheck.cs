@@ -1,8 +1,8 @@
-﻿using RoomSchedulerAPI.Features.Dapper;
-using MySql.Data.MySqlClient;
+﻿using MySql.Data.MySqlClient;
+using RoomSchedulerAPI.Core.Dapper;
 
 
-namespace RoomSchedulerAPI.Features.Diagnostics;
+namespace RoomSchedulerAPI.Core.Diagnostics;
 
 public static class DBHealthCheck
 {
