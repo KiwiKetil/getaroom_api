@@ -1,5 +1,5 @@
 ﻿namespace RoomSchedulerAPI.Features.Endpoints;
 
-public class RoomReservationsEndpoints
+public class RoomReservationEndpoints
 {
 }
