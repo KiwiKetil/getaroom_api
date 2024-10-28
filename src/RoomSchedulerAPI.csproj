@@ -18,11 +18,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Features\Models\DTOs\" />
     <Folder Include="Core\JWT\" />
     <Folder Include="Features\Validators\" />
-    <Folder Include="Features\Repository\Interfaces\" />
-    <Folder Include="Features\Services\Interfaces\" />
     <Folder Include="Features\Mapper\" />
   </ItemGroup>
 

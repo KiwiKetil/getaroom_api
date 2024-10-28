@@ -1,12 +1,12 @@
-using RoomSchedulerAPI.Core.Dapper;
 using RoomSchedulerAPI.Core.Diagnostics;
 using RoomSchedulerAPI.Core.Extensions;
+using RoomSchedulerAPI.Core.Middleware;
+using RoomSchedulerAPI.Features.Endpoints;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.RegisterServices(builder.Configuration);
-//builder.RegisterMappers();
 
 builder.Host.UseSerilog((context, configuration) =>
 {
@@ -23,6 +23,8 @@ if (app.Environment.IsDevelopment())
 
 app.UseSerilogRequestLogging();
 app.UseHttpsRedirection();
+app.UseMiddleware<GlobalExceptionMiddleware>();
+app.MapUserEndpoints();
 app.MapApiHealthCheckEndpoint();
 app.MapDBHealthCheckEndpoint();
 

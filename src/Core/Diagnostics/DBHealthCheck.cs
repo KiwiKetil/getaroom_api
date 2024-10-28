@@ -1,6 +1,5 @@
 ﻿using MySql.Data.MySqlClient;
-using RoomSchedulerAPI.Core.Dapper;
-
+using RoomSchedulerAPI.Core.DBConnection;
 
 namespace RoomSchedulerAPI.Core.Diagnostics;
 
