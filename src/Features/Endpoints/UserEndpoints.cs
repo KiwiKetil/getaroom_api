@@ -1,27 +1,22 @@
-﻿namespace RoomSchedulerAPI.Features.Endpoints;
+﻿
+using RoomSchedulerAPI.Features.Services.Interfaces;
+using System.Data;
 
-public class UserEndpoints
+namespace RoomSchedulerAPI.Features.Endpoints;
+
+public static class UserEndpoints
 {
+    public static void MapUserEndpoints(this WebApplication app)
+    {
+        app.MapGet("/api/v1/users", async (IUserService userService) =>
+        {
 
-    //public static class BookEndpoints
-    //{
-    //    public static void MapBookEndpoints(this WebApplication app)
-    //    {
-    //        app.MapGet("/books", async (BookService bookService, [FromQuery] string? title, [FromQuery] string? author, [FromQuery] int? publicationYear) =>
-    //        {
-    //            var books = await bookService.GetBooksAsync(title, author, publicationYear);
-    //            return books.Any() ? Results.Ok(books) : Results.NotFound("No books found.");
-    //        }).WithOpenApi();
+        });
 
-    //        app.MapGet("/books/{id}", async (BookService bookService, int id) =>
-    //        {
-    //            var book = await bookService.GetBookByIdAsync(id);
-    //            return book != null ? Results.Ok(book) : Results.NotFound("Book ID not found.");
-    //        }).WithOpenApi();
+        app.MapGet("/api/test-exception", () =>
+        {
+            throw new InvalidOperationException("This is a test exception.");
+        });
 
-    //        // Additional endpoints for Add, Update, Delete
-    //    }
-    //}
-
-
+    }
 }

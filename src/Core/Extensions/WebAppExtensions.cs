@@ -1,26 +1,16 @@
-﻿using Microsoft.Extensions.Options;
-using RoomSchedulerAPI.Core.DbConnectionFactory;
+﻿
+using RoomSchedulerAPI.Core.DBConnection;
+using RoomSchedulerAPI.Core.Exceptions;
+using RoomSchedulerAPI.Core.Middleware;
+using RoomSchedulerAPI.Features.Repositories;
+using RoomSchedulerAPI.Features.Repositories.Interfaces;
+using RoomSchedulerAPI.Features.Services;
+using RoomSchedulerAPI.Features.Services.Interfaces;
 
 namespace RoomSchedulerAPI.Core.Extensions;
 
 public static class WebAppExtensions
 {
-    //public static void RegisterMappers(this WebApplicationBuilder builder)
-    //{
-    //    var assembly = typeof(UserMapper).Assembly;
-
-    //    var mapperTypes = assembly.GetTypes()
-    //        .Where(t => t.IsClass && !t.IsAbstract && t.GetInterfaces()
-    //        .Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IMapper<,>)))
-    //        .ToList();
-
-    //    foreach (var mapperType in mapperTypes)
-    //    {
-    //        var interfaceType = mapperType.GetInterfaces().First(i => i.GetGenericTypeDefinition() == typeof(IMapper<,>));
-    //        builder.Services.AddScoped(interfaceType, mapperType);
-    //    }
-    //}
-
     public static IServiceCollection RegisterServices(this IServiceCollection services, IConfiguration configuration)    
     {
         // Swagger
@@ -36,9 +26,16 @@ public static class WebAppExtensions
         services.AddScoped(provider =>
             new MySqlConnectionFactory(connectionString));
 
-        //
+        // ExceptionHandling
+        services.AddScoped<GlobalExceptionMiddleware>();
+        services.AddSingleton<ExceptionHandler>();
+
+        // ServiceLayers
+        services.AddScoped<IUserService, UserService>();
+
+        // Repositories
+        services.AddScoped<IUserRepository, UserRepository>();
 
         return services;
     }
 }
-

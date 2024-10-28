@@ -15,7 +15,6 @@ public static class ApiHealthCheck
                 sb.Append($"Address: {adr.AddressFamily} {adr}\n");
             }
             return $"Hello from host: {hostName}\n{sb}";
-        })
-        .WithOpenApi();
+        });        
     }
 }
