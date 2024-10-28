@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.Options;
-using RoomSchedulerAPI.Core.Dapper;
+using RoomSchedulerAPI.Core.DbConnectionFactory;
 
 namespace RoomSchedulerAPI.Core.Extensions;
 

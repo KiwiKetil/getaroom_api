@@ -2,7 +2,7 @@
 using MySql.Data.MySqlClient;
 using System.Data;
 
-namespace RoomSchedulerAPI.Core.Dapper;
+namespace RoomSchedulerAPI.Core.DbConnectionFactory;
 
 public class MySqlConnectionFactory(string connectionString)
 {

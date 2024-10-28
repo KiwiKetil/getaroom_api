@@ -1,4 +1,3 @@
-using RoomSchedulerAPI.Core.Dapper;
 using RoomSchedulerAPI.Core.Diagnostics;
 using RoomSchedulerAPI.Core.Extensions;
 using Serilog;
@@ -6,7 +5,6 @@ using Serilog;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.RegisterServices(builder.Configuration);
-//builder.RegisterMappers();
 
 builder.Host.UseSerilog((context, configuration) =>
 {
