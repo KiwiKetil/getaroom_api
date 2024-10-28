@@ -33,7 +33,8 @@ public static class WebAppExtensions
         {
             throw new InvalidOperationException("Connection string 'defaultConnection' is not configured.");
         }
-        services.AddSingleton(new MySqlConnectionFactory(connectionString));
+        services.AddScoped(provider =>
+            new MySqlConnectionFactory(connectionString));
 
         //
 
