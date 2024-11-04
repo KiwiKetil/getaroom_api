@@ -1,3 +1,5 @@
+using Dapper;
+using RoomSchedulerAPI.Core.DB.TypeHandlers;
 using RoomSchedulerAPI.Core.Extensions;
 using RoomSchedulerAPI.Core.Middleware;
 using RoomSchedulerAPI.Features.Endpoints;
@@ -20,6 +22,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+SqlMapper.AddTypeHandler(new UserIdHandler());
+
 
 app.UseSerilogRequestLogging();
 app.UseHttpsRedirection();
