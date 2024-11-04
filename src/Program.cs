@@ -1,7 +1,7 @@
-using RoomSchedulerAPI.Core.Diagnostics;
 using RoomSchedulerAPI.Core.Extensions;
 using RoomSchedulerAPI.Core.Middleware;
 using RoomSchedulerAPI.Features.Endpoints;
+using RoomSchedulerAPI.Features.Endpoints.Diagnostics;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -26,6 +26,6 @@ app.UseHttpsRedirection();
 app.UseMiddleware<GlobalExceptionMiddleware>();
 app.MapUserEndpoints();
 app.MapApiHealthCheckEndpoint();
-app.MapDBHealthCheckEndpoint();
+app.MapDbHealthCheckEndpoint();
 
 app.Run();

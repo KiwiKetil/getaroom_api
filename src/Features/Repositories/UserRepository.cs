@@ -1,14 +1,14 @@
 ﻿using Dapper;
-using RoomSchedulerAPI.Core.DB.DBConnection;
+using RoomSchedulerAPI.Core.DB.DBConnection.Interface;
 using RoomSchedulerAPI.Features.Models.Entities;
 using RoomSchedulerAPI.Features.Repositories.Interfaces;
 using System.Data;
 
 namespace RoomSchedulerAPI.Features.Repositories;
 
-public class UserRepository(MySqlConnectionFactory mySqlConnectionFactory) : IUserRepository
+public class UserRepository(IDbConnectionFactory mySqlConnectionFactory) : IUserRepository
 {
-    private readonly MySqlConnectionFactory _mySqlConnectionFactory = mySqlConnectionFactory;
+    private readonly IDbConnectionFactory _mySqlConnectionFactory = mySqlConnectionFactory;
 
     public async Task<IEnumerable<User>> GetAllAsync()
     {

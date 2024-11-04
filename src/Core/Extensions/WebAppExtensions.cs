@@ -25,8 +25,10 @@ public static class WebAppExtensions
         {
             throw new InvalidOperationException("Connection string is not configured.");
         }
-        services.AddScoped<IDbConnectionFactory>(provider =>
-            new MySqlConnectionFactory(connectionString));
+        //services.AddScoped(provider =>
+        //    new MySqlConnectionFactory(connectionString));
+
+        services.AddScoped<IDbConnectionFactory>(_ => new MySqlConnectionFactory(connectionString));
 
         // ExceptionHandling
         services.AddScoped<GlobalExceptionMiddleware>();

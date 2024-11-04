@@ -1,15 +1,16 @@
-﻿using MySql.Data.MySqlClient;
-using RoomSchedulerAPI.Core.DB.DBConnection;
+﻿using Microsoft.AspNetCore.Mvc;
+using RoomSchedulerAPI.Core.DB.DBConnection.Interface;
+using System.Data.Common;
 
-namespace RoomSchedulerAPI.Core.Diagnostics;
+namespace RoomSchedulerAPI.Features.Endpoints.Diagnostics;
 
 public static class DBHealthCheck
 {
-    public static void MapDBHealthCheckEndpoint(this WebApplication app)
+    public static void MapDbHealthCheckEndpoint(this WebApplication app)
     {
-        app.MapGet("/test-connection", async (MySqlConnectionFactory connectionFactory) =>
+        app.MapGet("/test-db-connection", async ([FromServices] IDbConnectionFactory connectionFactory) =>
         {
-            using var connection = connectionFactory.CreateConnection() as MySqlConnection;
+            using var connection = connectionFactory.CreateConnection() as DbConnection;
             if (connection == null)
             {
                 return Results.Problem("Failed to create a database connection.");

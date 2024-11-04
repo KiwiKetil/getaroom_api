@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace RoomSchedulerAPI.Core.Diagnostics;
+namespace RoomSchedulerAPI.Features.Endpoints.Diagnostics;
 
 public static class ApiHealthCheck
 {
@@ -15,6 +15,6 @@ public static class ApiHealthCheck
                 sb.Append($"Address: {adr.AddressFamily} {adr}\n");
             }
             return $"Hello from host: {hostName}\n{sb}";
-        });        
+        });
     }
 }
