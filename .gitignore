@@ -5,7 +5,14 @@
 
 *.bak
 *.sql
+
+# Allow these sql:
+!room_scheduler_create_tables.sql
+!room_scheduler_create_testusers.sql
+
 .gitattributes
+
+
 
 # User-specific files
 *.rsuser
