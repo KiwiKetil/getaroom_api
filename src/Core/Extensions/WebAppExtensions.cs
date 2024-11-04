@@ -1,5 +1,6 @@
 ﻿
 using RoomSchedulerAPI.Core.DB.DBConnection;
+using RoomSchedulerAPI.Core.DB.DBConnection.Interface;
 using RoomSchedulerAPI.Core.Exceptions;
 using RoomSchedulerAPI.Core.Middleware;
 using RoomSchedulerAPI.Features.Mapper;
@@ -24,7 +25,7 @@ public static class WebAppExtensions
         {
             throw new InvalidOperationException("Connection string is not configured.");
         }
-        services.AddScoped(provider =>
+        services.AddScoped<IDbConnectionFactory>(provider =>
             new MySqlConnectionFactory(connectionString));
 
         // ExceptionHandling
