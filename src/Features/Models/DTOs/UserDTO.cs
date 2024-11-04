@@ -12,3 +12,4 @@ public record UserDTO
     string Email,
     List<Link> Links
 );
+

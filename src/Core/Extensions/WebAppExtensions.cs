@@ -25,10 +25,12 @@ public static class WebAppExtensions
         {
             throw new InvalidOperationException("Connection string is not configured.");
         }
-        //services.AddScoped(provider =>
-        //    new MySqlConnectionFactory(connectionString));
 
-        services.AddScoped<IDbConnectionFactory>(_ => new MySqlConnectionFactory(connectionString));
+        connectionString = connectionString?
+        .Replace("{ROOM_DB_USER}", Environment.GetEnvironmentVariable("ROOM_DB_USER"))
+        .Replace("{ROOM_DB_PASSWORD}", Environment.GetEnvironmentVariable("ROOM_DB_PASSWORD"));
+
+        services.AddScoped<IDbConnectionFactory>(_ => new MySqlConnectionFactory(connectionString!));
 
         // ExceptionHandling
         services.AddScoped<GlobalExceptionMiddleware>();

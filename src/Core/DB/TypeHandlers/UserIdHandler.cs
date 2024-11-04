@@ -2,17 +2,25 @@
 using RoomSchedulerAPI.Features.Models.Entities;
 using System.Data;
 
-namespace RoomSchedulerAPI.Core.DB.TypeHandlers;
-
-public class UserIdHandler : SqlMapper.TypeHandler<UserId>
+namespace RoomSchedulerAPI.Core.DB.TypeHandlers
 {
-    public override UserId Parse(object value)
+    public class UserIdHandler : SqlMapper.TypeHandler<UserId>
     {
-        throw new NotImplementedException();
-    }
+        // from db
+        public override UserId Parse(object value)
+        {
+            if (value is Guid guidValue)
+            {
+                return new UserId(guidValue); 
+            }
+            throw new DataException($"Cannot convert {value.GetType()} to UserId.");
+        }
 
-    public override void SetValue(IDbDataParameter parameter, UserId value)
-    {
-        throw new NotImplementedException();
+        // to db
+        public override void SetValue(IDbDataParameter parameter, UserId value)
+        {
+            parameter.Value = value.Value; 
+            parameter.DbType = DbType.Guid;
+        }
     }
 }
