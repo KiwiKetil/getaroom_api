@@ -1,14 +1,23 @@
-﻿using RoomSchedulerAPI.Features.Models.DTOs;
+﻿using AutoMapper;
+using RoomSchedulerAPI.Features.Models.DTOs;
 using RoomSchedulerAPI.Features.Models.Entities;
+using RoomSchedulerAPI.Features.Repositories.Interfaces;
 using RoomSchedulerAPI.Features.Services.Interfaces;
 
 namespace RoomSchedulerAPI.Features.Services;
 
-public class UserService : IUserService
+public class UserService(IUserRepository userRepository, IMapper mapper, ILogger<UserService> logger) : IUserService
 {
-    public Task<IEnumerable<UserDTO>> GetAllAsync()
+    private readonly IUserRepository _userRepository = userRepository;
+    private readonly ILogger<UserService> _logger = logger;
+    private readonly IMapper _mapper = mapper;
+
+    public async Task<IEnumerable<UserDTO>> GetAllAsync() // paginering
     {
-        throw new NotImplementedException();
+        _logger.LogInformation("Retrieving all users");
+        var users = await _userRepository.GetAllAsync();
+        var dtos = users.Select(user => _mapper.Map<UserDTO>(user)).ToList();
+        return dtos;
     }
 
     public Task<UserDTO?> GetByIdAsync(UserId Id)

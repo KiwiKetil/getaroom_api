@@ -5,7 +5,7 @@ namespace RoomSchedulerAPI.Features.Models.DTOs;
 
 public record RoomReservationDTO
 (
-    RoomreservationId Id,
+    RoomReservationId Id,
     string UserFirstName,
     string UserLastName,
     string RoomName,

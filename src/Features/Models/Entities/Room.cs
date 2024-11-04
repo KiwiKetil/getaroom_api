@@ -1,7 +1,7 @@
 ﻿
 namespace RoomSchedulerAPI.Features.Models.Entities;
 
-public readonly record struct RoomId(Guid roomId)
+public readonly record struct RoomId(Guid Value)
 {
     public static RoomId NewId => new(Guid.NewGuid());
     public static RoomId Empty => new(Guid.Empty);

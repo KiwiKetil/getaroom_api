@@ -1,7 +1,8 @@
 ﻿
-using RoomSchedulerAPI.Core.DBConnection;
+using RoomSchedulerAPI.Core.DB.DBConnection;
 using RoomSchedulerAPI.Core.Exceptions;
 using RoomSchedulerAPI.Core.Middleware;
+using RoomSchedulerAPI.Features.Mapper;
 using RoomSchedulerAPI.Features.Repositories;
 using RoomSchedulerAPI.Features.Repositories.Interfaces;
 using RoomSchedulerAPI.Features.Services;
@@ -21,7 +22,7 @@ public static class WebAppExtensions
         var connectionString = configuration.GetConnectionString("defaultConnection");
         if (string.IsNullOrEmpty(connectionString))
         {
-            throw new InvalidOperationException("Connection string 'defaultConnection' is not configured.");
+            throw new InvalidOperationException("Connection string is not configured.");
         }
         services.AddScoped(provider =>
             new MySqlConnectionFactory(connectionString));
@@ -29,6 +30,9 @@ public static class WebAppExtensions
         // ExceptionHandling
         services.AddScoped<GlobalExceptionMiddleware>();
         services.AddSingleton<ExceptionHandler>();
+
+        // AutoMapper
+        services.AddAutoMapper(typeof(MappingProfile));
 
         // ServiceLayers
         services.AddScoped<IUserService, UserService>();

@@ -1,13 +1,23 @@
-﻿using RoomSchedulerAPI.Features.Models.Entities;
+﻿using Dapper;
+using RoomSchedulerAPI.Core.DB.DBConnection;
+using RoomSchedulerAPI.Features.Models.Entities;
 using RoomSchedulerAPI.Features.Repositories.Interfaces;
+using System.Data;
 
 namespace RoomSchedulerAPI.Features.Repositories;
 
-public class UserRepository : IUserRepository
+public class UserRepository(MySqlConnectionFactory mySqlConnectionFactory) : IUserRepository
 {
-    public Task<IEnumerable<User>> GetAllAsync()
+    private readonly MySqlConnectionFactory _mySqlConnectionFactory = mySqlConnectionFactory;
+
+    public async Task<IEnumerable<User>> GetAllAsync()
     {
-        throw new NotImplementedException();
+        using IDbConnection dbConnection = _mySqlConnectionFactory.CreateConnection();
+
+        string sql = "SELECT Id, FirstName, LastName, PhoneNumber, Email FROM Users"; 
+        var users = await dbConnection.QueryAsync<User>(sql);
+
+        return users;
     }
 
     public Task<User?> GetByIdAsync(UserId Id)
