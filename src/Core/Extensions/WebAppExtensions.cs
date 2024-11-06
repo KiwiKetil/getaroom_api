@@ -3,7 +3,7 @@ using RoomSchedulerAPI.Core.DB.DBConnection;
 using RoomSchedulerAPI.Core.DB.DBConnection.Interface;
 using RoomSchedulerAPI.Core.Exceptions;
 using RoomSchedulerAPI.Core.Middleware;
-using RoomSchedulerAPI.Features.Mapper;
+using RoomSchedulerAPI.Features.AutoMapper;
 using RoomSchedulerAPI.Features.Repositories;
 using RoomSchedulerAPI.Features.Repositories.Interfaces;
 using RoomSchedulerAPI.Features.Services;

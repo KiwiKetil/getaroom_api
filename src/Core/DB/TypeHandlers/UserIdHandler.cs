@@ -7,7 +7,7 @@ namespace RoomSchedulerAPI.Core.DB.TypeHandlers
     public class UserIdHandler : SqlMapper.TypeHandler<UserId>
     {
         // from db
-        public override UserId Parse(object value)
+        public override UserId Parse(object value)  // obj value is value from db
         {
             if (value is Guid guidValue)
             {
