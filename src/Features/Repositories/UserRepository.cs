@@ -19,7 +19,10 @@ public class UserRepository(IDbConnectionFactory mySqlConnectionFactory, ILogger
 
         var skipNumber = (page - 1) * pageSize;
 
-        string sql = "SELECT Id, FirstName, LastName, PhoneNumber, Email FROM Users LIMIT @pageSize OFFSET @skipNumber"; 
+        string sql = @"SELECT Id, FirstName, LastName, PhoneNumber, Email
+                FROM Users 
+                ORDER BY LastName
+                LIMIT @pageSize OFFSET @skipNumber"; 
         var users = await dbConnection.QueryAsync<User>(sql, new { pageSize, skipNumber });
 
         return users;

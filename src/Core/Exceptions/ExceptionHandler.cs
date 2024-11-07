@@ -7,6 +7,7 @@ public class ExceptionHandler(ILogger<ExceptionHandler> logger)
 {
     private readonly ILogger<ExceptionHandler> _logger = logger;
 
+    // called from GlobalExceptionMiddlerware.cs located in Middleware folder
     public async Task HandleException(HttpContext context, Exception ex)
     {
         _logger.LogError(ex, "An error occurred - {@Machine} {@TraceId}",
