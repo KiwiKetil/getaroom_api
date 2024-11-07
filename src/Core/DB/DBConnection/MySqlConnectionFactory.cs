@@ -12,4 +12,10 @@ public class MySqlConnectionFactory(string connectionString) : IDbConnectionFact
     {
         return new MySqlConnection(_connectionString);
     }
+    public async Task<IDbConnection> CreateConnectionAsync()
+    {
+        var connection = new MySqlConnection(_connectionString);
+        await connection.OpenAsync(); 
+        return connection;
+    }
 }
