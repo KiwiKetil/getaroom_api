@@ -23,15 +23,16 @@ public static class WebAppExtensions
         services.AddSwaggerGen();
 
         // MySqlConnectionFactory
-        var connectionString = configuration.GetConnectionString("defaultConnection");
+        var connectionString = configuration.GetConnectionString("defaultConnection")?
+                    .Replace("{ROOM_DB_USER}", Environment.GetEnvironmentVariable("ROOM_DB_USER"))
+                    .Replace("{ROOM_DB_PASSWORD}", Environment.GetEnvironmentVariable("ROOM_DB_PASSWORD"));
+
         if (string.IsNullOrEmpty(connectionString))
         {
             throw new InvalidOperationException("Connection string is not configured.");
         }
 
-        connectionString = connectionString?
-        .Replace("{ROOM_DB_USER}", Environment.GetEnvironmentVariable("ROOM_DB_USER"))
-        .Replace("{ROOM_DB_PASSWORD}", Environment.GetEnvironmentVariable("ROOM_DB_PASSWORD"));
+        //connectionString = connectionString?
 
         services.AddScoped<IDbConnectionFactory>(_ => new MySqlConnectionFactory(connectionString!));
 
