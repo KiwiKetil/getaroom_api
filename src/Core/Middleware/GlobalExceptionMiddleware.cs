@@ -1,16 +1,10 @@
-﻿using RoomSchedulerAPI.Core.Exceptions;
-
+﻿
 namespace RoomSchedulerAPI.Core.Middleware;
 
-public class GlobalExceptionMiddleware : IMiddleware
+public class GlobalExceptionMiddleware(ILogger<GlobalExceptionMiddleware> logger) : IMiddleware
 {
-    private readonly ExceptionHandler _exceptionHandler;
-
-    public GlobalExceptionMiddleware(ExceptionHandler exceptionHandler)
-    {
-        _exceptionHandler = exceptionHandler;
-    }
-
+    private readonly ILogger<GlobalExceptionMiddleware> _logger = logger;
+   
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
         try
@@ -19,7 +13,19 @@ public class GlobalExceptionMiddleware : IMiddleware
         }
         catch (Exception ex)
         {
-            await _exceptionHandler.HandleException(context, ex);
+            _logger.LogError(ex, "Something went wrong - test exception {@Machine} {@TraceId}",
+            Environment.MachineName,
+            System.Diagnostics.Activity.Current?.Id);
+
+            await Results.Problem(
+                title: "Something horrible has happened!!",
+                detail: ex.Message,             
+                statusCode: StatusCodes.Status500InternalServerError,
+                extensions: new Dictionary<string, object?>
+                {
+                    { "traceId", System.Diagnostics.Activity.Current?.Id },
+                })
+                .ExecuteAsync(context);
         }
     }
 }

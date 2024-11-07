@@ -1,7 +1,6 @@
 ﻿
 using RoomSchedulerAPI.Core.DB.DBConnection;
 using RoomSchedulerAPI.Core.DB.DBConnection.Interface;
-using RoomSchedulerAPI.Core.Exceptions;
 using RoomSchedulerAPI.Core.Middleware;
 using RoomSchedulerAPI.Features.AutoMapper;
 using RoomSchedulerAPI.Features.Repositories;
@@ -34,7 +33,6 @@ public static class WebAppExtensions
 
         // ExceptionHandling
         services.AddScoped<GlobalExceptionMiddleware>();
-        services.AddSingleton<ExceptionHandler>();
 
         // AutoMapper
         services.AddAutoMapper(typeof(MappingProfile));

@@ -25,7 +25,6 @@ if (app.Environment.IsDevelopment())
 
 SqlMapper.AddTypeHandler(new UserIdHandler());
 
-
 app.UseSerilogRequestLogging();
 app.UseHttpsRedirection();
 app.UseMiddleware<GlobalExceptionMiddleware>();
