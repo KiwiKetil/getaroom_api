@@ -1,9 +1,5 @@
-﻿
-using Microsoft.AspNetCore.Mvc;
-using RoomSchedulerAPI.Features.Models.Entities;
-using RoomSchedulerAPI.Features.Repositories.Interfaces;
+﻿using Microsoft.AspNetCore.Mvc;
 using RoomSchedulerAPI.Features.Services.Interfaces;
-using System.Data;
 
 namespace RoomSchedulerAPI.Features.Endpoints;
 
@@ -16,7 +12,6 @@ public static class UserEndpoints
             logger.LogInformation("Retrieving all users");
 
             var users = await userService.GetAllAsync(page, pageSize); 
-            //return Results.Ok(users);
             return users.Any() ? Results.Ok(users) : Results.NotFound("Could not find any users");
         });
 
