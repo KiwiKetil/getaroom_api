@@ -3,7 +3,6 @@ using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using RoomSchedulerAPI.Features.Models.DTOs;
 using RoomSchedulerAPI.Features.Services.Interfaces;
-using System.ComponentModel.DataAnnotations;
 
 namespace RoomSchedulerAPI.Features.Endpoints;
 
@@ -38,7 +37,7 @@ public static class UserEndpoints
             if (!validationResult.IsValid)
             {
                 var errors = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
-                return Results.BadRequest(errors); // Send back validation errors
+                return Results.BadRequest(errors);
             }
 
             var user = await userService.UpdateAsync(id, dto);
@@ -46,11 +45,14 @@ public static class UserEndpoints
         })
         .WithName("UpdateUser"); ;
 
-        //app.MapGet("/api/v1/users", async (IUserService userService) =>
-        //{
-        //    var users = await userService.GetAllAsync();
-        //    return Results.Ok(users);
-        //});
+        app.MapDelete("/api/v1/users/{id}", async ([FromRoute] Guid id, IUserService userService, ILogger<Program> logger) =>
+        {
+            logger.LogInformation("Deleting user with ID {userId}", id);
+
+            var user = await userService.DeleteAsync(id);
+            return user != null ? Results.Ok(user) : Results.Problem("User could not be deleted");
+        })
+        .WithName("DeleteUser");
 
         //app.MapGet("/api/v1/users", async (IUserService userService) =>
         //{
