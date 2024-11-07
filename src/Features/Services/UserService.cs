@@ -33,17 +33,20 @@ public class UserService(IUserRepository userRepository, IMapper mapper, ILogger
     {
         _logger.LogInformation("Updating user with ID {userId}", id);
 
-        var userId = new UserId(id);
         var user = _mapper.Map<User>(dto);
-
-        var res = await _userRepository.UpdateAsync(userId, user);
+        var res = await _userRepository.UpdateAsync(new UserId(id), user);
 
         return res != null ? _mapper.Map<UserDTO>(res) : null;
     }
 
-    public Task<UserDTO?> DeleteAsync(Guid id)
+    public async Task<UserDTO?> DeleteAsync(Guid id)
     {
-        throw new NotImplementedException();
+        _logger.LogInformation("Deleting user with ID {userId}", id);
+
+        var user = await _userRepository.DeleteAsync(new UserId(id));
+        var res = _mapper.Map<UserDTO>(user);
+
+        return res ?? null;
     }
 
     public Task<UserDTO?> RegisterUserAsync(UserRegistrationDTO dto)

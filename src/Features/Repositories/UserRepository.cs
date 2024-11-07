@@ -1,11 +1,8 @@
 ﻿using Dapper;
-using Mysqlx.Crud;
 using RoomSchedulerAPI.Core.DB.DBConnection.Interface;
 using RoomSchedulerAPI.Features.Models.Entities;
 using RoomSchedulerAPI.Features.Repositories.Interfaces;
 using System.Data;
-using System.Data.Common;
-using System.Transactions;
 
 namespace RoomSchedulerAPI.Features.Repositories;
 
@@ -37,7 +34,7 @@ public class UserRepository(IDbConnectionFactory mySqlConnectionFactory, ILogger
 
         using IDbConnection dbConnection = _mySqlConnectionFactory.CreateConnection();
 
-        string sql = "SELECT * FROM Users where Id = @id";
+        string sql = @"SELECT * FROM Users where Id = @id";
         return await dbConnection.QueryFirstOrDefaultAsync<User>(sql, new { id = id.Value });
     }  
 
@@ -47,7 +44,7 @@ public class UserRepository(IDbConnectionFactory mySqlConnectionFactory, ILogger
 
         using IDbConnection dbConnection = _mySqlConnectionFactory.CreateConnection();
 
-        using var transaction = dbConnection.BeginTransaction();
+        //using var transaction = dbConnection.BeginTransaction();
 
         string sql = @"UPDATE Users
                     SET
@@ -72,28 +69,55 @@ public class UserRepository(IDbConnectionFactory mySqlConnectionFactory, ILogger
         if (rowsAffected == 0)
         {
             _logger.LogInformation("No user found with ID {userId} to update.", id);
-            transaction.Rollback(); 
+            //transaction.Rollback(); 
             return null;  
         }
 
         if (rowsAffected > 1)
         {
-            transaction.Rollback();
+            //transaction.Rollback();
             _logger.LogWarning("Update attempted for user with ID {userId} resulted in multiple rows affected. Transaction rolled back to maintain data integrity.", id);
             throw new InvalidOperationException("Update failed: multiple rows matched the specified ID, and the operation was rolled back.");
         }
 
-        transaction.Commit();
+        //transaction.Commit();
 
-        string selectSql = "SELECT * FROM Users WHERE Id = @Id";
+        string selectSql = @"SELECT * FROM Users WHERE Id = @Id";
         return await dbConnection.QueryFirstOrDefaultAsync<User>(selectSql, new { Id = id.Value });
     }
 
-    public Task<User?> DeleteAsync(UserId id)
+    public async Task<User?> DeleteAsync(UserId id)
     {
-        throw new NotImplementedException();
+        _logger.LogInformation("Deleting user with ID {userId} in DB", id);
+
+        using IDbConnection dbConnection = _mySqlConnectionFactory.CreateConnection();
+
+        string findUserToDelete = @"SELECT * FROM Users WHERE Id = @Id";
+        var deletedUser = await dbConnection.QueryFirstOrDefaultAsync<User>(findUserToDelete, new { Id = id.Value });
+
+        //using var transaction = dbConnection.BeginTransaction();
+
+        var sql = "DELETE FROM Users WHERE Id = @Id";
+        int rowsAffected = await dbConnection.ExecuteAsync(sql, new { Id = id.Value });
+
+        if (rowsAffected == 0)
+        {
+            _logger.LogInformation("No user found with ID {userId} to delete.", id);
+            return null;
+        }
+
+        if (rowsAffected > 1)
+        {
+            //transaction.Rollback();
+            _logger.LogWarning("Delete attempted for user with ID {userId} resulted in multiple rows affected. Transaction rolled back to maintain data integrity.", id);
+            throw new InvalidOperationException("Delete failed: multiple rows matched the specified ID, and the operation was rolled back.");
+        }
+
+        //transaction.Commit();
+
+        return deletedUser;
     }
-    
+
     public Task<User?> RegisterUserAsync(User user)
     {
         throw new NotImplementedException();
