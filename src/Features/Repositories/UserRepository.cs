@@ -1,8 +1,10 @@
 ﻿using Dapper;
+using Mysqlx.Crud;
 using RoomSchedulerAPI.Core.DB.DBConnection.Interface;
 using RoomSchedulerAPI.Features.Models.Entities;
 using RoomSchedulerAPI.Features.Repositories.Interfaces;
 using System.Data;
+using System.Data.Common;
 
 namespace RoomSchedulerAPI.Features.Repositories;
 
@@ -13,7 +15,7 @@ public class UserRepository(IDbConnectionFactory mySqlConnectionFactory, ILogger
 
     public async Task<IEnumerable<User>> GetAllAsync(int page, int pageSize)
     {
-        _logger.LogInformation("Retrieving all users from db");
+        _logger.LogInformation("Retrieving all users from DB");
 
         using IDbConnection dbConnection = _mySqlConnectionFactory.CreateConnection();
 
@@ -30,30 +32,59 @@ public class UserRepository(IDbConnectionFactory mySqlConnectionFactory, ILogger
 
     public async Task<User?> GetByIdAsync(UserId id)
     {
-        _logger.LogInformation("Retrieving user from db");
+        _logger.LogInformation("Retrieving user with ID {userId} from DB", id);
 
         using IDbConnection dbConnection = _mySqlConnectionFactory.CreateConnection();
 
         string sql = "SELECT * FROM Users where Id = @id";
         return await dbConnection.QueryFirstOrDefaultAsync<User>(sql, new { id = id.Value });
-    }
+    }  
 
-    public Task<User?> GetByEmailAsync(string email)
+    public async Task<User?> UpdateAsync(UserId id, User user)
     {
-        throw new NotImplementedException();
-    }
+        _logger.LogInformation("Updating user with ID {userId} in DB", id);
 
-    public Task<User?> UpdateAsync(UserId id, User user)
-    {
-        throw new NotImplementedException();
+        using IDbConnection dbConnection = _mySqlConnectionFactory.CreateConnection();
+
+        string sql = @"UPDATE Users
+                    SET
+                        FirstName = @FirstName,
+                        LastName = @LastName,
+                        PhoneNumber = @PhoneNumber,
+                        Email = @Email
+                    WHERE
+                        Id = @Id";
+
+        var parameters = new
+        {           
+            user.FirstName,
+            user.LastName,
+            user.PhoneNumber,
+            user.Email,
+            Id = id.Value
+        };
+
+        int rowsAffected = await dbConnection.ExecuteAsync(sql, parameters);
+
+        if (rowsAffected > 0) 
+        {
+            string selectSql = "SELECT * FROM Users WHERE Id = @Id";
+            return await dbConnection.QueryFirstOrDefaultAsync<User>(selectSql, new { Id = id.Value });
+        }
+        return null;
     }
 
     public Task<User?> DeleteAsync(UserId id)
     {
         throw new NotImplementedException();
     }
-
+    
     public Task<User?> RegisterUserAsync(User user)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<User?> GetByEmailAsync(string email)
     {
         throw new NotImplementedException();
     }

@@ -1,7 +1,9 @@
 ﻿
+using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using RoomSchedulerAPI.Features.Models.DTOs;
 using RoomSchedulerAPI.Features.Services.Interfaces;
+using System.ComponentModel.DataAnnotations;
 
 namespace RoomSchedulerAPI.Features.Endpoints;
 
@@ -15,23 +17,34 @@ public static class UserEndpoints
 
             var users = await userService.GetAllAsync(page, pageSize); 
             return users.Any() ? Results.Ok(users) : Results.NotFound("Could not find any users");
-        });
+        })
+        .WithName("GetAllUsers"); ;
 
         app.MapGet("/api/v1/users/{id}", async ([FromRoute] Guid id, IUserService userService, ILogger < Program > logger) =>
         {
-            logger.LogInformation("Retrieving user with ID {user}", id);
+            logger.LogInformation("Retrieving user with ID {userId}", id);
 
             var user = await userService.GetByIdAsync(id);
             return user != null ? Results.Ok(user) : Results.NotFound("User was not found");
-        });
+        })
+        .WithName("GetUserById"); ;
 
-        app.MapPut("/api/v1/users/{id}", async ([FromRoute] Guid id, [FromBody] UserUpdateDTO dto, IUserService userService, ILogger<Program> logger) =>
+        app.MapPut("/api/v1/users/{id}", async ([FromRoute] Guid id, [FromBody] UserUpdateDTO dto, IUserService userService, IValidator <UserUpdateDTO> validator, ILogger <Program> logger) =>
         {
             logger.LogInformation("Updating user with ID {userId}", id);
 
+            var validationResult = await validator.ValidateAsync(dto);
+
+            if (!validationResult.IsValid)
+            {
+                var errors = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
+                return Results.BadRequest(errors); // Send back validation errors
+            }
+
             var user = await userService.UpdateAsync(id, dto);
             return user != null ? Results.Ok(user) : Results.Problem("User could not be updated");
-        });
+        })
+        .WithName("UpdateUser"); ;
 
         //app.MapGet("/api/v1/users", async (IUserService userService) =>
         //{

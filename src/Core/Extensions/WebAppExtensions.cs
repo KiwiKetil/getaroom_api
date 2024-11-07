@@ -1,4 +1,6 @@
 ﻿
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using RoomSchedulerAPI.Core.DB.DBConnection;
 using RoomSchedulerAPI.Core.DB.DBConnection.Interface;
 using RoomSchedulerAPI.Core.Middleware;
@@ -7,6 +9,8 @@ using RoomSchedulerAPI.Features.Repositories;
 using RoomSchedulerAPI.Features.Repositories.Interfaces;
 using RoomSchedulerAPI.Features.Services;
 using RoomSchedulerAPI.Features.Services.Interfaces;
+using RoomSchedulerAPI.Features.Validators.UserValidators;
+
 
 namespace RoomSchedulerAPI.Core.Extensions;
 
@@ -30,6 +34,10 @@ public static class WebAppExtensions
         .Replace("{ROOM_DB_PASSWORD}", Environment.GetEnvironmentVariable("ROOM_DB_PASSWORD"));
 
         services.AddScoped<IDbConnectionFactory>(_ => new MySqlConnectionFactory(connectionString!));
+
+        // Fluent Validation
+        services.AddValidatorsFromAssemblyContaining<UserUpdateDTOValidator>();
+        services.AddFluentValidationAutoValidation(config => config.DisableDataAnnotationsValidation = true);
 
         // ExceptionHandling
         services.AddScoped<GlobalExceptionMiddleware>();
