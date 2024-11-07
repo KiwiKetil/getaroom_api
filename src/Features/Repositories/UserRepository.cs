@@ -5,6 +5,7 @@ using RoomSchedulerAPI.Features.Models.Entities;
 using RoomSchedulerAPI.Features.Repositories.Interfaces;
 using System.Data;
 using System.Data.Common;
+using System.Transactions;
 
 namespace RoomSchedulerAPI.Features.Repositories;
 
@@ -46,6 +47,8 @@ public class UserRepository(IDbConnectionFactory mySqlConnectionFactory, ILogger
 
         using IDbConnection dbConnection = _mySqlConnectionFactory.CreateConnection();
 
+        using var transaction = dbConnection.BeginTransaction();
+
         string sql = @"UPDATE Users
                     SET
                         FirstName = @FirstName,
@@ -66,12 +69,24 @@ public class UserRepository(IDbConnectionFactory mySqlConnectionFactory, ILogger
 
         int rowsAffected = await dbConnection.ExecuteAsync(sql, parameters);
 
-        if (rowsAffected > 0) 
+        if (rowsAffected == 0)
         {
-            string selectSql = "SELECT * FROM Users WHERE Id = @Id";
-            return await dbConnection.QueryFirstOrDefaultAsync<User>(selectSql, new { Id = id.Value });
+            _logger.LogInformation("No user found with ID {userId} to update.", id);
+            transaction.Rollback(); 
+            return null;  
         }
-        return null;
+
+        if (rowsAffected > 1)
+        {
+            transaction.Rollback();
+            _logger.LogWarning("Update attempted for user with ID {userId} resulted in multiple rows affected. Transaction rolled back to maintain data integrity.", id);
+            throw new InvalidOperationException("Update failed: multiple rows matched the specified ID, and the operation was rolled back.");
+        }
+
+        transaction.Commit();
+
+        string selectSql = "SELECT * FROM Users WHERE Id = @Id";
+        return await dbConnection.QueryFirstOrDefaultAsync<User>(selectSql, new { Id = id.Value });
     }
 
     public Task<User?> DeleteAsync(UserId id)

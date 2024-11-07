@@ -36,7 +36,7 @@ public static class WebAppExtensions
         services.AddScoped<IDbConnectionFactory>(_ => new MySqlConnectionFactory(connectionString!));
 
         // Fluent Validation
-        services.AddValidatorsFromAssemblyContaining<UserUpdateDTOValidator>();
+        services.AddValidatorsFromAssemblyContaining<UserService>();
         services.AddFluentValidationAutoValidation(config => config.DisableDataAnnotationsValidation = true);
 
         // ExceptionHandling
