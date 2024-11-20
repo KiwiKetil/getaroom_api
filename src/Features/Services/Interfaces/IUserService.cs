@@ -5,9 +5,9 @@ namespace RoomSchedulerAPI.Features.Services.Interfaces;
 
 public interface IUserService
 {
-    Task<IEnumerable<UserDTO>> GetAllAsync(int page, int pageSize);
-    Task<UserDTO?> GetByIdAsync(Guid id);
-    Task<UserDTO?> UpdateAsync(Guid id, UserUpdateDTO dto);
-    Task<UserDTO?> DeleteAsync(Guid id);
+    Task<IEnumerable<UserDTO>> GetAllUsersAsync(int page, int pageSize);
+    Task<UserDTO?> GetUserByIdAsync(Guid id);
+    Task<UserDTO?> UpdateUserAsync(Guid id, UserUpdateDTO dto);
+    Task<UserDTO?> DeleteUserAsync(Guid id);
     Task<UserDTO?> RegisterUserAsync(UserRegistrationDTO dto);
 }

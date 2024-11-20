@@ -14,19 +14,21 @@ public static class UserEndpoints
         {
             logger.LogInformation("Retrieving all users");
 
-            var users = await userService.GetAllAsync(page, pageSize); 
-            return users.Any() ? Results.Ok(users) : Results.NotFound("Could not find any users");
+            var users = await userService.GetAllUsersAsync(page, pageSize); 
+            return users.Any() ? Results.Ok(users) : Results.NotFound("No users found");
         })
         .WithName("GetAllUsers"); ;
+
 
         app.MapGet("/api/v1/users/{id}", async ([FromRoute] Guid id, IUserService userService, ILogger < Program > logger) =>
         {
             logger.LogInformation("Retrieving user with ID {userId}", id);
 
-            var user = await userService.GetByIdAsync(id);
+            var user = await userService.GetUserByIdAsync(id);
             return user != null ? Results.Ok(user) : Results.NotFound("User was not found");
         })
         .WithName("GetUserById"); ;
+
 
         app.MapPut("/api/v1/users/{id}", async ([FromRoute] Guid id, [FromBody] UserUpdateDTO dto, IUserService userService, IValidator <UserUpdateDTO> validator, ILogger <Program> logger) =>
         {
@@ -40,17 +42,26 @@ public static class UserEndpoints
                 return Results.BadRequest(errors);
             }
 
-            var user = await userService.UpdateAsync(id, dto);
-            return user != null ? Results.Ok(user) : Results.Problem("User could not be updated");
+            var user = await userService.UpdateUserAsync(id, dto);
+            return user != null ? Results.Ok(user) : Results.Problem(
+                title: "An issue occured",
+                statusCode: 409,
+                detail: "User could not be updated"
+                );
         })
         .WithName("UpdateUser"); ;
+
 
         app.MapDelete("/api/v1/users/{id}", async ([FromRoute] Guid id, IUserService userService, ILogger<Program> logger) =>
         {
             logger.LogInformation("Deleting user with ID {userId}", id);
 
-            var user = await userService.DeleteAsync(id);
-            return user != null ? Results.Ok(user) : Results.Problem("User could not be deleted");
+            var user = await userService.DeleteUserAsync(id);
+            return user != null ? Results.Ok(user) : Results.Problem(
+                title: "An issue occured",
+                statusCode: 409,
+                detail: "User could not be deleted"
+                );
         })
         .WithName("DeleteUser");
 

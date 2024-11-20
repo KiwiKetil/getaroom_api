@@ -11,44 +11,50 @@ public class UserRepository(IDbConnectionFactory mySqlConnectionFactory, ILogger
     private readonly IDbConnectionFactory _mySqlConnectionFactory = mySqlConnectionFactory;
     private readonly ILogger<UserRepository> _logger = logger;
 
-    public async Task<IEnumerable<User>> GetAllAsync(int page, int pageSize)
+    public async Task<IEnumerable<User>> GetAllUsersAsync(int page, int pageSize)
     {
         _logger.LogInformation("Retrieving all users from DB");
 
-        using var dbConnection = await _mySqlConnectionFactory.CreateConnectionAsync(); ;
+        using var dbConnection = await _mySqlConnectionFactory.CreateConnectionAsync(); 
 
         var skipNumber = (page - 1) * pageSize;
 
-        string sql = @"SELECT Id, FirstName, LastName, PhoneNumber, Email
+        string getUsersSql = @"SELECT Id, FirstName, LastName, PhoneNumber, Email
                 FROM Users 
                 ORDER BY LastName
                 LIMIT @pageSize OFFSET @skipNumber"; 
-        var users = await dbConnection.QueryAsync<User>(sql, new { pageSize, skipNumber });
+        var users = await dbConnection.QueryAsync<User>(getUsersSql, new { pageSize, skipNumber });
 
         return users;
     }
 
-    public async Task<User?> GetByIdAsync(UserId id)
+    public async Task<User?> GetUserByIdAsync(UserId id)
     {
         _logger.LogInformation("Retrieving user with ID {userId} from DB", id);
 
-        using var dbConnection = await _mySqlConnectionFactory.CreateConnectionAsync(); ;
+        using var dbConnection = await _mySqlConnectionFactory.CreateConnectionAsync(); 
 
-        string sql = @"SELECT * FROM Users where Id = @id";
-        return await dbConnection.QueryFirstOrDefaultAsync<User>(sql, new { id = id.Value });
+        string getUserSql = @"SELECT Id, FirstName, LastName, PhoneNumber, Email FROM Users where Id = @id";
+        return await dbConnection.QueryFirstOrDefaultAsync<User>(getUserSql, new { id = id.Value });
     }
 
-    public async Task<User?> UpdateAsync(UserId id, User user)
+    public async Task<User?> UpdateUserAsync(UserId id, User user)
     {
         _logger.LogInformation("Updating user with ID {userId} in DB", id);
 
-        using var dbConnection = await _mySqlConnectionFactory.CreateConnectionAsync(); ;
+        using var dbConnection = await _mySqlConnectionFactory.CreateConnectionAsync();
+        using var transaction = dbConnection.BeginTransaction();
 
-        using var transaction = dbConnection.BeginTransaction(); // Start the transaction
+        string getUserSql = @"SELECT Id, FirstName, LastName, PhoneNumber, Email FROM Users WHERE Id = @Id";
+        var foundUser = await dbConnection.QueryFirstOrDefaultAsync<User>(getUserSql, new { Id = id.Value }, transaction);
 
-        try
+        if (foundUser == null)
         {
-            string sql = @"UPDATE Users
+            _logger.LogWarning("Update failed for user with ID {userId}. User was not found.", id);
+            return null;
+        }
+
+        string updateUserSql = @"UPDATE Users
                        SET
                            FirstName = @FirstName,
                            LastName = @LastName,
@@ -57,83 +63,67 @@ public class UserRepository(IDbConnectionFactory mySqlConnectionFactory, ILogger
                        WHERE
                            Id = @Id";
 
-            var parameters = new
-            {
-                user.FirstName,
-                user.LastName,
-                user.PhoneNumber,
-                user.Email,
-                Id = id.Value
-            };
-
-            int rowsAffected = await dbConnection.ExecuteAsync(sql, parameters, transaction); // Use the transaction
-
-            if (rowsAffected == 0)
-            {
-                _logger.LogInformation("No user found with ID {userId} to update.", id);
-                transaction.Rollback(); // Rollback if no user was found
-                return null;
-            }
-
-            if (rowsAffected > 1)
-            {
-                transaction.Rollback(); // Rollback if more than one row affected
-                _logger.LogWarning("Update attempted for user with ID {userId} resulted in multiple rows affected. Transaction rolled back to maintain data integrity.", id);
-                throw new InvalidOperationException("Update failed: multiple rows matched the specified ID, and the operation was rolled back.");
-            }
-
-            transaction.Commit(); // Commit the transaction if all is good
-
-            string selectSql = @"SELECT * FROM Users WHERE Id = @Id";
-            return await dbConnection.QueryFirstOrDefaultAsync<User>(selectSql, new { Id = id.Value });
-        }
-        catch (Exception ex)
+        var parameters = new
         {
-            transaction.Rollback(); // Rollback on any error
-            _logger.LogError(ex, "Error updating user with ID {userId}", id);
-            throw; // Rethrow the exception after logging
-        }
-    }
+            user.FirstName,
+            user.LastName,
+            user.PhoneNumber,
+            user.Email,
+            Id = id.Value
+        };
 
-    public async Task<User?> DeleteAsync(UserId id)
-    {
-        _logger.LogInformation("Deleting user with ID {userId} in DB", id);
-
-        using var dbConnection = await _mySqlConnectionFactory.CreateConnectionAsync(); ;
-
-        string findUserToDelete = @"SELECT * FROM Users WHERE Id = @Id";
-        var deletedUser = await dbConnection.QueryFirstOrDefaultAsync<User>(findUserToDelete, new { Id = id.Value });
-
-        //using var transaction = dbConnection.BeginTransaction();
-
-        var sql = "DELETE FROM Users WHERE Id = @Id";
-        int rowsAffected = await dbConnection.ExecuteAsync(sql, new { Id = id.Value });
-
-        if (rowsAffected == 0)
-        {
-            _logger.LogInformation("No user found with ID {userId} to delete.", id);
-            return null;
-        }
+        int rowsAffected = await dbConnection.ExecuteAsync(updateUserSql, parameters, transaction); 
 
         if (rowsAffected > 1)
         {
-            //transaction.Rollback();
-            _logger.LogWarning("Delete attempted for user with ID {userId} resulted in multiple rows affected. Transaction rolled back to maintain data integrity.", id);
-            throw new InvalidOperationException("Delete failed: multiple rows matched the specified ID, and the operation was rolled back.");
+            transaction.Rollback(); 
+            _logger.LogError("ERROR: Update attempted for user with ID {userId} resulted in multiple rows affected. Transaction rolled back to maintain data integrity.", id);
+            return null;
         }
 
-        //transaction.Commit();
+        transaction.Commit();
+        _logger.LogInformation("User with ID {userId} successfully updated.", id);
+        return await dbConnection.QueryFirstOrDefaultAsync<User>(getUserSql, new { Id = id.Value });           
+    }
 
-        return deletedUser;
+    public async Task<User?> DeleteUserAsync(UserId id)
+    {
+        _logger.LogInformation("Deleting user with ID {userId} in DB", id);
+
+        using var dbConnection = await _mySqlConnectionFactory.CreateConnectionAsync();
+        using var transaction = dbConnection.BeginTransaction();
+
+        string getUserSql = @"SELECT Id, FirstName, LastName, PhoneNumber, Email FROM Users WHERE Id = @Id";
+        var user = await dbConnection.QueryFirstOrDefaultAsync<User>(getUserSql, new { Id = id.Value }, transaction);
+
+        if (user == null) 
+        {
+            _logger.LogWarning("Delete failed for user with ID {userId}. User was not found.", id);
+            return null;
+        }
+
+        var deleteUserSql = "DELETE FROM Users WHERE Id = @Id";
+        int rowsAffected = await dbConnection.ExecuteAsync(deleteUserSql, new { Id = id.Value }, transaction);
+
+        if (rowsAffected > 1)
+        {
+            transaction.Rollback();
+            _logger.LogError("ERROR: Delete attempted for user with ID {userId} resulted in {rowsAffected} rows affected. Transaction rolled back to maintain data integrity.", id, rowsAffected);
+            return null;       
+        }
+
+        transaction.Commit();
+        _logger.LogInformation("User with ID {userId} successfully deleted.", id);
+        return user;
+    }
+
+    public Task<User?> GetUserByEmailAsync(string email)
+    {
+        throw new NotImplementedException();
     }
 
     public Task<User?> RegisterUserAsync(User user)
     {
         throw new NotImplementedException();
-    }
-
-    public Task<User?> GetByEmailAsync(string email)
-    {
-        throw new NotImplementedException();
-    }
+    } 
 }
