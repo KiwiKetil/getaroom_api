@@ -32,8 +32,6 @@ public static class WebAppExtensions
             throw new InvalidOperationException("Connection string is not configured.");
         }
 
-        //connectionString = connectionString?
-
         services.AddScoped<IDbConnectionFactory>(_ => new MySqlConnectionFactory(connectionString!));
 
         // Fluent Validation
