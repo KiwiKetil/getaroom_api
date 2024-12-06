@@ -13,6 +13,8 @@ public class UserRepository(IDbConnectionFactory mySqlConnectionFactory, ILogger
 
     public async Task<IEnumerable<User>> GetAllUsersAsync(int page, int pageSize)
     {
+        _logger.LogDebug("Retrieving all users from DB");
+
         using var dbConnection = await _mySqlConnectionFactory.CreateConnectionAsync(); 
 
         var skipNumber = (page - 1) * pageSize;
@@ -28,6 +30,8 @@ public class UserRepository(IDbConnectionFactory mySqlConnectionFactory, ILogger
 
     public async Task<User?> GetUserByIdAsync(UserId id)
     {
+        _logger.LogDebug("Retrieving user with ID {userId} from DB", id);
+
         using var dbConnection = await _mySqlConnectionFactory.CreateConnectionAsync(); 
 
         string getUserSql = @"SELECT Id, FirstName, LastName, PhoneNumber, Email FROM Users where Id = @id";
@@ -36,6 +40,8 @@ public class UserRepository(IDbConnectionFactory mySqlConnectionFactory, ILogger
 
     public async Task<User?> UpdateUserAsync(UserId id, User user)
     {
+        _logger.LogDebug("Updating user with ID {userId} in DB", id);
+
         using var dbConnection = await _mySqlConnectionFactory.CreateConnectionAsync();
         using var transaction = dbConnection.BeginTransaction();
 
@@ -82,6 +88,8 @@ public class UserRepository(IDbConnectionFactory mySqlConnectionFactory, ILogger
 
     public async Task<User?> DeleteUserAsync(UserId id)
     {
+        _logger.LogInformation("Deleting user with ID {userId} in DB", id);
+
         using var dbConnection = await _mySqlConnectionFactory.CreateConnectionAsync();
         using var transaction = dbConnection.BeginTransaction();
 
