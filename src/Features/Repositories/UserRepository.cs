@@ -13,8 +13,6 @@ public class UserRepository(IDbConnectionFactory mySqlConnectionFactory, ILogger
 
     public async Task<IEnumerable<User>> GetAllUsersAsync(int page, int pageSize)
     {
-        _logger.LogInformation("Retrieving all users from DB");
-
         using var dbConnection = await _mySqlConnectionFactory.CreateConnectionAsync(); 
 
         var skipNumber = (page - 1) * pageSize;
@@ -30,8 +28,6 @@ public class UserRepository(IDbConnectionFactory mySqlConnectionFactory, ILogger
 
     public async Task<User?> GetUserByIdAsync(UserId id)
     {
-        _logger.LogInformation("Retrieving user with ID {userId} from DB", id);
-
         using var dbConnection = await _mySqlConnectionFactory.CreateConnectionAsync(); 
 
         string getUserSql = @"SELECT Id, FirstName, LastName, PhoneNumber, Email FROM Users where Id = @id";
@@ -40,8 +36,6 @@ public class UserRepository(IDbConnectionFactory mySqlConnectionFactory, ILogger
 
     public async Task<User?> UpdateUserAsync(UserId id, User user)
     {
-        _logger.LogInformation("Updating user with ID {userId} in DB", id);
-
         using var dbConnection = await _mySqlConnectionFactory.CreateConnectionAsync();
         using var transaction = dbConnection.BeginTransaction();
 
@@ -77,7 +71,7 @@ public class UserRepository(IDbConnectionFactory mySqlConnectionFactory, ILogger
         if (rowsAffected > 1)
         {
             transaction.Rollback(); 
-            _logger.LogError("ERROR: Update attempted for user with ID {userId} resulted in multiple rows affected. Transaction rolled back to maintain data integrity.", id);
+            _logger.LogError("Update attempted for user with ID {userId} resulted in multiple rows affected. Transaction rolled back to maintain data integrity.", id);
             return null;
         }
 
@@ -88,8 +82,6 @@ public class UserRepository(IDbConnectionFactory mySqlConnectionFactory, ILogger
 
     public async Task<User?> DeleteUserAsync(UserId id)
     {
-        _logger.LogInformation("Deleting user with ID {userId} in DB", id);
-
         using var dbConnection = await _mySqlConnectionFactory.CreateConnectionAsync();
         using var transaction = dbConnection.BeginTransaction();
 

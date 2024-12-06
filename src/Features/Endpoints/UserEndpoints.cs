@@ -12,8 +12,6 @@ public static class UserEndpoints
     {
         app.MapGet("/api/v1/users", async (IUserService userService, ILogger<Program> logger, int page = 1, int pageSize = 10) =>
         {
-            logger.LogInformation("Retrieving all users");
-
             var users = await userService.GetAllUsersAsync(page, pageSize); 
             return users.Any() ? Results.Ok(users) : Results.NotFound("No users found");
         })
@@ -22,18 +20,15 @@ public static class UserEndpoints
 
         app.MapGet("/api/v1/users/{id}", async ([FromRoute] Guid id, IUserService userService, ILogger < Program > logger) =>
         {
-            logger.LogInformation("Retrieving user with ID {userId}", id);
-
             var user = await userService.GetUserByIdAsync(id);
             return user != null ? Results.Ok(user) : Results.NotFound("User was not found");
         })
         .WithName("GetUserById"); ;
 
 
-        app.MapPut("/api/v1/users/{id}", async ([FromRoute] Guid id, [FromBody] UserUpdateDTO dto, IUserService userService, IValidator <UserUpdateDTO> validator, ILogger <Program> logger) =>
+        app.MapPut("/api/v1/users/{id}", async ([FromRoute] Guid id, [FromBody] UserUpdateDTO dto, IUserService userService, 
+                                                IValidator <UserUpdateDTO> validator, ILogger <Program> logger) =>
         {
-            logger.LogInformation("Updating user with ID {userId}", id);
-
             var validationResult = await validator.ValidateAsync(dto);
 
             if (!validationResult.IsValid)
@@ -54,8 +49,6 @@ public static class UserEndpoints
 
         app.MapDelete("/api/v1/users/{id}", async ([FromRoute] Guid id, IUserService userService, ILogger<Program> logger) =>
         {
-            logger.LogInformation("Deleting user with ID {userId}", id);
-
             var user = await userService.DeleteUserAsync(id);
             return user != null ? Results.Ok(user) : Results.Problem(
                 title: "An issue occured",
@@ -65,6 +58,7 @@ public static class UserEndpoints
         })
         .WithName("DeleteUser");
 
+        //register(?)
         //app.MapGet("/api/v1/users", async (IUserService userService) =>
         //{
         //    var users = await userService.GetAllAsync();
