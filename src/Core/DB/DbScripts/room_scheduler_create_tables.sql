@@ -42,19 +42,18 @@ FOREIGN KEY (RoomId) REFERENCES Rooms(Id)
 
 CREATE TABLE IF NOT EXISTS Roles
 (
-Id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-RoleName VARCHAR(12) NOT NULL UNIQUE
+RoleName VARCHAR(20) NOT NULL UNIQUE PRIMARY KEY
 );
 
 CREATE TABLE IF NOT EXISTS UserRoles
 (
+RoleName CHAR(20) NOT NULL,
 UserId CHAR(36) NOT NULL,
-RoleId INT UNSIGNED NOT NULL,
 Created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 Updated TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-PRIMARY KEY (UserId, RoleId),
+PRIMARY KEY (UserId, RoleName),
 FOREIGN KEY (UserId) REFERENCES Users(Id)  ON DELETE CASCADE,
-FOREIGN KEY (RoleId) REFERENCES Roles(Id)  ON DELETE CASCADE
+FOREIGN KEY (RoleName) REFERENCES Roles(RoleName)  ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS DeletedUsers (
@@ -64,7 +63,7 @@ CREATE TABLE IF NOT EXISTS DeletedUsers (
     PhoneNumber VARCHAR(15),
     Email VARCHAR(50),
     DeletedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    DeletedBy VARCHAR(25) DEFAULT 'Admin',
+    DeletedBy VARCHAR(25) DEFAULT 'SQLAdmin',
     UserRoles JSON NOT NULL, -- Store the roles as JSON
     PRIMARY KEY (UserId)
 );
@@ -77,7 +76,7 @@ DELIMITER $$
 
 CREATE PROCEDURE GetUserRolesAsJSON(IN p_userId CHAR(36), OUT roles JSON)
 BEGIN
-    SELECT IFNULL(JSON_ARRAYAGG(JSON_OBJECT('RoleId', RoleId)), '[]')
+    SELECT IFNULL(JSON_ARRAYAGG(JSON_OBJECT('RoleName', RoleName)), '[]')
     INTO roles
     FROM UserRoles
     WHERE UserId = p_userId; -- was behind scenes: WHERE UserRoles.UserId = UserRoles.UserId; when UserID = userID bec takes presedence. 
@@ -116,7 +115,7 @@ BEGIN
         OLD.Email,
         CURRENT_TIMESTAMP,
         CASE 
-            WHEN SESSION_USER() LIKE 'room_scheduler-app@%' THEN 'User'
+            WHEN SESSION_USER() LIKE 'room_scheduler-app@%' THEN 'API'
             ELSE 'Admin'
         END,
         roles -- Use the aggregated JSON value

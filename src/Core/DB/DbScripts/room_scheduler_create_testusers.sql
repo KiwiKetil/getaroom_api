@@ -18,8 +18,22 @@ VALUES
 ('d47ac10b-58cc-4372-a567-0e02b2c3d484', 'Lisa', 'White', '63456789', 'lisa.white@example.com', 'hashedpassword000', 'salt000'),
 ('e47ac10b-58cc-4372-a567-0e02b2c3d485', 'Kevin', 'Harris', '76545670', 'kevin.harris@example.com', 'hashedpassword1234', 'salt1234');
 
-INSERT INTO UserRoles (UserId, RoleId)
+INSERT INTO UserRoles (UserId, RoleName)
 VALUES 
-    ('69d8924d-f13d-44a5-b52f-6170c5cf702d', 1),
-    ('69d8924d-f13d-44a5-b52f-6170c5cf702d', 2),
-    ('6d7b1ca5-54f6-4859-a746-fc712d564128', 2);
+    ('f47ac10b-58cc-4372-a567-0e02b2c3d471', "User"),
+    ('f47ac10b-58cc-4372-a567-0e02b2c3d471', "Admin"),
+    ('d75a97de-58cc-4c56-bd74-95f12dbaf2da', "User"),     
+    ('b47ac10b-58cc-4372-a567-0e02b2c3d473', "User"),  
+    ('c47ac10b-58cc-4372-a567-0e02b2c3d474', "User"),  
+    ('8b20ac67-80ff-4ac4-a5f4-564c0a254e30', "User"),  
+    ('6d7b1ca5-54f6-4859-a746-fc712d564128', "User"),  
+    ('f7d235c9-8e5f-4db1-a64a-bae96f3e2e1e', "User"),  
+    ('0eada259-0a95-4c55-9e87-888c1c45c601', "User"),  
+    ('69d8924d-f13d-44a5-b52f-6170c5cf702d', "User"),  
+    ('e84ab3e6-5e7b-4c03-a8c0-155123f9f2e7', "User"),  
+    ('a47ac10b-58cc-4372-a567-0e02b2c3d481', "User"),  
+    ('b47ac10b-58cc-4372-a567-0e02b2c3d482', "User"),  
+    ('c47ac10b-58cc-4372-a567-0e02b2c3d483', "User"),  
+    ('d47ac10b-58cc-4372-a567-0e02b2c3d484', "User"),  
+    ('e47ac10b-58cc-4372-a567-0e02b2c3d485', "User");  
+    
