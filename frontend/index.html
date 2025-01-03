@@ -3,11 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <title>Room Reservation</title>
+    
     <style>
+        html, body {  /* was needed to have image fill screen*/
+            height: 100%;
+            margin: 0; /* Remove default margin */
+        }
+
         body {
             font-family: Arial, sans-serif;
             margin: 20px;
-        }
+            background-image: url('./insertImageHere.jpg');
+            background-repeat: no-repeat;           /* Prevents image repetition */
+            background-size: cover;                /* Scales the image to cover the entire screen */
+            background-position: center;           /* Centers the image */
+            }
 
         table {
             width: 100%;
@@ -49,6 +59,8 @@
         .container {
             margin-bottom: 40px;
         }
+
+        
     </style>
 </head>
 <body>
@@ -57,14 +69,14 @@
     <!-- Section for Getting All Users -->
     <div class="container">
         <h2>All Users</h2>
-        <button onclick="loadUsers(true)">Load All Users</button>
+        <button onclick="loadUsers(true)">Reload All Users</button>
 
         <table id="allUsersTable">
             <thead>
                 <tr>
                     <th>ID</th>
-                    <th>Firstname</th>
                     <th>Lastname</th>
+                    <th>Firstname</th>
                     <th>Phonenumber</th> 
                     <th>Email</th>
                 </tr>
@@ -74,11 +86,15 @@
             </tbody>
         </table>
 
-        <!-- Pagination Section -->
+        <!-- Pagination and GoToPage Section-->
         <div class="pagination">
             <button id="prevPageButton" onclick="prevPage()" disabled>Previous Page</button>
             <button id="nextPageButton" onclick="nextPage()">Next Page</button>
+
+            <input type="number" id="pageInput" min="1" placeholder="Page number">
+            <button onclick="gotoPage()">Go to Page</button>
         </div>
+        
     </div>
 
     <!-- Section for Getting User by ID -->
@@ -91,8 +107,8 @@
             <thead>
                 <tr>
                     <th>ID</th>
-                    <th>Firstname</th>
                     <th>Lastname</th>
+                    <th>Firstname</th>
                     <th>Phonenumber</th> 
                     <th>Email</th>
                 </tr>
@@ -139,16 +155,16 @@
                     tbody.innerHTML = ''; // Clear existing data
 
                     if (data.length === 0) {
-                        alert('No users found.');
-                        return;
+                        alert('No users found.');       
+                        return;                 
                     }
 
                     data.forEach(user => {
                         const row = document.createElement('tr');
                         row.innerHTML = `
                             <td>${user.id.value}</td>
-                            <td>${user.firstName}</td>
                             <td>${user.lastName}</td>
+                            <td>${user.firstName}</td>
                             <td>${user.phoneNumber}</td>
                             <td>${user.email}</td>
                         `;
@@ -165,6 +181,23 @@
                     console.error('Error fetching users:', error);
                     alert('Failed to load all users. Check the console for more details.');
                 });
+        }
+
+        // Automatically load the first page of users when the page loads
+        window.onload = function() {
+            loadUsers(1); // Call the function when the page is loaded
+        }
+
+        function gotoPage() {
+            const pageInput = document.getElementById('pageInput').value;
+            const page = parseInt(pageInput);
+
+            if (isNaN(page) || page <= 0) {
+                alert('Please enter a valid page number.');
+                return;
+            }
+            currentPage = page; 
+            loadUsers(); // Load users for the specified page
         }
 
         // Function to go to the next page
@@ -210,8 +243,8 @@
                     const row = document.createElement('tr');
                     row.innerHTML = `
                         <td>${user.id.value}</td>
-                        <td>${user.firstName}</td>
                         <td>${user.lastName}</td>
+                        <td>${user.firstName}</td>
                         <td>${user.phoneNumber}</td>
                         <td>${user.email}</td>
                     `;
