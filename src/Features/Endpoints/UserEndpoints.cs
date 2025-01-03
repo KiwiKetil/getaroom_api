@@ -17,7 +17,7 @@ public static class UserEndpoints
             var users = await userService.GetAllUsersAsync(page, pageSize);
             return users.Any() ? Results.Ok(users) : Results.NotFound("No users found");
         })
-        .WithName("GetAllUsers"); ;
+        .WithName("GetAllUsers"); 
 
 
         app.MapGet("/api/v1/users/{id}", async ([FromRoute] Guid id, IUserService userService, ILogger<Program> logger) =>
@@ -27,7 +27,7 @@ public static class UserEndpoints
             var user = await userService.GetUserByIdAsync(id);
             return user != null ? Results.Ok(user) : Results.NotFound("User was not found");
         })
-        .WithName("GetUserById"); ;
+        .WithName("GetUserById"); 
 
 
         app.MapPut("/api/v1/users/{id}", async ([FromRoute] Guid id, [FromBody] UserUpdateDTO dto, IUserService userService, IValidator<UserUpdateDTO> validator, ILogger<Program> logger) =>
@@ -49,7 +49,7 @@ public static class UserEndpoints
                 detail: "User could not be updated"
                 );
         })
-        .WithName("UpdateUser"); ;
+        .WithName("UpdateUser"); 
 
 
         app.MapDelete("/api/v1/users/{id}", async ([FromRoute] Guid id, IUserService userService, ILogger<Program> logger) =>
