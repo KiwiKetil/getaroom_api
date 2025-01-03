@@ -15,6 +15,18 @@ builder.Host.UseSerilog((context, configuration) =>
     configuration.ReadFrom.Configuration(context.Configuration);
 });
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowLocalhost",
+        builder =>
+        {
+            builder
+                .WithOrigins("http://127.0.0.1:5500", "http://localhost:5500")
+                .AllowAnyHeader()
+                .AllowAnyMethod();
+        });
+});
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -25,6 +37,7 @@ if (app.Environment.IsDevelopment())
 
 SqlMapper.AddTypeHandler(new UserIdHandler());
 
+app.UseCors("AllowLocalhost");
 app.UseSerilogRequestLogging();
 app.UseHttpsRedirection();
 app.UseMiddleware<GlobalExceptionMiddleware>();

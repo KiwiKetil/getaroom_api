@@ -108,7 +108,8 @@ public class UserRepository(IDbConnectionFactory mySqlConnectionFactory, ILogger
         if (rowsAffected > 1)
         {
             transaction.Rollback();
-            _logger.LogError("ERROR: Delete attempted for user with ID {userId} resulted in {rowsAffected} rows affected. Transaction rolled back to maintain data integrity.", id, rowsAffected);
+            _logger.LogError("ERROR: Delete attempted for user with ID {userId} resulted in {rowsAffected} rows affected. Transaction rolled back to " +
+                "maintain data integrity.", id, rowsAffected);
             return null;       
         }
 
@@ -117,9 +118,15 @@ public class UserRepository(IDbConnectionFactory mySqlConnectionFactory, ILogger
         return user;
     }
 
-    public Task<User?> GetUserByEmailAsync(string email)
+    public async Task<User?> GetUserByEmailAsync(string email)
     {
-        throw new NotImplementedException();
+        _logger.LogInformation("Retrieving user with email {email} in DB", email);
+
+        using var dbConnection = await _mySqlConnectionFactory.CreateConnectionAsync();
+
+        var emailSql = @"SELECT Id, FirstName, LastName, PhoneNumber, Email FROM Users WHERE email = @email";
+
+        return await dbConnection.QueryFirstOrDefaultAsync<User>(emailSql, new { email = email });
     }
 
     public Task<User?> RegisterUserAsync(User user)

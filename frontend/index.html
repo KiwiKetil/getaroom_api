@@ -1,0 +1,228 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Room Reservation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            border: 1px solid #b7abab;
+            padding: 8px;
+            text-align: left;            
+            color: black; 
+        }
+
+        th {
+            background-color: #d3d3d3; /* Grey background */
+        }
+
+        button {
+            padding: 10px 20px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        /* Hover effect for rows */
+        tr:hover {
+            background-color: #bfe8c1;
+        }
+
+        #userIdInput {
+            width: 300px;
+            padding: 10px;
+            margin-right: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        .container {
+            margin-bottom: 40px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Users Management</h1>
+
+    <!-- Section for Getting All Users -->
+    <div class="container">
+        <h2>All Users</h2>
+        <button onclick="loadUsers(true)">Load All Users</button>
+
+        <table id="allUsersTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Firstname</th>
+                    <th>Lastname</th>
+                    <th>Phonenumber</th> 
+                    <th>Email</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- All users will be populated here -->
+            </tbody>
+        </table>
+
+        <!-- Pagination Section -->
+        <div class="pagination">
+            <button id="prevPageButton" onclick="prevPage()" disabled>Previous Page</button>
+            <button id="nextPageButton" onclick="nextPage()">Next Page</button>
+        </div>
+    </div>
+
+    <!-- Section for Getting User by ID -->
+    <div class="container">
+        <h2>Get User by ID</h2>
+        <input type="text" id="userIdInput" placeholder="Enter User ID" />
+        <button onclick="getUserById()">Get User</button>
+
+        <table id="userByIdTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Firstname</th>
+                    <th>Lastname</th>
+                    <th>Phonenumber</th> 
+                    <th>Email</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- User by ID will be populated here -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // Replace with your API's base URL
+        const apiBaseUrl = 'https://localhost:7089';
+
+        let currentPage = 1; // Track the current page globally
+        const pageSize = 10; // Number of users per page
+
+        // Function to load all users
+        function loadUsers(resetPage = false) {
+            if (resetPage) {
+                currentPage = 1; // Reset to the first page
+                document.getElementById('prevPageButton').disabled = true; // Disable Previous button
+            }
+
+            const url = `${apiBaseUrl}/api/v1/users?page=${currentPage}&pageSize=${pageSize}`;
+
+            fetch(url)
+                .then(response => {
+                    if (response.status === 404) {
+                        alert('No more users. You are on the last page.');
+                        currentPage = Math.max(1, currentPage - 1); // Ensure currentPage does not go below 1
+                        document.getElementById('nextPageButton').disabled = true; // Disable Next button
+                        return [];
+                    }
+
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok ' + response.statusText);
+                    }
+
+                    return response.json();
+                })
+                .then(data => {
+                    const tbody = document.querySelector('#allUsersTable tbody');
+                    tbody.innerHTML = ''; // Clear existing data
+
+                    if (data.length === 0) {
+                        alert('No users found.');
+                        return;
+                    }
+
+                    data.forEach(user => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${user.id.value}</td>
+                            <td>${user.firstName}</td>
+                            <td>${user.lastName}</td>
+                            <td>${user.phoneNumber}</td>
+                            <td>${user.email}</td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+
+                    // Enable/Disable Pagination Buttons
+                    document.getElementById('prevPageButton').disabled = currentPage === 1;
+                    document.getElementById('nextPageButton').disabled = data.length < pageSize;
+
+                    console.log(`Loaded page ${currentPage}`);
+                })
+                .catch(error => {
+                    console.error('Error fetching users:', error);
+                    alert('Failed to load all users. Check the console for more details.');
+                });
+        }
+
+        // Function to go to the next page
+        function nextPage() {
+            currentPage++;
+            loadUsers();
+        }
+
+        // Function to go to the previous page
+        function prevPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                loadUsers();
+            } else {
+                alert('You are already on the first page!');
+            }
+        }
+
+        // Function to get a user by ID
+        function getUserById() {
+            const userId = document.getElementById('userIdInput').value.trim();
+            if (!userId) {
+                alert('Please enter a User ID.');
+                return;
+            }
+
+            const url = `${apiBaseUrl}/api/v1/users/${userId}`;
+
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) {
+                        if (response.status === 404) {
+                            throw new Error('User not found.');
+                        }
+                        throw new Error('Network response was not ok ' + response.statusText);
+                    }
+                    return response.json();
+                })
+                .then(user => {
+                    const tbody = document.querySelector('#userByIdTable tbody');
+                    tbody.innerHTML = ''; // Clear existing data
+
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${user.id.value}</td>
+                        <td>${user.firstName}</td>
+                        <td>${user.lastName}</td>
+                        <td>${user.phoneNumber}</td>
+                        <td>${user.email}</td>
+                    `;
+                    tbody.appendChild(row);
+                })
+                .catch(error => {
+                    console.error('Error fetching user by ID:', error);
+                    alert(error.message);
+                    document.querySelector('#userByIdTable tbody').innerHTML = '';
+                });
+        }
+    </script>
+</body>
+</html>
