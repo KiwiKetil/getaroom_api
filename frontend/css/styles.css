@@ -58,8 +58,8 @@ tr:hover {
     background-color: #bfe8c1;
 }
 
-#userIdInput, #pageInput {
-    width: 300px;
+#userIdInput {
+    width: 305px;
     padding: 10px;
     margin-right: 10px;
     border: 1px solid #ccc;
@@ -67,8 +67,13 @@ tr:hover {
     font-size: 16px;
 }
 
-.container {
-    margin-bottom: 40px;
+#pageInput {
+    width: 200px;
+    padding: 10px;
+    margin-right: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
 }
 
 .pagination {
