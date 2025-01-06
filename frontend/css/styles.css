@@ -1,0 +1,81 @@
+html, body {  /* was needed to have image fill screen*/
+    height: 100%;
+    margin: 0; /* Remove default margin */
+}
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    background-image: url('./insertImageHere.jpg');
+    background-repeat: no-repeat; /* Prevents image repetition */
+    background-size: cover; /* Scales the image to cover the entire screen */
+    background-position: center; /* Centers the image */
+}
+
+#logo {
+    position: absolute; /* Allows positioning relative to the screen */
+    top: 10px; /* Adjust distance from the top */
+    right: 10px; /* Adjust distance from the right */
+    width: 150px; /* Adjust logo width */
+    height: auto; /* Maintain aspect ratio */
+}   
+
+#allUsersTable {
+    visibility: hidden;
+}
+
+table {   
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    table-layout: fixed;
+}
+
+tr {
+    height: 40px; /* Set a consistent height for all rows */
+}
+
+th, td {
+    border: 1px solid #b7abab;
+    padding: 8px;
+    text-align: left;            
+    color: black; 
+}
+
+th {
+    background-color: #d3d3d3; /* Grey background */
+}
+
+button, input {
+    visibility: hidden;
+    padding: 10px 20px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+/* Hover effect for rows */
+tr:hover {
+    background-color: #bfe8c1;
+}
+
+#userIdInput, #pageInput {
+    width: 300px;
+    padding: 10px;
+    margin-right: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+.container {
+    margin-bottom: 40px;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center; /* Center-align the buttons and input */
+    align-items: center; /* Vertically align items */
+    gap: 10px; /* Add space between buttons and input */
+    margin-top: 20px; /* Add spacing above the section */
+}
+        
