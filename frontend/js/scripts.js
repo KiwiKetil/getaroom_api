@@ -19,7 +19,7 @@
             fetch(url)
                 .then(response => {
                     if (response.status === 404) {
-                        alert('No more users. You are on the last page.');
+                        alert('No users found');
                         currentPage = Math.max(1, currentPage - 1); // Ensure currentPage does not go below 1
                         document.getElementById('nextPageButton').disabled = true; // Disable Next button
                         return [];
@@ -96,12 +96,13 @@
             }
             currentPage = page; 
             loadUsers(); // Load users for the specified page
+            document.getElementById('pageInput').value = '';
         }
 
         // Function to go to the next page
         function nextPage() {
             currentPage++;
-            loadUsers();
+            loadUsers();            
         }
 
         // Function to go to the previous page

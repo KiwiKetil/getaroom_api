@@ -25,9 +25,12 @@ body {
 }
 
 table {
+    max-width: 1800px; /* Limit the table width */
+    margin: 0 auto;    /* Center the table horizontally */
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
+    background: rgba(230, 226, 226, 0.8);
     table-layout: auto;      /* Allows the table columns to adjust based on content */
 }
 
