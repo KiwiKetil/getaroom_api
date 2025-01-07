@@ -52,28 +52,25 @@
                         tbody.appendChild(row);
                     });
 
-                    // Make the table and buttons visible after loading data
-                     document.getElementById('allUsersTable').style.visibility = 'visible';
-
-                     const buttons = document.querySelectorAll('button');
+                    // Make the table and buttons visible after loading data                    
+                    const buttons = document.querySelectorAll('button');
                     buttons.forEach(button => {
                     button.style.visibility = 'visible';
-                    });
-            
-                    document.getElementById('allUsersTable').style.visibility = 'visible';
-
+                    });            
+ 
                     const input = document.querySelectorAll('input');
                     input.forEach(input => {
                      input.style.visibility = 'visible';
                     });
-                    // Make the current page display visible
-                    document.getElementById('currentPageContainer').style.visibility = 'visible';
+                    
                     document.getElementById('allUsersTable').style.visibility = 'visible';
+
                     // Enable/Disable Pagination Buttons
                     document.getElementById('prevPageButton').disabled = currentPage === 1;
-                    document.getElementById('nextPageButton').disabled = data.length < pageSize;
-                    
+                    document.getElementById('nextPageButton').disabled = data.length < pageSize;                    
                     document.getElementById('goToPageButton').disabled = false;
+
+                    document.getElementById('currentPageContainer').style.visibility = 'visible';
                     document.getElementById('currentPageDisplay').textContent = currentPage;
 
                     console.log(`Loaded page ${currentPage}`);

@@ -24,11 +24,11 @@ body {
     visibility: hidden;
 }
 
-table {   
+table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
-    table-layout: fixed;
+    table-layout: auto;      /* Allows the table columns to adjust based on content */
 }
 
 tr {
@@ -46,11 +46,11 @@ th {
     background-color: #d3d3d3; /* Grey background */
 }
 
-button, input {
-    visibility: hidden;
-    padding: 10px 20px;
-    cursor: pointer;
-    margin-top: 10px;
+th:nth-child(1), td:nth-child(1) {
+    max-width: 150px;         /* Set max width for ID column */
+    overflow: hidden;         /* Hide overflowing text */
+    text-overflow: ellipsis;  /* Add ellipsis if the text overflows */
+    white-space: nowrap;      /* Prevent text wrapping */
 }
 
 /* Hover effect for rows */
@@ -58,22 +58,29 @@ tr:hover {
     background-color: #bfe8c1;
 }
 
-#userIdInput {
-    width: 305px;
-    padding: 10px;
+button {
+    visibility: hidden;
+    padding: 10px 20px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+#userIdInput, #pageInput {
+    visibility: hidden;
+    padding: 10px 20px;
     margin-right: 10px;
+    margin-top: 10px;
     border: 1px solid #ccc;
     border-radius: 4px;
     font-size: 16px;
 }
 
-#pageInput {
-    width: 200px;
-    padding: 10px;
-    margin-right: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 16px;
+#userIdInput {
+    width: 305px;
+}
+
+#pageInput {    
+    width: 200px;    
 }
 
 .pagination {
