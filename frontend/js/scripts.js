@@ -29,7 +29,7 @@ function loadUsers(resetPage = false) {
             return response.json();
         })
         .then(data => {
-            const tbody = document.querySelector('#allUsersTable tbody');
+            const tbody = document.querySelector('.allUsersTable tbody');
             tbody.innerHTML = ''; // Clear existing data
 
             if (data.length === 0) {
@@ -57,9 +57,10 @@ function loadUsers(resetPage = false) {
             const input = document.querySelectorAll('input');
             input.forEach(input => {
                 input.style.visibility = 'visible';
-            });
+            });           
             
-            document.getElementById('allUsersTable').style.visibility = 'visible';
+            document.querySelector('.allUsersTable').style.visibility = 'visible';
+
 
             document.getElementById('prevPageButton').disabled = currentPage === 1;
             document.getElementById('nextPageButton').disabled = data.length < pageSize;                    
@@ -135,7 +136,7 @@ function getUserById() {
             return response.json();
         })
         .then(user => {
-            const tbody = document.querySelector('#allUsersTable tbody');
+            const tbody = document.querySelector('.allUsersTable tbody');
             tbody.innerHTML = ''; // Clear existing data
 
             const row = document.createElement('tr');
@@ -153,7 +154,7 @@ function getUserById() {
         .catch(error => {
             console.error('Error fetching user by ID:', error);
             alert(error.message);
-            document.querySelector('#allUsersTable tbody').innerHTML = '';
+            document.querySelector('.allUsersTable tbody').innerHTML = '';
         });
 }    
 
@@ -161,9 +162,9 @@ document.getElementById('loadUsers').addEventListener('click', () => {
     loadUsers(true);
 });
 
-document.getElementById('getUserById').addEventListener('click', () => {
-    loadUsers(true);
-});
+document.getElementById('getUserById').addEventListener('click', getUserById);
 
-
+document.getElementById('prevPageButton').addEventListener('click', prevPage);
+document.getElementById('nextPageButton').addEventListener('click', nextPage);
+document.getElementById('goToPageButton').addEventListener('click', gotoPage);
         

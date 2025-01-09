@@ -20,11 +20,8 @@ body {
     height: auto; /* Maintain aspect ratio */
 }   
 
-#allUsersTable {
+.allUsersTable {
     visibility: hidden;
-}
-
-table {
     max-width: 1800px; /* Limit the table width */
     margin: 0 auto;    /* Center the table horizontally */
     width: 100%;
@@ -34,30 +31,29 @@ table {
     table-layout: auto;      /* Allows the table columns to adjust based on content */
 }
 
-tr {
-    height: 40px; /* Set a consistent height for all rows */
+.allUsersTable tr {
+    height: 40px; 
 }
 
-th, td {
+.allUsersTable th, .allUsersTable td {
     border: 1px solid #b7abab;
     padding: 8px;
     text-align: left;            
     color: black; 
 }
 
-th {
-    background-color: #d3d3d3; /* Grey background */
+.allUsersTable th {
+    background-color: #d3d3d3; 
 }
 
-th:nth-child(1), td:nth-child(1) {
-    max-width: 150px;         /* Set max width for ID column */
+.allUsersTable th:nth-child(1), .allUsersTable td:nth-child(1) {
+    max-width: 180px;         /* Set max width for ID column */
     overflow: hidden;         /* Hide overflowing text */
     text-overflow: ellipsis;  /* Add ellipsis if the text overflows */
     white-space: nowrap;      /* Prevent text wrapping */
 }
 
-/* Hover effect for rows */
-tr:hover {
+.allUsersTable tr:hover {
     background-color: #bfe8c1;
 }
 
@@ -93,4 +89,54 @@ button {
     gap: 10px; /* Add space between buttons and input */
     margin-top: 20px; /* Add spacing above the section */
 }
-        
+
+
+@media (max-width: 600px) {
+    .allUsersTable th:nth-child(1),
+    .allUsersTable td:nth-child(1) {
+      white-space: normal;
+    }
+  
+    .allUsersTable th, .allUsersTable td {
+      font-size: 8px;
+      padding: 4px;
+    }
+  
+    #pageInput {
+      width: 90px;
+      font-size: 10px;
+    }
+  
+    #userIdInput {
+      width: 200px;
+      font-size: 10px;
+    }
+
+    #userIdInput, #pageInput {
+        visibility: hidden;
+        padding: 10px 20px;
+        margin-right: 10px;
+        margin-top: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 10px;
+    }
+
+    button {
+        visibility: hidden;
+        padding: 10px 10px;
+        cursor: pointer;
+        margin-top: 10px;
+    }
+
+    header h1 {
+        margin: 0; /* Remove default margins */
+        padding-top: 30px; /* Push text down so it won't overlap the logo */  
+    }
+    
+    #backLink {
+        position: absolute;
+        top: 100px;     /* adjust as needed */
+        left: 20px;    /* adjust as needed */        
+    }       
+}
