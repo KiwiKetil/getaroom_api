@@ -13,13 +13,13 @@
         <img src="getRoom_clean.png" alt="Company Logo" id="logo" />
         <h1>Users Management</h1>
     </header>
-    <a href="index.html">Back to Homepage</a>
+    <a href="index.html" id="backLink">Back to Homepage</a>
     <br><br>    
     <button id ="loadUsers">All Users</button>    
     <input type="text" id="userIdInput" placeholder="Enter User ID" />
-    <button onclick="getUserById()">Get User by Id</button>
+    <button id ="getUserById">Get User by Id</button>
 
-    <table id="allUsersTable">
+    <table class="allUsersTable">
         <thead>
             <tr>
                 <th>ID</th>
@@ -34,11 +34,10 @@
         </tbody>
     </table>
      
-    <!-- Pagination and GoToPage Section-->
     <div class="pagination">
-        <button id="prevPageButton" onclick="prevPage()">Previous Page</button>
-        <button id="nextPageButton" onclick="nextPage()">Next Page</button>       
-        <button id="goToPageButton" onclick="gotoPage()">Go to Page</button>
+        <button id="prevPageButton">Previous Page</button>
+        <button id="nextPageButton">Next Page</button>       
+        <button id="goToPageButton">Go to Page</button>
         <input type="number" id="pageInput" min="1" placeholder="Page number">
     </div>
    
