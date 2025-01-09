@@ -20,7 +20,7 @@ public static class UserEndpoints
         .WithName("GetAllUsers"); 
 
 
-        app.MapGet("/api/v1/users/{id}", async ([FromRoute] Guid id, IUserService userService, ILogger<Program> logger) =>
+        app.MapGet("/api/v1/users/{id}", async ([FromRoute] Guid id, IUserService userService, ILogger<Program> logger) => // async is for everything inside the body
         {
             logger.LogDebug("Retrieving user with ID {userId}", id);
 
