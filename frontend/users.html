@@ -4,45 +4,45 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Room Reservation</title>   
-    <link rel ="icon" href="calendar-color-icon.png"> 
+    <link rel ="icon" href="images/calendar-color-icon.png"> 
     <link rel ="stylesheet" href="css/styles.css">       
     <script src="js/scripts.js" defer></script>    
 </head>
 <body>
     <header>
-        <img src="getRoom_clean.png" alt="Company Logo" id="logo" />
+        <img src="images/getRoom_clean.png"alt="Company Logo" id="logo" />
         <h1>Users Management</h1>
     </header>
     <p><a href="index.html" id="backLink">Back to Homepage</a></p>
     <p><a href="reservations.html" id="reservationsLink">Reservations</a></p>
-    <button id ="loadUsers">All Users</button>    
-    <input type="text" id="userIdInput" placeholder="Enter User ID" />
-    <button id ="getUserById">Get User by Id</button>
-
-    <table class="allUsersTable">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Lastname</th>
-                <th>Firstname</th>
-                <th>Phonenumber</th> 
-                <th>Email</th>
-            </tr>
-        </thead>
-        <tbody>
-            <!-- User(s) will be populated here -->
-        </tbody>
-    </table>
+    <div class="container">
+        <div class="controls">
+            <button id ="loadUsers">All Users</button>    
+            <input type="text" id="userIdInput" placeholder="Enter User ID" />
+            <button id ="getUserById">Get User by Id</button>
+        </div>
+        <table class="allUsersTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Lastname</th>
+                    <th>Firstname</th>
+                    <th>Phonenumber</th> 
+                    <th>Email</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- User(s) will be populated here -->
+            </tbody>
+        </table>    
+        <p id="currentPageContainer" style="visibility: hidden; text-align: center;">Current Page: <span id="currentPageDisplay">1</span></p>
+        <div class="pagination">
+            <button id="prevPageButton">Previous Page</button>
+            <button id="nextPageButton">Next Page</button>       
+            <button id="goToPageButton">Go to Page</button>
+            <input type="number" id="pageInput" min="1" placeholder="Page number">
+        </div>
+    </div> 
      
-    <div class="pagination">
-        <button id="prevPageButton">Previous Page</button>
-        <button id="nextPageButton">Next Page</button>       
-        <button id="goToPageButton">Go to Page</button>
-        <input type="number" id="pageInput" min="1" placeholder="Page number">
-    </div>
-   
-    <div style="text-align: center;">
-        <p id="currentPageContainer" style="visibility: hidden;">Current Page: <span id="currentPageDisplay">1</span></p>
-    </div>    
 </body> 
 </html>
