@@ -1,15 +1,6 @@
-html, body {  /* was needed to have image fill screen*/
-    height: 100%;
-    margin: 0; /* Remove default margin */
-}
-
 body {
     font-family: Arial, sans-serif;
-    margin: 20px;
-    background-image: url('./insertImageHere.jpg');
-    background-repeat: no-repeat; /* Prevents image repetition */
-    background-size: cover; /* Scales the image to cover the entire screen */
-    background-position: center; /* Centers the image */
+    margin: 20px;      
 }
 
 #logo {
@@ -90,7 +81,6 @@ button {
     margin-top: 20px; /* Add spacing above the section */
 }
 
-
 @media (max-width: 600px) {
     .allUsersTable th:nth-child(1),
     .allUsersTable td:nth-child(1) {
@@ -103,35 +93,81 @@ button {
     }
   
     #pageInput {
-      width: 90px;
+      width: 60px;
       font-size: 10px;
     }
   
     #userIdInput {
-      width: 200px;
-      font-size: 10px;
-    }
-
-    #userIdInput, #pageInput {
-        visibility: hidden;
-        padding: 10px 20px;
-        margin-right: 10px;
-        margin-top: 10px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
+        width: 150px;
         font-size: 10px;
-    }
+    }  
 
     button {
         visibility: hidden;
-        padding: 10px 10px;
+        padding: 7px 5px;
         cursor: pointer;
         margin-top: 10px;
     }
 
     header h1 {
         margin: 0; /* Remove default margins */
-        padding-top: 50px; /* Push text down so it won't overlap the logo */  
+        padding-top: 100px; /* Push text down so it won't overlap the logo */  
     } 
 
+    .container {
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+    }
+    
+    .allUsersTable {
+        order: 1; /* place table *before* the controls */
+    }
+
+    #currentPageContainer{
+        font-size: 10px;
+        order: 2; /* Last button */
+   }
+
+    .controls {
+        gap: 10px;
+        display: flex;
+        position: sticky;       
+        order: 3; /* place controls *after* the table */
+    }
+
+    #getUserById{
+        order: 2;
+    }
+
+    #userIdInput{
+        order: 3;
+    }
+    
+    #loadUsers{
+        order: 1;
+    }
+
+    .pagination {
+        position: fixed;
+        bottom: 10px;
+        order: 4; /* place table *before* the controls */
+    }
+
+    #prevPageButton {
+        order: 1; /* First button */
+    }
+
+    #goToPageButton {
+        order: 2; /* Last button */
+    }
+
+    #nextPageButton {
+        order: 3; /* Second button */
+    }
+
+    #pageInput {
+        padding: 10px 25px;
+        order: 4; /* Input field comes after buttons */
+    }   
 }
