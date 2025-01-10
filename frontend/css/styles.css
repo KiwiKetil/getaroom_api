@@ -131,12 +131,7 @@ button {
 
     header h1 {
         margin: 0; /* Remove default margins */
-        padding-top: 30px; /* Push text down so it won't overlap the logo */  
-    }
-    
-    #backLink {
-        position: absolute;
-        top: 100px;     /* adjust as needed */
-        left: 20px;    /* adjust as needed */        
-    }       
+        padding-top: 50px; /* Push text down so it won't overlap the logo */  
+    } 
+
 }
