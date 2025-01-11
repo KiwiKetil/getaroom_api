@@ -1,12 +1,12 @@
 body {
     font-family: Arial, sans-serif;
-    margin: 20px;      
+    margin: 40px;      
 }
 
 #logo {
     position: absolute; /* Allows positioning relative to the screen */
     top: 10px; /* Adjust distance from the top */
-    right: 10px; /* Adjust distance from the right */
+    right: 40px; /* Adjust distance from the right */
     width: 150px; /* Adjust logo width */
     height: auto; /* Maintain aspect ratio */
 }   
@@ -16,7 +16,8 @@ body {
     max-width: 1800px; /* Limit the table width */
     margin: 0 auto;    /* Center the table horizontally */
     width: 100%;
-    border-collapse: collapse;
+    border-collapse: separate;
+     border-spacing: 0;
     margin-top: 20px;
     background: rgba(230, 226, 226, 0.8);
     table-layout: auto;      /* Allows the table columns to adjust based on content */
@@ -33,8 +34,8 @@ body {
     color: black; 
 }
 
-.allUsersTable th {
-    background-color: #d3d3d3; 
+.allUsersTable th{
+    background-color: rgb(210, 212, 212);
 }
 
 .allUsersTable th:nth-child(1), .allUsersTable td:nth-child(1) {
@@ -44,8 +45,8 @@ body {
     white-space: nowrap;      /* Prevent text wrapping */
 }
 
-.allUsersTable tr:hover {
-    background-color: #bfe8c1;
+.allUsersTable tbody tr:hover {
+    background-color: #c6e5cd; /* Highlight row on hover */
 }
 
 button {
@@ -91,6 +92,19 @@ button {
       font-size: 8px;
       padding: 4px;
     }
+
+    body {
+        font-family: Arial, sans-serif;
+        margin: 20px;      
+    }
+    
+    #logo {
+        position: absolute; /* Allows positioning relative to the screen */
+        top: 10px; /* Adjust distance from the top */
+        right: 10px; /* Adjust distance from the right */
+        width: 150px; /* Adjust logo width */
+        height: auto; /* Maintain aspect ratio */
+    } 
   
     #pageInput {
       width: 60px;
@@ -111,7 +125,7 @@ button {
 
     header h1 {
         margin: 0; /* Remove default margins */
-        padding-top: 100px; /* Push text down so it won't overlap the logo */  
+        padding-top: 75px; /* Push text down so it won't overlap the logo */  
     } 
 
     .container {
@@ -121,19 +135,19 @@ button {
     }
     
     .allUsersTable {
-        order: 1; /* place table *before* the controls */
+        order: 1;
     }
 
     #currentPageContainer{
         font-size: 10px;
-        order: 2; /* Last button */
+        order: 2;
    }
 
     .controls {
         gap: 10px;
         display: flex;
         position: sticky;       
-        order: 3; /* place controls *after* the table */
+        order: 3; 
     }
 
     #getUserById{
@@ -151,23 +165,23 @@ button {
     .pagination {
         position: fixed;
         bottom: 10px;
-        order: 4; /* place table *before* the controls */
+        order: 4; 
     }
 
     #prevPageButton {
-        order: 1; /* First button */
+        order: 1; 
     }
 
     #goToPageButton {
-        order: 2; /* Last button */
+        order: 2; 
     }
 
     #nextPageButton {
-        order: 3; /* Second button */
+        order: 3;
     }
 
     #pageInput {
         padding: 10px 25px;
-        order: 4; /* Input field comes after buttons */
+        order: 4; 
     }   
 }
