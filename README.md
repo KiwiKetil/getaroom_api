@@ -2,7 +2,7 @@
 
 1. Execute the 3 scripts in the `RoomSchedulerAPI/Core/DB/DBScripts` folder in MySQL as follows:
 
-   - First, open `create_db.sql`. Before executing, ensure you update the script with your desired `YOUR_USERNAME` and `YOUR_PASSWORD`.
+   - Open `create_db.sql`. Before executing, ensure you update the script with your desired `YOUR_USERNAME` and `YOUR_PASSWORD`.
    - Execute `room_scheduler_create_tables.sql`.
    - Execute `room_scheduler_create_testusers.sql`.
 
