@@ -1,6 +1,7 @@
 ﻿
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
+using MySqlX.XDevAPI.Common;
 using RoomSchedulerAPI.Features.Models.DTOs;
 using RoomSchedulerAPI.Features.Services.Interfaces;
 
@@ -65,11 +66,15 @@ public static class UserEndpoints
         })
         .WithName("DeleteUser");
 
-        //register(?)
-        //app.MapGet("/api/v1/users", async (IUserService userService) =>
-        //{
-        //    var users = await userService.GetAllAsync();
-        //    return Results.Ok(users);
-        //});
+       //admin only:
+        app.MapPost("/api/v1/users/register", async ([FromBody] UserRegistrationDTO dto,IUserService userService, ILogger<Program> logger) =>
+        {
+            logger.LogDebug("Registering new user");
+
+            var res = await userService.RegisterUserAsync(dto);
+
+            return res != null ? Results.Ok(res) : Results.Conflict(new { Message = "User already exists" });
+        })
+        .WithName("RegisterUser");
     }
 }

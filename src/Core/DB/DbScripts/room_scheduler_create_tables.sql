@@ -36,8 +36,8 @@ StartTime TIMESTAMP NOT NULL,
 EndTime TIMESTAMP NOT NULL,
 Created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 Updated TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-FOREIGN KEY (UserId) REFERENCES Users(Id),
-FOREIGN KEY (RoomId) REFERENCES Rooms(Id)
+CONSTRAINT FK_User FOREIGN KEY (UserId) REFERENCES Users(Id) ON DELETE CASCADE ON UPDATE CASCADE,
+CONSTRAINT FK_Room FOREIGN KEY (RoomId) REFERENCES Rooms(Id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS Roles
@@ -45,10 +45,22 @@ CREATE TABLE IF NOT EXISTS Roles
 RoleName VARCHAR(20) NOT NULL UNIQUE PRIMARY KEY
 );
 
+-- ===========================
+-- Section: Insert Initial Data Roles Table
+-- ===========================
+
+INSERT INTO Roles (RoleName)
+SELECT 'Admin'
+WHERE NOT EXISTS (SELECT 1 FROM Roles WHERE RoleName = 'Admin');
+
+INSERT INTO Roles (RoleName)
+SELECT 'User'
+WHERE NOT EXISTS (SELECT 1 FROM Roles WHERE RoleName = 'User');
+
 CREATE TABLE IF NOT EXISTS UserRoles
 (
-RoleName CHAR(20) NOT NULL,
 UserId CHAR(36) NOT NULL,
+RoleName CHAR(20) NOT NULL,
 Created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 Updated TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 PRIMARY KEY (UserId, RoleName),
@@ -95,7 +107,7 @@ DELIMITER ;
 
 DELIMITER $$
 
-CREATE TRIGGER before_users_delete
+CREATE TRIGGER before_users_delete_archive
 BEFORE DELETE ON Users
 FOR EACH ROW
 BEGIN
@@ -125,14 +137,21 @@ END$$
 DELIMITER ;
 
 -- ===========================
--- Section: Insert Initial Data Roles Table
+-- Section: Create Trigger: Assign role to user upon registration
 -- ===========================
 
-INSERT INTO Roles (RoleName)
-SELECT 'Admin'
-WHERE NOT EXISTS (SELECT 1 FROM Roles WHERE RoleName = 'Admin');
+DELIMITER $$
 
-INSERT INTO Roles (RoleName)
-SELECT 'User'
-WHERE NOT EXISTS (SELECT 1 FROM Roles WHERE RoleName = 'User');
+CREATE TRIGGER assign_role_new_user
+AFTER INSERT ON Users
+FOR EACH ROW
+BEGIN
+	INSERT INTO userroles (RoleName, UserId)
+    VALUES ('User', NEW.Id);
+END$$
+
+DELIMITER ;
+
+
+
 

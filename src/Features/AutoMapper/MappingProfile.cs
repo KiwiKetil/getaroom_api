@@ -25,6 +25,7 @@ public class MappingProfile : Profile
             new($"/api/v1/users/{src.Id.Value}", "delete", "DELETE")
          }));
 
-        CreateMap<UserUpdateDTO, User>();        
+        CreateMap<UserUpdateDTO, User>();
+        CreateMap<UserRegistrationDTO, User>();
     }
 }

@@ -17,7 +17,7 @@ body {
     margin: 0 auto;    /* Center the table horizontally */
     width: 100%;
     border-collapse: separate;
-     border-spacing: 0;
+    border-spacing: 0;
     margin-top: 20px;
     background: rgba(230, 226, 226, 0.8);
     table-layout: auto;      /* Allows the table columns to adjust based on content */
@@ -128,7 +128,7 @@ button {
         padding-top: 75px; /* Push text down so it won't overlap the logo */  
     } 
 
-    .container {
+    .flex-container {
         display: flex;
         flex-direction: column;
         height: 100vh;
