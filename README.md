@@ -4,7 +4,7 @@
 
    - Open `create_db.sql`. Before executing, ensure you update the script with your desired `YOUR_USERNAME` and `YOUR_PASSWORD`.
    - Execute `room_scheduler_create_tables.sql`.
-   - Execute `room_scheduler_create_testusers.sql`.
+   - Execute `room_scheduler_create_testdata.sql`.
 
 2. Set the username and password you chose as environment variables:
 
