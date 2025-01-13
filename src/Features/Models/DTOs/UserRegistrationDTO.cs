@@ -1,5 +1,12 @@
-﻿namespace RoomSchedulerAPI.Features.Models.DTOs;
+﻿using System.Security.Policy;
 
-public class UserRegistrationDTO
-{
-}
+namespace RoomSchedulerAPI.Features.Models.DTOs;
+
+public record UserRegistrationDTO
+(
+    string FirstName,
+    string LastName,
+    string PhoneNumber,
+    string Email,
+    string Password
+);

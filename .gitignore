@@ -8,8 +8,8 @@
 
 # Allow these sql:
 !room_scheduler_create_tables.sql
-!room_scheduler_create_testusers.sql
-!create_db.sql
+!room_scheduler_create_testdata.sql
+!room_scheduler_create_db.sql
 
 .gitattributes
 

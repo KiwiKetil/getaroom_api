@@ -9,6 +9,7 @@ function loadUsers(resetPage = false) {
         document.getElementById('nextPageButton').disabled = false; 
         document.getElementById('goToPageButton').disabled = false; 
         document.getElementById('pageInput').disabled = false; 
+        document.getElementById('userIdInput').value = "";
     }
 
     const url = `${apiBaseUrl}/api/v1/users?page=${currentPage}&pageSize=${pageSize}`;
@@ -163,7 +164,6 @@ document.getElementById('loadUsers').addEventListener('click', () => {
 });
 
 document.getElementById('getUserById').addEventListener('click', getUserById);
-
 document.getElementById('prevPageButton').addEventListener('click', prevPage);
 document.getElementById('nextPageButton').addEventListener('click', nextPage);
 document.getElementById('goToPageButton').addEventListener('click', gotoPage);

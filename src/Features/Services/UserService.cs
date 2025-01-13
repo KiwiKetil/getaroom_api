@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Org.BouncyCastle.Crypto.Generators;
 using RoomSchedulerAPI.Features.Models.DTOs;
 using RoomSchedulerAPI.Features.Models.Entities;
 using RoomSchedulerAPI.Features.Repositories.Interfaces;
@@ -49,8 +50,23 @@ public class UserService(IUserRepository userRepository, IMapper mapper, ILogger
         return res ?? null;
     }
 
-    public Task<UserDTO?> RegisterUserAsync(UserRegistrationDTO dto)
+    public async Task<UserDTO?> RegisterUserAsync(UserRegistrationDTO dto)
     {
-        throw new NotImplementedException();
+        var existingUser = await _userRepository.GetUserByEmailAsync(dto.Email);
+
+        if (existingUser != null) 
+        {
+            _logger.LogDebug("User already exists");
+            return null;
+        }        
+
+        var user = _mapper.Map<User>(dto);
+        user.Id = UserId.NewId;
+        user.HashedPassword = BCrypt.Net.BCrypt.HashPassword(dto.Password);
+        user.Salt = BCrypt.Net.BCrypt.GenerateSalt();
+
+        var res = await _userRepository.RegisterUserAsync(user);
+        var userDTO = _mapper.Map<UserDTO>(res);
+        return userDTO;
     }    
 }

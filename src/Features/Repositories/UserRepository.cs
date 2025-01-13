@@ -2,7 +2,6 @@
 using RoomSchedulerAPI.Core.DB.DBConnection.Interface;
 using RoomSchedulerAPI.Features.Models.Entities;
 using RoomSchedulerAPI.Features.Repositories.Interfaces;
-using System.Data;
 
 namespace RoomSchedulerAPI.Features.Repositories;
 
@@ -15,14 +14,14 @@ public class UserRepository(IDbConnectionFactory mySqlConnectionFactory, ILogger
     {
         _logger.LogDebug("Retrieving all users from DB");
 
-        using var dbConnection = await _mySqlConnectionFactory.CreateConnectionAsync(); 
+        using var dbConnection = await _mySqlConnectionFactory.CreateConnectionAsync();
 
         var skipNumber = (page - 1) * pageSize;
 
         string getUsersSql = @"SELECT Id, FirstName, LastName, PhoneNumber, Email
                 FROM Users 
                 ORDER BY LastName
-                LIMIT @pageSize OFFSET @skipNumber"; 
+                LIMIT @pageSize OFFSET @skipNumber";
         var users = await dbConnection.QueryAsync<User>(getUsersSql, new { pageSize, skipNumber });
 
         return users;
@@ -32,7 +31,7 @@ public class UserRepository(IDbConnectionFactory mySqlConnectionFactory, ILogger
     {
         _logger.LogDebug("Retrieving user with ID {userId} from DB", id);
 
-        using var dbConnection = await _mySqlConnectionFactory.CreateConnectionAsync(); 
+        using var dbConnection = await _mySqlConnectionFactory.CreateConnectionAsync();
 
         string getUserSql = @"SELECT Id, FirstName, LastName, PhoneNumber, Email FROM Users where Id = @id";
         return await dbConnection.QueryFirstOrDefaultAsync<User>(getUserSql, new { id = id.Value });
@@ -72,18 +71,18 @@ public class UserRepository(IDbConnectionFactory mySqlConnectionFactory, ILogger
             Id = id.Value
         };
 
-        int rowsAffected = await dbConnection.ExecuteAsync(updateUserSql, parameters, transaction); 
+        int rowsAffected = await dbConnection.ExecuteAsync(updateUserSql, parameters, transaction);
 
         if (rowsAffected > 1)
         {
-            transaction.Rollback(); 
+            transaction.Rollback();
             _logger.LogError("Update attempted for user with ID {userId} resulted in multiple rows affected. Transaction rolled back to maintain data integrity.", id);
             return null;
         }
 
         transaction.Commit();
         _logger.LogInformation("User with ID {userId} successfully updated.", id);
-        return await dbConnection.QueryFirstOrDefaultAsync<User>(getUserSql, new { Id = id.Value });           
+        return await dbConnection.QueryFirstOrDefaultAsync<User>(getUserSql, new { Id = id.Value });
     }
 
     public async Task<User?> DeleteUserAsync(UserId id)
@@ -96,7 +95,7 @@ public class UserRepository(IDbConnectionFactory mySqlConnectionFactory, ILogger
         string getUserSql = @"SELECT Id, FirstName, LastName, PhoneNumber, Email FROM Users WHERE Id = @Id";
         var user = await dbConnection.QueryFirstOrDefaultAsync<User>(getUserSql, new { Id = id.Value }, transaction);
 
-        if (user == null) 
+        if (user == null)
         {
             _logger.LogWarning("Delete failed for user with ID {userId}. User was not found.", id);
             return null;
@@ -110,7 +109,7 @@ public class UserRepository(IDbConnectionFactory mySqlConnectionFactory, ILogger
             transaction.Rollback();
             _logger.LogError("ERROR: Delete attempted for user with ID {userId} resulted in {rowsAffected} rows affected. Transaction rolled back to " +
                 "maintain data integrity.", id, rowsAffected);
-            return null;       
+            return null;
         }
 
         transaction.Commit();
@@ -126,11 +125,49 @@ public class UserRepository(IDbConnectionFactory mySqlConnectionFactory, ILogger
 
         var emailSql = @"SELECT Id, FirstName, LastName, PhoneNumber, Email FROM Users WHERE email = @email";
 
-        return await dbConnection.QueryFirstOrDefaultAsync<User>(emailSql, new { email = email });
+        return await dbConnection.QueryFirstOrDefaultAsync<User>(emailSql, new { email });
     }
 
-    public Task<User?> RegisterUserAsync(User user)
+    public async Task<User?> RegisterUserAsync(User user)
     {
-        throw new NotImplementedException();
-    } 
+        _logger.LogDebug("Adding new user to DB");
+
+        using var dbConnection = await _mySqlConnectionFactory.CreateConnectionAsync();
+        using var transaction = dbConnection.BeginTransaction();
+
+        var registerUserSql = @"INSERT into USERS(Id, FirstName, LastName, PhoneNumber, Email, HashedPassword, Salt)
+                                VALUES (@Id, @FirstName, @LastName, @PhoneNumber, @Email, @HashedPassword, @Salt)";
+
+        var parameters = new
+        {
+            user.Id,
+            user.FirstName,
+            user.LastName,
+            user.PhoneNumber,
+            user.Email,
+            user.HashedPassword,
+            user.Salt
+        };
+
+        var userTableRowsAffected = await dbConnection.ExecuteAsync(registerUserSql, parameters, transaction);
+
+        if (userTableRowsAffected > 1)
+        {
+            transaction.Rollback();
+            _logger.LogError("ERROR: Registering user resulted in {rowsAffected} rows affected. Transaction rolled back to " +
+                "maintain data integrity.", userTableRowsAffected);
+            return null;
+        }
+
+        // assigns and inserts into userroles table directly in Mysql
+        
+        transaction.Commit();
+
+        string getNewUserSql = @"SELECT Id, FirstName, LastName, PhoneNumber, Email FROM Users WHERE Email = @Email";
+        var registeredUser = await dbConnection.QueryFirstOrDefaultAsync<User>(getNewUserSql, new { Email = user.Email }, transaction);
+
+        _logger.LogInformation("New user successfully registered.");
+        return registeredUser;
+    }
+
 }
