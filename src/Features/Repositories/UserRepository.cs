@@ -157,9 +157,7 @@ public class UserRepository(IDbConnectionFactory mySqlConnectionFactory, ILogger
             _logger.LogError("ERROR: Registering user resulted in {rowsAffected} rows affected. Transaction rolled back to " +
                 "maintain data integrity.", userTableRowsAffected);
             return null;
-        }
-
-        // assigns and inserts into userroles table directly in Mysql
+        }       
         
         transaction.Commit();
 
@@ -169,5 +167,4 @@ public class UserRepository(IDbConnectionFactory mySqlConnectionFactory, ILogger
         _logger.LogInformation("New user successfully registered.");
         return registeredUser;
     }
-
 }
