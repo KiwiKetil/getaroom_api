@@ -1,7 +1,5 @@
-﻿
-using FluentValidation;
+﻿using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
-using MySqlX.XDevAPI.Common;
 using RoomSchedulerAPI.Features.Models.DTOs;
 using RoomSchedulerAPI.Features.Services.Interfaces;
 
@@ -18,7 +16,7 @@ public static class UserEndpoints
             var users = await userService.GetAllUsersAsync(page, pageSize);
             return users.Any() ? Results.Ok(users) : Results.NotFound("No users found");
         })
-        .WithName("GetAllUsers"); 
+        .WithName("GetAllUsers");
 
 
         app.MapGet("/api/v1/users/{id}", async ([FromRoute] Guid id, IUserService userService, ILogger<Program> logger) => // async is for everything inside the body
@@ -28,7 +26,7 @@ public static class UserEndpoints
             var user = await userService.GetUserByIdAsync(id);
             return user != null ? Results.Ok(user) : Results.NotFound("User was not found");
         })
-        .WithName("GetUserById"); 
+        .WithName("GetUserById");
 
 
         app.MapPut("/api/v1/users/{id}", async ([FromRoute] Guid id, [FromBody] UserUpdateDTO dto, IUserService userService, IValidator<UserUpdateDTO> validator, ILogger<Program> logger) =>
@@ -50,7 +48,7 @@ public static class UserEndpoints
                 detail: "User could not be updated"
                 );
         })
-        .WithName("UpdateUser"); 
+        .WithName("UpdateUser");
 
 
         app.MapDelete("/api/v1/users/{id}", async ([FromRoute] Guid id, IUserService userService, ILogger<Program> logger) =>
@@ -66,8 +64,8 @@ public static class UserEndpoints
         })
         .WithName("DeleteUser");
 
-       //admin only:
-        app.MapPost("/api/v1/users/register", async ([FromBody] UserRegistrationDTO dto,IUserService userService, ILogger<Program> logger) =>
+        //admin only:
+        app.MapPost("/api/v1/users/register", async ([FromBody] UserRegistrationDTO dto, IUserService userService, ILogger<Program> logger) =>
         {
             logger.LogDebug("Registering new user");
 
