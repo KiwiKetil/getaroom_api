@@ -177,8 +177,8 @@ if(document.getElementById('goToPageButton')){
 document.getElementById('goToPageButton').addEventListener('click', gotoPage);
 }
 
-function showIndexPanel() {
-    if (currentHtmlPage === "indexBody"){
+function showPanel(currentHtmlPage) {
+    if (currentHtmlPage === "indexBody" || currentHtmlPage === "reservationsBody" || currentHtmlPage === "roomsBody"){
         const adminPanel = document.getElementById("adminPanel");
         const userPanel = document.getElementById("userPanel");
 
@@ -192,44 +192,4 @@ function showIndexPanel() {
     }
 }
 
-if (currentHtmlPage === "indexBody") {
-    showIndexPanel();
-}
-
-function showReservationsPanel() {
-    if (currentHtmlPage === "reservationsBody"){
-        const adminPanel = document.getElementById("adminPanel");
-        const userPanel = document.getElementById("userPanel");
-
-        if (userRole === "admin" && adminPanel) {
-            adminPanel.style.display = "block";
-        } else if (userRole === "user" && userPanel) {
-            userPanel.style.display = "block";
-        } else {
-            console.error("Neither adminPanel nor userPanel found.");
-        }
-    }
-}
-
-if (currentHtmlPage === "reservationsBody") {
-    showReservationsPanel();
-}
-
-function showRoomsPanel() {
-    if (currentHtmlPage === "roomsBody"){
-        const adminPanel = document.getElementById("adminPanel");
-        const userPanel = document.getElementById("userPanel");
-
-        if (userRole === "admin" && adminPanel) {
-            adminPanel.style.display = "block";
-        } else if (userRole === "user" && userPanel) {
-            userPanel.style.display = "block";
-        } else {
-            console.error("Neither adminPanel nor userPanel found.");
-        }
-    }
-}
-
-if (currentHtmlPage === "roomsBody") {
-    showRoomsPanel();
-}
+showPanel(currentHtmlPage);
