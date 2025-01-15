@@ -1,4 +1,6 @@
 const apiBaseUrl = 'https://localhost:7089';
+const userRole = "admin"; // get from token(?)
+const currentHtmlPage = document.body.id;
 let currentPage = 1;
 const pageSize = 10;
 
@@ -61,8 +63,9 @@ async function loadUsers(resetPage = false) {
     }
 }
 
-window.onload = function () {
-    loadUsers(true);
+if(currentHtmlPage === "usersBody")
+    window.onload = function () {
+        loadUsers(true);
 };
 
 function nextPage() {
@@ -132,9 +135,8 @@ async function getUserById(userId) {
 
 function populateTable(data) {
     const tbody = document.querySelector('.allUsersTable tbody');
-        tbody.innerHTML = ''; // Clear existing data
-
-        const users = Array.isArray(data) ? data : [data]; // handle both single user and array of users
+    tbody.innerHTML = ''; // Clear existing data
+    const users = Array.isArray(data) ? data : [data]; // handle both single user and array of users
 
         users.forEach(user => {
             const row = document.createElement('tr');
@@ -149,16 +151,85 @@ function populateTable(data) {
         });
 }
 
-document.getElementById('loadUsers').addEventListener('click', () => {
-    loadUsers(true);
-});
+// all eventlisterners must have conditional checks since the ddont exist in index.html (should have used separate .js for each html(?))
+if(document.getElementById('loadUsers')){
+    document.getElementById('loadUsers').addEventListener('click', () => {
+        loadUsers(true);
+    });
+}
 
-getUserByIdButton = document.getElementById('getUserById')
-getUserByIdButton.addEventListener('click', async () => {
-    const userId = document.getElementById('userIdInput').value.trim();
-    getUserById(userId);
-})
+const getUserByIdButton = document.getElementById('getUserById')
+if(getUserByIdButton){
+    getUserByIdButton.addEventListener('click', async () => {
+        const userId = document.getElementById('userIdInput').value.trim();
+        getUserById(userId);
+    })
+}
+if(document.getElementById('prevPageButton')){
+    document.getElementById('prevPageButton').addEventListener('click', prevPage);
+}
 
-document.getElementById('prevPageButton').addEventListener('click', prevPage);
-document.getElementById('nextPageButton').addEventListener('click', nextPage);
+if(document.getElementById('nextPageButton')){
+    document.getElementById('nextPageButton').addEventListener('click', nextPage);
+}
+
+if(document.getElementById('goToPageButton')){
 document.getElementById('goToPageButton').addEventListener('click', gotoPage);
+}
+
+function showIndexPanel() {
+    if (currentHtmlPage === "indexBody"){
+        const adminPanel = document.getElementById("adminPanel");
+        const userPanel = document.getElementById("userPanel");
+
+        if (userRole === "admin" && adminPanel) {
+            adminPanel.style.display = "block";
+        } else if (userRole === "user" && userPanel) {
+            userPanel.style.display = "block";
+        } else {
+            console.error("Neither adminPanel nor userPanel found.");
+        }
+    }
+}
+
+if (currentHtmlPage === "indexBody") {
+    showIndexPanel();
+}
+
+function showReservationsPanel() {
+    if (currentHtmlPage === "reservationsBody"){
+        const adminPanel = document.getElementById("adminPanel");
+        const userPanel = document.getElementById("userPanel");
+
+        if (userRole === "admin" && adminPanel) {
+            adminPanel.style.display = "block";
+        } else if (userRole === "user" && userPanel) {
+            userPanel.style.display = "block";
+        } else {
+            console.error("Neither adminPanel nor userPanel found.");
+        }
+    }
+}
+
+if (currentHtmlPage === "reservationsBody") {
+    showReservationsPanel();
+}
+
+function showRoomsPanel() {
+    if (currentHtmlPage === "roomsBody"){
+        const adminPanel = document.getElementById("adminPanel");
+        const userPanel = document.getElementById("userPanel");
+
+        if (userRole === "admin" && adminPanel) {
+            adminPanel.style.display = "block";
+        } else if (userRole === "user" && userPanel) {
+            userPanel.style.display = "block";
+        } else {
+            console.error("Neither adminPanel nor userPanel found.");
+        }
+    }
+}
+
+if (currentHtmlPage === "roomsBody") {
+    showRoomsPanel();
+}
