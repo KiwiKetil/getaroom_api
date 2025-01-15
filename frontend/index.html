@@ -6,14 +6,28 @@
     <title>Room Reservation</title>
     <link rel="icon" href="images/calendar-color-icon.png">
     <link rel="stylesheet" href="css/styles.css">     
+    <script src="js/scripts.js" defer></script>  
 </head>
 <body id="indexBody">
-    <header>
-        <img src="images/getRoom_clean.png" alt="Company Logo" id="logo">
-        <h1>Welcome to Room Reservation System</h1>
-        <h3> Choose where to go from here: </h3>  
-    </header>
-        <p><a href="users.html" id="usersLink">Click here for users</a></p>
-        <p><a href="reservations.html" id="reservationsLink">Click here for reservations</a></p>  
+    <div id = "adminPanel" style="display: none;">
+        <header>
+            <img src="images/getRoom_clean.png" alt="Company Logo" id="logo">
+            <h1>Welcome to Room Reservation System Admin page</h1>
+            <h3> Choose where to go from here: </h3>  
+        </header>
+            <p><a href="users.html" id="usersLink">Manage Users</a></p>
+            <p><a href="reservations.html" id="reservationsLink">Manage Reservations</a></p>  
+            <p><a href="rooms.html" id="roomsLink">Manage Rooms</a></p> 
+    </div>
+    <div id = "userPanel" style="display: none;">
+        <header>
+            <img src="images/getRoom_clean.png" alt="Company Logo" id="logo">
+            <h1>Welcome to Room Reservation System</h1>
+            <h3> Choose where to go from here: </h3>  
+        </header>
+            <p><a href="reservations.html" id="reservationsLink">Manage Reservations</a></p>  
+            <p><a href="rooms.html" id="roomsLink">Manage Rooms</a></p>  
+            <p><a href="userprofile.html" id="seeprofileLink">Manage Account Profile</a></p>
+    </div>    
 </body>
 </html>

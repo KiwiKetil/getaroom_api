@@ -9,6 +9,7 @@ public static class UserEndpoints
 {
     public static void MapUserEndpoints(this WebApplication app)
     {
+        // admin only
         app.MapGet("/api/v1/users", async (IUserService userService, ILogger<Program> logger, int page = 1, int pageSize = 10) =>
         {
             logger.LogDebug("Retrieving all users");
@@ -18,7 +19,7 @@ public static class UserEndpoints
         })
         .WithName("GetAllUsers");
 
-
+        // admin only
         app.MapGet("/api/v1/users/{id}", async ([FromRoute] Guid id, IUserService userService, ILogger<Program> logger) => // async is for everything inside the body
         {
             logger.LogDebug("Retrieving user with ID {userId}", id);
@@ -28,7 +29,7 @@ public static class UserEndpoints
         })
         .WithName("GetUserById");
 
-
+        // admin and user the profile belongs to
         app.MapPut("/api/v1/users/{id}", async ([FromRoute] Guid id, [FromBody] UserUpdateDTO dto, IUserService userService, IValidator<UserUpdateDTO> validator, ILogger<Program> logger) =>
         {
             logger.LogDebug("Updating user with ID {userId}", id);
@@ -50,7 +51,7 @@ public static class UserEndpoints
         })
         .WithName("UpdateUser");
 
-
+        // admin only
         app.MapDelete("/api/v1/users/{id}", async ([FromRoute] Guid id, IUserService userService, ILogger<Program> logger) =>
         {
             logger.LogDebug("Deleting user with ID {userId}", id);
@@ -64,7 +65,7 @@ public static class UserEndpoints
         })
         .WithName("DeleteUser");
 
-        //admin only:
+        // admin only
         app.MapPost("/api/v1/users/register", async ([FromBody] UserRegistrationDTO dto, IUserService userService, ILogger<Program> logger) =>
         {
             logger.LogDebug("Registering new user");
