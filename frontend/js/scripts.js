@@ -34,20 +34,7 @@ async function loadUsers(resetPage = false) {
             return;
         }
 
-        const tbody = document.querySelector('.allUsersTable tbody');
-        tbody.innerHTML = ''; // Clear existing data
-
-        data.forEach(user => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${user.id.value}</td>
-                <td>${user.lastName}</td>
-                <td>${user.firstName}</td>
-                <td>${user.phoneNumber}</td>
-                <td>${user.email}</td>
-            `;
-            tbody.appendChild(row);
-        });
+        populateTable(data);
 
         // Make buttons and table visible
         const buttons = document.querySelectorAll('button');
@@ -113,8 +100,7 @@ function resetPaginationForGetUserById() {
     document.getElementById('currentPageDisplay').textContent = '1';
 }
 
-async function getUserById() {
-    const userId = document.getElementById('userIdInput').value.trim();
+async function getUserById(userId) {    
     if (!userId) {
         alert('Please enter a User ID.');
         return;
@@ -132,20 +118,10 @@ async function getUserById() {
             throw new Error(`Network response was not ok: ${response.statusText}`);
         }
 
-        const user = await response.json();
-        const tbody = document.querySelector('.allUsersTable tbody');
-        tbody.innerHTML = ''; // Clear existing data
+        const data = await response.json();
 
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td>${user.id.value}</td>
-            <td>${user.lastName}</td>
-            <td>${user.firstName}</td>
-            <td>${user.phoneNumber}</td>
-            <td>${user.email}</td>
-        `;
-        tbody.appendChild(row);
-
+        populateTable(data);
+      
         resetPaginationForGetUserById();
     } catch (error) {
         console.error('Error fetching user by ID:', error);
@@ -154,11 +130,35 @@ async function getUserById() {
     }
 }
 
+function populateTable(data) {
+    const tbody = document.querySelector('.allUsersTable tbody');
+        tbody.innerHTML = ''; // Clear existing data
+
+        const users = Array.isArray(data) ? data : [data]; // handle both single user and array of users
+
+        users.forEach(user => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${user.id.value}</td>
+                <td>${user.lastName}</td>
+                <td>${user.firstName}</td>
+                <td>${user.phoneNumber}</td>
+                <td>${user.email}</td>
+            `;
+            tbody.appendChild(row);
+        });
+}
+
 document.getElementById('loadUsers').addEventListener('click', () => {
     loadUsers(true);
 });
 
-document.getElementById('getUserById').addEventListener('click', getUserById);
+getUserByIdButton = document.getElementById('getUserById')
+getUserByIdButton.addEventListener('click', async () => {
+    const userId = document.getElementById('userIdInput').value.trim();
+    getUserById(userId);
+})
+
 document.getElementById('prevPageButton').addEventListener('click', prevPage);
 document.getElementById('nextPageButton').addEventListener('click', nextPage);
 document.getElementById('goToPageButton').addEventListener('click', gotoPage);
