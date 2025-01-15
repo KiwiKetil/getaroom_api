@@ -168,17 +168,16 @@ if(getUserByIdButton){
 if(document.getElementById('prevPageButton')){
     document.getElementById('prevPageButton').addEventListener('click', prevPage);
 }
-
 if(document.getElementById('nextPageButton')){
     document.getElementById('nextPageButton').addEventListener('click', nextPage);
 }
-
 if(document.getElementById('goToPageButton')){
 document.getElementById('goToPageButton').addEventListener('click', gotoPage);
 }
 
 function showPanel(currentHtmlPage) {
-    if (currentHtmlPage === "indexBody" || currentHtmlPage === "reservationsBody" || currentHtmlPage === "roomsBody"){
+    const applicablePages = ["indexBody", "reservationsBody", "roomsBody"]
+    if (applicablePages.includes(currentHtmlPage)){
         const adminPanel = document.getElementById("adminPanel");
         const userPanel = document.getElementById("userPanel");
 
