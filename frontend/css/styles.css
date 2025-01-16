@@ -49,6 +49,12 @@ body {
     background-color: #c6e5cd; /* Highlight row on hover */
 }
 
+.controls {
+    display: flex;
+    align-items: center;
+    gap: 10px; 
+}
+
 button {
     visibility: hidden;
     padding: 10px 20px;

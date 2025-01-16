@@ -4,7 +4,24 @@ const currentHtmlPage = document.body.id;
 let currentPage = 1;
 const pageSize = 10;
 
-async function loadUsers(resetPage = false) {
+function showPanel(currentHtmlPage) {
+    const applicablePages = ["indexBody", "reservationsBody", "roomsBody"]
+    if (applicablePages.includes(currentHtmlPage)){
+        const adminPanel = document.getElementById("adminPanel");
+        const userPanel = document.getElementById("userPanel");
+
+        if (userRole === "admin" && adminPanel) {
+            adminPanel.style.display = "block";
+        } else if (userRole === "user" && userPanel) {
+            userPanel.style.display = "block";
+        } else {
+            console.error("Neither adminPanel nor userPanel found.");
+        }
+    }
+}
+
+async function loadUsers(resetPage = false, clearFilters = false) {
+
     if (resetPage) {
         currentPage = 1;
         document.getElementById('prevPageButton').disabled = true;
@@ -12,9 +29,29 @@ async function loadUsers(resetPage = false) {
         document.getElementById('goToPageButton').disabled = false;
         document.getElementById('pageInput').disabled = false;
         document.getElementById('userIdInput').value = '';
-    }
+    }  
 
-    const url = `${apiBaseUrl}/api/v1/users?page=${currentPage}&pageSize=${pageSize}`;
+    let url = `${apiBaseUrl}/api/v1/users?page=${currentPage}&pageSize=${pageSize}`;
+    if(!clearFilters) {
+        const params = new URLSearchParams(window.location.search);
+        const firstName = params.get("firstname"); 
+        const lastName = params.get("lastname"); 
+        const phoneNumber = params.get("phonenumber");
+        const email = params.get("email");
+        
+        if (firstName) {
+            url += `&firstName=${encodeURIComponent(firstName)}`;
+        }
+        if (lastName) {
+            url += `&lastName=${encodeURIComponent(lastName)}`;
+        }
+        if (phoneNumber) {
+            url += `&phoneNumber=${encodeURIComponent(phoneNumber)}`;
+        }   
+        if (email) {
+            url += `&email=${encodeURIComponent(email)}`;
+        }   
+    }
 
     try {
         const response = await fetch(url);
@@ -31,10 +68,11 @@ async function loadUsers(resetPage = false) {
         }
 
         const data = await response.json();
-        if (!data || data.length === 0) {
+
+    /*     if (!data || data.length === 0) { // kan nok fjernes da jeg har 404 sjekk over
             alert('No users found.');
             return;
-        }
+        } */
 
         populateTable(data);
 
@@ -70,13 +108,13 @@ if(currentHtmlPage === "usersBody")
 
 function nextPage() {
     currentPage++;
-    loadUsers();
+    loadUsers(false, true);
 }
 
 function prevPage() {
     if (currentPage > 1) {
         currentPage--;
-        loadUsers();
+        loadUsers(false, true);
     } else {
         alert('You are already on the first page!');
     }
@@ -91,7 +129,7 @@ function gotoPage() {
         return;
     }
     currentPage = page;
-    loadUsers();
+    loadUsers(false, true);
     document.getElementById('pageInput').value = '';
 }
 
@@ -151,10 +189,12 @@ function populateTable(data) {
         });
 }
 
+showPanel(currentHtmlPage);
+
 // all eventlisterners must have conditional checks since the ddont exist in index.html (should have used separate .js for each html(?))
 if(document.getElementById('loadUsers')){
     document.getElementById('loadUsers').addEventListener('click', () => {
-        loadUsers(true);
+        loadUsers(true, true);
     });
 }
 
@@ -174,21 +214,3 @@ if(document.getElementById('nextPageButton')){
 if(document.getElementById('goToPageButton')){
 document.getElementById('goToPageButton').addEventListener('click', gotoPage);
 }
-
-function showPanel(currentHtmlPage) {
-    const applicablePages = ["indexBody", "reservationsBody", "roomsBody"]
-    if (applicablePages.includes(currentHtmlPage)){
-        const adminPanel = document.getElementById("adminPanel");
-        const userPanel = document.getElementById("userPanel");
-
-        if (userRole === "admin" && adminPanel) {
-            adminPanel.style.display = "block";
-        } else if (userRole === "user" && userPanel) {
-            userPanel.style.display = "block";
-        } else {
-            console.error("Neither adminPanel nor userPanel found.");
-        }
-    }
-}
-
-showPanel(currentHtmlPage);
