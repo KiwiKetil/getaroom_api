@@ -22,6 +22,20 @@ public static class WebAppExtensions
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen();
 
+        // CORS
+
+        services.AddCors(options =>
+        {
+            options.AddPolicy("AllowLocalhost",
+                builder =>
+                {
+                    builder
+                        .WithOrigins("http://127.0.0.1:5501", "http://localhost:5501")
+                        .AllowAnyHeader()
+                        .AllowAnyMethod();
+                });
+        });
+
         // MySqlConnectionFactory
         var connectionString = configuration.GetConnectionString("defaultConnection")?
                     .Replace("{ROOM_DB_USER}", Environment.GetEnvironmentVariable("ROOM_DB_USER"))

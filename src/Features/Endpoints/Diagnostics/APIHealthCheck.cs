@@ -4,6 +4,7 @@ namespace RoomSchedulerAPI.Features.Endpoints.Diagnostics;
 
 public static class ApiHealthCheck
 {
+    // Kun admin
     public static void MapApiHealthCheckEndpoint(this WebApplication app)
     {
         app.MapGet("/api/v1/hello", () =>

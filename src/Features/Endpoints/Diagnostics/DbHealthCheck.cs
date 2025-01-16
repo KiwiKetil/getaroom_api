@@ -8,18 +8,26 @@ public static class DBHealthCheck
 {
     public static void MapDbHealthCheckEndpoint(this WebApplication app)
     {
+        // Kun admin
         app.MapGet("/test-db-connection", async ([FromServices] IDbConnectionFactory connectionFactory) =>
         {
-            using var connection = connectionFactory.CreateConnection() as DbConnection;
-            if (connection == null)
-            {
-                return Results.Problem("Failed to create a database connection.");
-            }
-
             try
             {
-                await connection.OpenAsync();
-                return Results.Ok("Connection successful!");
+                using var syncConnection = connectionFactory.CreateConnection() as DbConnection;
+                if (syncConnection == null)
+                {
+                    return Results.Problem("Failed to create a synchronous database connection.");
+                }
+
+                syncConnection.Close();
+
+                using var asyncConnection = await connectionFactory.CreateConnectionAsync() as DbConnection;
+                if (asyncConnection == null)
+                {
+                    return Results.Problem("Failed to create a asynchronous database connection.");
+                }
+           
+                return Results.Ok("Both synchronous and asynchronous connections was successful!");                
             }
             catch (Exception ex)
             {

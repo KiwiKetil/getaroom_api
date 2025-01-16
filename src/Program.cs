@@ -15,18 +15,6 @@ builder.Host.UseSerilog((context, configuration) =>
     configuration.ReadFrom.Configuration(context.Configuration);
 });
 
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowLocalhost",
-        builder =>
-        {
-            builder
-                .WithOrigins("http://127.0.0.1:5501", "http://localhost:5501")
-                .AllowAnyHeader()
-                .AllowAnyMethod();
-        });
-});
-
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())

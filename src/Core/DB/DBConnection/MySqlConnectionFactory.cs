@@ -10,8 +10,11 @@ public class MySqlConnectionFactory(string connectionString) : IDbConnectionFact
 
     public IDbConnection CreateConnection()
     {
-        return new MySqlConnection(_connectionString);
+        var connection = new MySqlConnection(_connectionString);
+        connection.Open();
+        return connection;
     }
+
     public async Task<IDbConnection> CreateConnectionAsync()
     {
         var connection = new MySqlConnection(_connectionString);

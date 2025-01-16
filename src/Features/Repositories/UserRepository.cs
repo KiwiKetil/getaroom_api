@@ -1,5 +1,6 @@
 ﻿using Dapper;
 using RoomSchedulerAPI.Core.DB.DBConnection.Interface;
+using RoomSchedulerAPI.Features.Models.DTOs;
 using RoomSchedulerAPI.Features.Models.Entities;
 using RoomSchedulerAPI.Features.Repositories.Interfaces;
 
@@ -10,22 +11,64 @@ public class UserRepository(IDbConnectionFactory mySqlConnectionFactory, ILogger
     private readonly IDbConnectionFactory _mySqlConnectionFactory = mySqlConnectionFactory;
     private readonly ILogger<UserRepository> _logger = logger;
 
-    public async Task<IEnumerable<User>> GetAllUsersAsync(int page, int pageSize)
-    {
-        _logger.LogDebug("Retrieving all users from DB");
+    //public async Task<IEnumerable<User>> GetAllUsersAsync(UserQuery query)
+    //{
+    //    _logger.LogDebug("Retrieving all users from DB");
 
+    //    using var dbConnection = await _mySqlConnectionFactory.CreateConnectionAsync();
+
+    //    var skipNumber = (query.page - 1) * query.pageSize;
+
+    //    string getUsersSql = @"SELECT Id, FirstName, LastName, PhoneNumber, Email
+    //            FROM Users 
+    //            ORDER BY LastName
+    //            LIMIT @pageSize OFFSET @skipNumber";
+    //    var users = await dbConnection.QueryAsync<User>(getUsersSql, new { pageSize, skipNumber });
+
+    //    return users;
+    //}
+
+    public async Task<IEnumerable<User>> GetAllUsersAsync(UserQuery query)
+    {
         using var dbConnection = await _mySqlConnectionFactory.CreateConnectionAsync();
 
-        var skipNumber = (page - 1) * pageSize;
+        var sql = "SELECT * FROM Users WHERE 1=1";
+        var parameters = new DynamicParameters();
 
-        string getUsersSql = @"SELECT Id, FirstName, LastName, PhoneNumber, Email
-                FROM Users 
-                ORDER BY LastName
-                LIMIT @pageSize OFFSET @skipNumber";
-        var users = await dbConnection.QueryAsync<User>(getUsersSql, new { pageSize, skipNumber });
+        // Add filters dynamically
+        if (!string.IsNullOrEmpty(query.FirstName))
+        {
+            sql += " AND FirstName LIKE @FirstName";
+            parameters.Add("FirstName", $"{query.FirstName}%");
+        }
 
-        return users;
+        if (!string.IsNullOrEmpty(query.LastName))
+        {
+            sql += " AND LastName LIKE @LastName";
+            parameters.Add("LastName", $"{query.LastName}%");
+        }
+
+        if (!string.IsNullOrEmpty(query.PhoneNumber))
+        {
+            sql += " AND PhoneNumber = @PhoneNumber";
+            parameters.Add("PhoneNumber", query.PhoneNumber);
+        }
+
+        if (!string.IsNullOrEmpty(query.Email))
+        {
+            sql += " AND Email = @Email";
+            parameters.Add("Email", query.Email);
+        }      
+    
+        var skipNumber = (query.Page - 1) * query.PageSize;
+        sql += " ORDER BY LastName LIMIT @PageSize OFFSET @SkipNumber";
+        parameters.Add("PageSize", query.PageSize);
+        parameters.Add("SkipNumber", skipNumber);
+
+        // Execute the query
+        return await dbConnection.QueryAsync<User>(sql, parameters);
     }
+
 
     public async Task<User?> GetUserByIdAsync(UserId id)
     {

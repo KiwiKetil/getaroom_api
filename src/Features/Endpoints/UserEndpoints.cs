@@ -10,11 +10,11 @@ public static class UserEndpoints
     public static void MapUserEndpoints(this WebApplication app)
     {
         // admin only
-        app.MapGet("/api/v1/users", async (IUserService userService, ILogger<Program> logger, int page = 1, int pageSize = 10) =>
+        app.MapGet("/api/v1/users", async (IUserService userService, ILogger<Program> logger, [AsParameters] UserQuery query) =>
         {
             logger.LogDebug("Retrieving all users");
 
-            var users = await userService.GetAllUsersAsync(page, pageSize);
+            var users = await userService.GetAllUsersAsync(query);
             return users.Any() ? Results.Ok(users) : Results.NotFound("No users found");
         })
         .WithName("GetAllUsers");
