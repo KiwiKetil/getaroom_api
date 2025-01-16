@@ -14,8 +14,17 @@ public static class UserEndpoints
         {
             logger.LogDebug("Retrieving all users");
 
-            var users = await userService.GetAllUsersAsync(query);
-            return users.Any() ? Results.Ok(users) : Results.NotFound("No users found");
+            var (users, totalCount) = await userService.GetUsersAsync(query);
+            if (!users.Any())
+            {
+                return Results.NotFound("No users found");
+            }
+
+            return Results.Ok(new
+            {
+                TotalCount = totalCount,
+                Data = users                
+            });
         })
         .WithName("GetAllUsers");
 
