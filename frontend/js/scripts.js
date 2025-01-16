@@ -2,7 +2,7 @@ const apiBaseUrl = 'https://localhost:7089';
 const userRole = "admin"; // get from token(?)
 const currentHtmlPage = document.body.id;
 let currentPage = 1;
-const pageSize = 10;
+const pageSize = 2;
 
 function showPanel(currentHtmlPage) {
     const applicablePages = ["indexBody", "reservationsBody", "roomsBody"]
@@ -21,7 +21,6 @@ function showPanel(currentHtmlPage) {
 }
 
 async function loadUsers(resetPage = false, clearFilters = false) {
-
     if (resetPage) {
         currentPage = 1;
         document.getElementById('prevPageButton').disabled = true;
@@ -29,57 +28,65 @@ async function loadUsers(resetPage = false, clearFilters = false) {
         document.getElementById('goToPageButton').disabled = false;
         document.getElementById('pageInput').disabled = false;
         document.getElementById('userIdInput').value = '';
-    }  
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    const firstName = params.get("firstname");
+    const lastName = params.get("lastname");
+    const phoneNumber = params.get("phonenumber");
+    const email = params.get("email");
 
     let url = `${apiBaseUrl}/api/v1/users?page=${currentPage}&pageSize=${pageSize}`;
 
-    if(!clearFilters) {
-        const params = new URLSearchParams(window.location.search);
-        const firstName = params.get("firstname"); 
-        const lastName = params.get("lastname"); 
-        const phoneNumber = params.get("phonenumber");
-        const email = params.get("email");
-        
-        if (firstName) { url += `&firstName=${encodeURIComponent(firstName)}`; }
-        if (lastName) { url += `&lastName=${encodeURIComponent(lastName)}`; }
-        if (phoneNumber) { url += `&phoneNumber=${encodeURIComponent(phoneNumber)}`; }   
-        if (email) { url += `&email=${encodeURIComponent(email)}`; }   
-
-        document.getElementById('goToPageButton').disabled = true;   
-        document.getElementById('pageInput').disabled = true;  
-    }
-    else {
-        // Clear the query string in the browser's address bar
-        history.replaceState(null, '', window.location.pathname);
+    if (!clearFilters) {
+        if (firstName) url += `&firstName=${encodeURIComponent(firstName)}`;
+        if (lastName) url += `&lastName=${encodeURIComponent(lastName)}`;
+        if (phoneNumber) url += `&phoneNumber=${encodeURIComponent(phoneNumber)}`;
+        if (email) url += `&email=${encodeURIComponent(email)}`;
+    } else {
+        history.replaceState(null, '', window.location.pathname); // Clear query string
     }
 
     try {
         const response = await fetch(url);
 
-        if (response.status === 404) {           
-            currentPage = Math.max(1, currentPage - 1); 
+        if (response.status === 404) {
+            // Handle no users found
+            currentPage = Math.max(1, currentPage - 1);
             document.getElementById('nextPageButton').disabled = true;
-            populateTable([]);
-            makeButtonsAndInputsVisible();   
-            document.getElementById('goToPageButton').disabled = true;   
-            document.getElementById('pageInput').disabled = true;                
-        return;
+            document.getElementById('goToPageButton').disabled = true;
+            document.getElementById('pageInput').disabled = true;
+            populateTable([]); // Clear table
+            makeButtonsAndInputsVisible();
+            return;
         }
 
         if (!response.ok) {
             throw new Error(`Network response was not ok: ${response.statusText}`);
         }
 
-        const data = await response.json();
-        populateTable(data);
+        const jsonResponse = await response.json();
+        console.log('Response:', jsonResponse); // Debugging
+        const users = jsonResponse.data || [];
+        const totalCount = jsonResponse.totalCount || 0;
+
+        const totalPages = Math.ceil(totalCount / pageSize);
+
+        populateTable(users);
         makeButtonsAndInputsVisible();
 
-        document.querySelector('.allUsersTable').style.visibility = 'visible';
+        // Update pagination controls
+        const hasResults = users.length > 0;
+        const isLastPage = currentPage >= totalPages;
 
+        document.querySelector('.allUsersTable').style.visibility = 'visible';
         document.getElementById('prevPageButton').disabled = currentPage === 1;
-        document.getElementById('nextPageButton').disabled = data.length < pageSize;
+        document.getElementById('nextPageButton').disabled = isLastPage || !hasResults;
+        document.getElementById('goToPageButton').disabled = !hasResults;
+        document.getElementById('pageInput').disabled = !hasResults;
+
         document.getElementById('currentPageContainer').style.visibility = 'visible';
-        document.getElementById('currentPageDisplay').textContent = currentPage;
+        document.getElementById('currentPageDisplay').textContent = `${currentPage} / ${totalPages}`;
 
         console.log(`Loaded page ${currentPage}`);
     } catch (error) {
@@ -95,13 +102,13 @@ if(currentHtmlPage === "usersBody")
 
 function nextPage() {
     currentPage++;
-    loadUsers(false, true);
+    loadUsers(false, false);
 }
 
 function prevPage() {
     if (currentPage > 1) {
         currentPage--;
-        loadUsers(false, true);
+        loadUsers(false, false);
     } else {
         alert('You are already on the first page!');
     }
@@ -115,12 +122,21 @@ function gotoPage() {
         alert('Please enter a valid page number.');
         return;
     }
+
+    // Ensure the entered page does not exceed the total number of pages
+    const totalPages = Math.ceil(totalCount / pageSize); // Use your totalCount variable
+    if (page > totalPages) {
+        alert(`Please enter a page number between 1 and ${totalPages}.`);
+        return;
+    }
+
     currentPage = page;
-    loadUsers(false, true);
+    loadUsers(false, false);
     document.getElementById('pageInput').value = '';
 }
 
-function resetPaginationForGetUserById() {
+
+function resetPagination() {
     document.getElementById('prevPageButton').disabled = true;
     document.getElementById('nextPageButton').disabled = true;
     document.getElementById('goToPageButton').disabled = true;
@@ -164,7 +180,7 @@ async function getUserById(userId) {
         populateTable(data);
         document.querySelector('.allUsersTable').style.visibility = 'visible';
       
-        resetPaginationForGetUserById();
+        resetPagination();
     } catch (error) {
         console.error('Error fetching user by ID:', error);
         alert(error.message);

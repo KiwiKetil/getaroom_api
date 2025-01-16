@@ -11,63 +11,53 @@ public class UserRepository(IDbConnectionFactory mySqlConnectionFactory, ILogger
     private readonly IDbConnectionFactory _mySqlConnectionFactory = mySqlConnectionFactory;
     private readonly ILogger<UserRepository> _logger = logger;
 
-    //public async Task<IEnumerable<User>> GetAllUsersAsync(UserQuery query)
-    //{
-    //    _logger.LogDebug("Retrieving all users from DB");
-
-    //    using var dbConnection = await _mySqlConnectionFactory.CreateConnectionAsync();
-
-    //    var skipNumber = (query.page - 1) * query.pageSize;
-
-    //    string getUsersSql = @"SELECT Id, FirstName, LastName, PhoneNumber, Email
-    //            FROM Users 
-    //            ORDER BY LastName
-    //            LIMIT @pageSize OFFSET @skipNumber";
-    //    var users = await dbConnection.QueryAsync<User>(getUsersSql, new { pageSize, skipNumber });
-
-    //    return users;
-    //}
-
-    public async Task<IEnumerable<User>> GetAllUsersAsync(UserQuery query)
+    public async Task<(IEnumerable<User> Users, int TotalCount)> GetUsersAsync(UserQuery query)
     {
         using var dbConnection = await _mySqlConnectionFactory.CreateConnectionAsync();
 
-        var sql = "SELECT * FROM Users WHERE 1=1";
+        var baseSql = "FROM Users WHERE 1=1";
         var parameters = new DynamicParameters();
 
         // Add filters dynamically
         if (!string.IsNullOrEmpty(query.FirstName))
         {
-            sql += " AND FirstName LIKE @FirstName";
+            baseSql += " AND FirstName LIKE @FirstName";
             parameters.Add("FirstName", $"{query.FirstName}%");
         }
 
         if (!string.IsNullOrEmpty(query.LastName))
         {
-            sql += " AND LastName LIKE @LastName";
+            baseSql += " AND LastName LIKE @LastName";
             parameters.Add("LastName", $"{query.LastName}%");
         }
 
         if (!string.IsNullOrEmpty(query.PhoneNumber))
         {
-            sql += " AND PhoneNumber = @PhoneNumber";
+            baseSql += " AND PhoneNumber = @PhoneNumber";
             parameters.Add("PhoneNumber", query.PhoneNumber);
         }
 
         if (!string.IsNullOrEmpty(query.Email))
         {
-            sql += " AND Email = @Email";
+            baseSql += " AND Email = @Email";
             parameters.Add("Email", query.Email);
-        }      
-    
+        }
+
+        // Query to get total count
+        var countSql = $"SELECT COUNT(*) {baseSql}";
+        var totalCount = await dbConnection.ExecuteScalarAsync<int>(countSql, parameters);
+
+        // Query to get paginated data
         var skipNumber = (query.Page - 1) * query.PageSize;
-        sql += " ORDER BY LastName LIMIT @PageSize OFFSET @SkipNumber";
+        var dataSql = $"SELECT * {baseSql} ORDER BY LastName LIMIT @PageSize OFFSET @SkipNumber";
         parameters.Add("PageSize", query.PageSize);
         parameters.Add("SkipNumber", skipNumber);
 
-        // Execute the query
-        return await dbConnection.QueryAsync<User>(sql, parameters);
+        var users = await dbConnection.QueryAsync<User>(dataSql, parameters);
+
+        return (users, totalCount);
     }
+
 
 
     public async Task<User?> GetUserByIdAsync(UserId id)

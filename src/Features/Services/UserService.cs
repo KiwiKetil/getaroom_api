@@ -12,13 +12,13 @@ public class UserService(IUserRepository userRepository, IMapper mapper, ILogger
     private readonly ILogger<UserService> _logger = logger;
     private readonly IMapper _mapper = mapper;
 
-    public async Task<IEnumerable<UserDTO>> GetAllUsersAsync(UserQuery query)
+    public async Task<(IEnumerable<UserDTO> Users, int TotalCount)> GetUsersAsync(UserQuery query)
     {
         _logger.LogDebug("Retrieving all users");
 
-        var users = await _userRepository.GetAllUsersAsync(query);
+        var (users, totalCount) = await _userRepository.GetUsersAsync(query);
         var dtos = users.Select(user => _mapper.Map<UserDTO>(user)).ToList();
-        return dtos;
+        return (dtos,totalCount);
     }
 
     public async Task<UserDTO?> GetUserByIdAsync(Guid id)

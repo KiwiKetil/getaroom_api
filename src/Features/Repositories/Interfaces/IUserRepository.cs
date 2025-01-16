@@ -5,7 +5,7 @@ namespace RoomSchedulerAPI.Features.Repositories.Interfaces;
 
 public interface IUserRepository
 {
-    Task<IEnumerable<User>> GetAllUsersAsync(UserQuery query);
+    Task<(IEnumerable<User> Users, int TotalCount)> GetUsersAsync(UserQuery query);
     Task<User?> GetUserByIdAsync(UserId Id);
     Task<User?> UpdateUserAsync(UserId id, User user);
     Task<User?> DeleteUserAsync(UserId id);
