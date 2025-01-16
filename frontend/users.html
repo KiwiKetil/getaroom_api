@@ -19,7 +19,7 @@
     <div class="flex-container">
         <div class="controls">
             <button id ="loadUsers">All Users</button>    
-            <input type="text" id="userIdInput" placeholder="Enter User ID"/>
+            <input type="text" id="userIdInput" placeholder="Enter User ID" autocomplete="off"/>
             <button id ="getUserById">Get User by Id</button>
         </div>
         <table class="allUsersTable">
@@ -35,6 +35,7 @@
             <tbody>
                 <!-- User(s) will be populated here -->
             </tbody>
+            <p id="noDataMessage" style="display: none; text-align: center; font-weight: bold;"></p>
         </table>    
         <p id="currentPageContainer" style="visibility: hidden; text-align: center;">Current Page: <span id="currentPageDisplay">1</span></p>
         <div class="pagination">
