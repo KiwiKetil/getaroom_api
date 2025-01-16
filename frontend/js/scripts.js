@@ -32,6 +32,7 @@ async function loadUsers(resetPage = false, clearFilters = false) {
     }  
 
     let url = `${apiBaseUrl}/api/v1/users?page=${currentPage}&pageSize=${pageSize}`;
+
     if(!clearFilters) {
         const params = new URLSearchParams(window.location.search);
         const firstName = params.get("firstname"); 
@@ -39,28 +40,30 @@ async function loadUsers(resetPage = false, clearFilters = false) {
         const phoneNumber = params.get("phonenumber");
         const email = params.get("email");
         
-        if (firstName) {
-            url += `&firstName=${encodeURIComponent(firstName)}`;
-        }
-        if (lastName) {
-            url += `&lastName=${encodeURIComponent(lastName)}`;
-        }
-        if (phoneNumber) {
-            url += `&phoneNumber=${encodeURIComponent(phoneNumber)}`;
-        }   
-        if (email) {
-            url += `&email=${encodeURIComponent(email)}`;
-        }   
+        if (firstName) { url += `&firstName=${encodeURIComponent(firstName)}`; }
+        if (lastName) { url += `&lastName=${encodeURIComponent(lastName)}`; }
+        if (phoneNumber) { url += `&phoneNumber=${encodeURIComponent(phoneNumber)}`; }   
+        if (email) { url += `&email=${encodeURIComponent(email)}`; }   
+
+        document.getElementById('goToPageButton').disabled = true;   
+        document.getElementById('pageInput').disabled = true;  
+    }
+    else {
+        // Clear the query string in the browser's address bar
+        history.replaceState(null, '', window.location.pathname);
     }
 
     try {
         const response = await fetch(url);
 
-        if (response.status === 404) {
-            alert('No users found');
-            currentPage = Math.max(1, currentPage - 1); // Keep currentPage valid
+        if (response.status === 404) {           
+            currentPage = Math.max(1, currentPage - 1); 
             document.getElementById('nextPageButton').disabled = true;
-            return;
+            populateTable([]);
+            makeButtonsAndInputsVisible();   
+            document.getElementById('goToPageButton').disabled = true;   
+            document.getElementById('pageInput').disabled = true;                
+        return;
         }
 
         if (!response.ok) {
@@ -68,24 +71,8 @@ async function loadUsers(resetPage = false, clearFilters = false) {
         }
 
         const data = await response.json();
-
-    /*     if (!data || data.length === 0) { // kan nok fjernes da jeg har 404 sjekk over
-            alert('No users found.');
-            return;
-        } */
-
         populateTable(data);
-
-        // Make buttons and table visible
-        const buttons = document.querySelectorAll('button');
-        buttons.forEach(button => {
-            button.style.visibility = 'visible';
-        });
-
-        const input = document.querySelectorAll('input');
-        input.forEach(input => {
-            input.style.visibility = 'visible';
-        });
+        makeButtonsAndInputsVisible();
 
         document.querySelector('.allUsersTable').style.visibility = 'visible';
 
@@ -141,7 +128,20 @@ function resetPaginationForGetUserById() {
     document.getElementById('currentPageDisplay').textContent = '1';
 }
 
+function makeButtonsAndInputsVisible() {
+    const buttons = document.querySelectorAll('button');
+    buttons.forEach(button => {
+    button.style.visibility = 'visible';
+    });
+
+    const input = document.querySelectorAll('input');
+    input.forEach(input => {
+    input.style.visibility = 'visible';
+});            
+}
+
 async function getUserById(userId) {    
+    history.replaceState(null, '', window.location.pathname);
     if (!userId) {
         alert('Please enter a User ID.');
         return;
@@ -154,14 +154,15 @@ async function getUserById(userId) {
 
         if (!response.ok) {
             if (response.status === 404) {
-                throw new Error('User not found.');
-            }
-            throw new Error(`Network response was not ok: ${response.statusText}`);
+                populateTable([]);
+                document.getElementById('currentPageContainer').style.visibility = 'hidden';                
+               return;              
+            }           
         }
 
         const data = await response.json();
-
         populateTable(data);
+        document.querySelector('.allUsersTable').style.visibility = 'visible';
       
         resetPaginationForGetUserById();
     } catch (error) {
@@ -172,10 +173,24 @@ async function getUserById(userId) {
 }
 
 function populateTable(data) {
+    const table = document.querySelector('.allUsersTable');
+    const message = document.getElementById('noDataMessage');
     const tbody = document.querySelector('.allUsersTable tbody');
     tbody.innerHTML = ''; // Clear existing data
-    const users = Array.isArray(data) ? data : [data]; // handle both single user and array of users
 
+    if (!data || (Array.isArray(data) && data.length === 0)) {
+        // No data found, hide table and show message
+        table.style.display = 'none';
+        message.style.display = 'block';
+        message.textContent = 'No users found'; // Default for queries
+        document.getElementById('currentPageContainer').style.visibility = 'hidden';
+    } else {
+        // Data found, hide message and show table
+        table.style.display = 'table';
+        message.style.display = 'none';
+
+        // Populate the table with data
+        const users = Array.isArray(data) ? data : [data]; // Handle single user or array
         users.forEach(user => {
             const row = document.createElement('tr');
             row.innerHTML = `
@@ -187,11 +202,12 @@ function populateTable(data) {
             `;
             tbody.appendChild(row);
         });
+    }
 }
 
 showPanel(currentHtmlPage);
 
-// all eventlisterners must have conditional checks since the ddont exist in index.html (should have used separate .js for each html(?))
+// all eventlisterners must have conditional checks since the dont exist in index.html (should have used separate .js for each html(?))
 if(document.getElementById('loadUsers')){
     document.getElementById('loadUsers').addEventListener('click', () => {
         loadUsers(true, true);
