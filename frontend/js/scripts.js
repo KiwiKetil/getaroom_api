@@ -3,6 +3,9 @@ const userRole = "admin"; // get from token(?)
 const currentHtmlPage = document.body.id;
 let currentPage = 1;
 const pageSize = 5;
+// let sortBy = "LastName"; // Default column
+// let order = "ASC";  // Default order
+
 
 function showPanel(currentHtmlPage) {
     const applicablePages = ["indexBody", "reservationsBody", "roomsBody"]
@@ -30,23 +33,16 @@ async function loadUsers(resetPage = false, clearFilters = false) {
         document.getElementById('userIdInput').value = '';
     }
 
-    const params = new URLSearchParams(window.location.search);
-    const firstName = params.get("firstname");
-    const lastName = params.get("lastname");
-    const phoneNumber = params.get("phonenumber");
-    const email = params.get("email");
-    const sortBy = params.get("sortby");
-    const order = params.get("order");
-
     let url = `${apiBaseUrl}/api/v1/users?page=${currentPage}&pageSize=${pageSize}`;
 
+    const params = new URLSearchParams(window.location.search);   
     if (!clearFilters) {
-        if (firstName) url += `&firstName=${encodeURIComponent(firstName)}`;
-        if (lastName) url += `&lastName=${encodeURIComponent(lastName)}`;
-        if (phoneNumber) url += `&phoneNumber=${encodeURIComponent(phoneNumber)}`;
-        if (email) url += `&email=${encodeURIComponent(email)}`;
-        if (sortBy) url += `&sortby=${encodeURIComponent(sortBy)}`
-        if (order) url += `&order=${encodeURIComponent(order)}`
+        if (params.get("firstname")) url += `&firstName=${encodeURIComponent(params.get("firstname"))}`;
+        if (params.get("lastname")) url += `&lastName=${encodeURIComponent(params.get("lastname"))}`;
+        if (params.get("phonenumber")) url += `&phoneNumber=${encodeURIComponent(params.get("phonenumber"))}`;
+        if (params.get("email")) url += `&email=${encodeURIComponent(params.get("email"))}`;
+        if (params.get("sortby")) url += `&sortby=${encodeURIComponent(params.get("sortby"))}`
+        if (params.get("order")) url += `&order=${encodeURIComponent(params.get("order"))}`
     } else {
         history.replaceState(null, '', window.location.pathname); // Clear query string
     }
