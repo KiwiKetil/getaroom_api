@@ -2,7 +2,7 @@ const apiBaseUrl = 'https://localhost:7089';
 const userRole = "admin"; // get from token(?)
 const currentHtmlPage = document.body.id;
 let currentPage = 1;
-const pageSize = 2;
+const pageSize = 5;
 
 function showPanel(currentHtmlPage) {
     const applicablePages = ["indexBody", "reservationsBody", "roomsBody"]
@@ -35,6 +35,8 @@ async function loadUsers(resetPage = false, clearFilters = false) {
     const lastName = params.get("lastname");
     const phoneNumber = params.get("phonenumber");
     const email = params.get("email");
+    const sortBy = params.get("sortby");
+    const order = params.get("order");
 
     let url = `${apiBaseUrl}/api/v1/users?page=${currentPage}&pageSize=${pageSize}`;
 
@@ -43,6 +45,8 @@ async function loadUsers(resetPage = false, clearFilters = false) {
         if (lastName) url += `&lastName=${encodeURIComponent(lastName)}`;
         if (phoneNumber) url += `&phoneNumber=${encodeURIComponent(phoneNumber)}`;
         if (email) url += `&email=${encodeURIComponent(email)}`;
+        if (sortBy) url += `&sortby=${encodeURIComponent(sortBy)}`
+        if (order) url += `&order=${encodeURIComponent(order)}`
     } else {
         history.replaceState(null, '', window.location.pathname); // Clear query string
     }
@@ -95,7 +99,6 @@ async function loadUsers(resetPage = false, clearFilters = false) {
     }
 }
 
-
 if(currentHtmlPage === "usersBody")
     window.onload = function () {
         loadUsers(true);
@@ -126,8 +129,9 @@ async function gotoPage() {
 
     const { totalCount } = await loadUsers();
     const totalPages = Math.ceil(totalCount / pageSize); // Use your totalCount variable
-    if (page > totalPages) {
-        alert(`Please enter a page number between 1 and ${totalPages}.`);
+    if (page > totalPages) {       
+        document.getElementById('pageInput').value = '';
+        currentPage = page;
         return;
     }
 

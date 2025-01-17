@@ -6,6 +6,8 @@ public record UserQuery
     string? LastName,
     string? PhoneNumber,
     string? Email,
+    string SortBy = "LastName",
+    string Order = "ASC",
     int Page = 1,
-    int PageSize = 10
+    int PageSize = 10    
 );
