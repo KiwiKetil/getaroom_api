@@ -130,8 +130,7 @@ async function gotoPage() {
     const { totalCount } = await loadUsers();
     const totalPages = Math.ceil(totalCount / pageSize); // Use your totalCount variable
     if (page > totalPages) {       
-        document.getElementById('pageInput').value = '';
-        currentPage = page;
+        document.getElementById('pageInput').value = '';        
         return;
     }
 
