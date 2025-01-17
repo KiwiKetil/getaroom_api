@@ -18,7 +18,6 @@ public class UserRepository(IDbConnectionFactory mySqlConnectionFactory, ILogger
         var baseSql = "FROM Users WHERE 1=1";
         var parameters = new DynamicParameters();
 
-        // Add filters dynamically
         if (!string.IsNullOrEmpty(query.FirstName))
         {
             baseSql += " AND FirstName LIKE @FirstName";
@@ -39,26 +38,29 @@ public class UserRepository(IDbConnectionFactory mySqlConnectionFactory, ILogger
 
         if (!string.IsNullOrEmpty(query.Email))
         {
-            baseSql += " AND Email = @Email";
-            parameters.Add("Email", query.Email);
+            baseSql += " AND Email LIKE @Email";
+            parameters.Add("Email", $"{ query.Email}%");
         }
 
         // Query to get total count
         var countSql = $"SELECT COUNT(*) {baseSql}";
         var totalCount = await dbConnection.ExecuteScalarAsync<int>(countSql, parameters);
-
-        // Query to get paginated data
+                
         var skipNumber = (query.Page - 1) * query.PageSize;
-        var dataSql = $"SELECT * {baseSql} ORDER BY LastName LIMIT @PageSize OFFSET @SkipNumber";
+
+        // Handle sorting and pagination
+        var dataSql = $"SELECT * {baseSql} ORDER BY {query.SortBy} {query.Order} LIMIT @PageSize OFFSET @SkipNumber";
+        parameters.Add("PageSize", query.PageSize);
+        parameters.Add("SkipNumber", skipNumber);
+
         parameters.Add("PageSize", query.PageSize);
         parameters.Add("SkipNumber", skipNumber);
 
         var users = await dbConnection.QueryAsync<User>(dataSql, parameters);
 
+        // Return both users and total count
         return (users, totalCount);
     }
-
-
 
     public async Task<User?> GetUserByIdAsync(UserId id)
     {
