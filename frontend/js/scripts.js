@@ -51,14 +51,13 @@ async function loadUsers(resetPage = false, clearFilters = false) {
         const response = await fetch(url);
 
         if (response.status === 404) {
-            // Handle no users found
             currentPage = Math.max(1, currentPage - 1);
             document.getElementById('nextPageButton').disabled = true;
             document.getElementById('goToPageButton').disabled = true;
             document.getElementById('pageInput').disabled = true;
-            populateTable([]); // Clear table
+            populateTable([]);
             makeButtonsAndInputsVisible();
-            return;
+            return { totalCount: 0 }; // Return zero totalCount for empty results
         }
 
         if (!response.ok) {
@@ -66,7 +65,6 @@ async function loadUsers(resetPage = false, clearFilters = false) {
         }
 
         const jsonResponse = await response.json();
-        console.log('Response:', jsonResponse); // Debugging
         const users = jsonResponse.data || [];
         const totalCount = jsonResponse.totalCount || 0;
 
@@ -75,7 +73,6 @@ async function loadUsers(resetPage = false, clearFilters = false) {
         populateTable(users);
         makeButtonsAndInputsVisible();
 
-        // Update pagination controls
         const hasResults = users.length > 0;
         const isLastPage = currentPage >= totalPages;
 
@@ -89,11 +86,15 @@ async function loadUsers(resetPage = false, clearFilters = false) {
         document.getElementById('currentPageDisplay').textContent = `${currentPage} / ${totalPages}`;
 
         console.log(`Loaded page ${currentPage}`);
+
+        return { totalCount }; // Return the totalCount
     } catch (error) {
         console.error('Error fetching users:', error);
         alert('Failed to load all users. Check the console for more details.');
+        return { totalCount: 0 }; // Handle errors gracefully with zero totalCount
     }
 }
+
 
 if(currentHtmlPage === "usersBody")
     window.onload = function () {
@@ -114,7 +115,7 @@ function prevPage() {
     }
 }
 
-function gotoPage() {
+async function gotoPage() {
     const pageInput = document.getElementById('pageInput').value;
     const page = parseInt(pageInput);
 
@@ -123,7 +124,7 @@ function gotoPage() {
         return;
     }
 
-    // Ensure the entered page does not exceed the total number of pages
+    const { totalCount } = await loadUsers();
     const totalPages = Math.ceil(totalCount / pageSize); // Use your totalCount variable
     if (page > totalPages) {
         alert(`Please enter a page number between 1 and ${totalPages}.`);
