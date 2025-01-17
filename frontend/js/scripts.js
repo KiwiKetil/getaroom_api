@@ -3,8 +3,8 @@ const userRole = "admin"; // get from token(?)
 const currentHtmlPage = document.body.id;
 let currentPage = 1;
 const pageSize = 5;
-// let sortBy = "LastName"; // Default column
-// let order = "ASC";  // Default order
+let sortBy = "LastName"; // Default column
+let order = "ASC";  // Default order
 
 
 function showPanel(currentHtmlPage) {
@@ -33,7 +33,7 @@ async function loadUsers(resetPage = false, clearFilters = false) {
         document.getElementById('userIdInput').value = '';
     }
 
-    let url = `${apiBaseUrl}/api/v1/users?page=${currentPage}&pageSize=${pageSize}`;
+    let url = `${apiBaseUrl}/api/v1/users?page=${currentPage}&pageSize=${pageSize}&sortby=${encodeURIComponent(sortBy)}&order=${encodeURIComponent(order)}`;
 
     const params = new URLSearchParams(window.location.search);   
     if (!clearFilters) {
@@ -221,6 +221,26 @@ function populateTable(data) {
     }
 }
 
+function onSortHeaderClick(event) {
+    const header = event.target;
+    const column = header.dataset.column;
+
+    if (!column) {
+        return; // Ignore if no data-column attribute
+    }
+
+    // Toggle sorting order if the same column is clicked again
+    if (sortBy === column) {
+        order = order === "ASC" ? "DESC" : "ASC";
+    } else {
+        sortBy = column; // Set new column for sorting
+        order = "ASC"; // Default to ascending for new column
+    }
+
+    // Reload users with the new sorting parameters
+    loadUsers(true);
+}
+
 showPanel(currentHtmlPage);
 
 // all eventlisterners must have conditional checks since the dont exist in index.html (should have used separate .js for each html(?))
@@ -246,3 +266,8 @@ if(document.getElementById('nextPageButton')){
 if(document.getElementById('goToPageButton')){
 document.getElementById('goToPageButton').addEventListener('click', gotoPage);
 }
+
+document.querySelectorAll('.sortable').forEach(header => {
+    header.addEventListener('click', onSortHeaderClick);
+});
+

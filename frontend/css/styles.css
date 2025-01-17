@@ -88,6 +88,15 @@ button {
     margin-top: 20px; /* Add spacing above the section */
 }
 
+
+
+.sortable:hover {
+    color: #1765b8; /* Example: Change text color on hover */
+    text-decoration: underline; /* Example: Add underline on hover */
+    cursor: pointer;
+}
+
+
 @media (max-width: 600px) {
     .allUsersTable th:nth-child(1),
     .allUsersTable td:nth-child(1) {
