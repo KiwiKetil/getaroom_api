@@ -30,7 +30,7 @@ public static class WebAppExtensions
                 builder =>
                 {
                     builder
-                        .WithOrigins("http://127.0.0.1:5501", "http://localhost:5501")
+                        .WithOrigins("http://127.0.0.1:63726", "http://localhost:63726")
                         .AllowAnyHeader()
                         .AllowAnyMethod();
                 });
