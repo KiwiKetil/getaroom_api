@@ -20,7 +20,7 @@ body {
     border-spacing: 0;
     margin-top: 20px;
     background: rgba(230, 226, 226, 0.8);
-    table-layout: auto;      /* Allows the table columns to adjust based on content */
+    table-layout: fixed;      /* Allows the table columns to adjust based on content */
 }
 
 .allUsersTable tr {
@@ -38,12 +38,20 @@ body {
     background-color: rgb(210, 212, 212);
 }
 
-.allUsersTable th:nth-child(1), .allUsersTable td:nth-child(1) {
+#table-id-header {
     max-width: 180px;         /* Set max width for ID column */
     overflow: hidden;         /* Hide overflowing text */
     text-overflow: ellipsis;  /* Add ellipsis if the text overflows */
     white-space: nowrap;      /* Prevent text wrapping */
 }
+
+.allUsersTable th:nth-child(2), /* Lastname column */
+.allUsersTable th:nth-child(3), /* Firstname column */
+.allUsersTable th:nth-child(4)  /* Phonenumber column */ {
+    width: 220px; /* Set your desired width */
+    text-align: left; /* Optional: Align text to the left */
+}
+
 
 .allUsersTable tbody tr:hover {
     background-color: #c6e5cd; /* Highlight row on hover */
@@ -88,14 +96,11 @@ button {
     margin-top: 20px; /* Add spacing above the section */
 }
 
-
-
 .sortable:hover {
     color: #1765b8; /* Example: Change text color on hover */
     text-decoration: underline; /* Example: Add underline on hover */
     cursor: pointer;
 }
-
 
 @media (max-width: 600px) {
     .allUsersTable th:nth-child(1),

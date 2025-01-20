@@ -3,9 +3,11 @@ const userRole = "admin"; // get from token(?)
 const currentHtmlPage = document.body.id;
 let currentPage = 1;
 const pageSize = 5;
-let sortBy = "LastName"; // Default column
-let order = "ASC";  // Default order
 
+if(currentHtmlPage === "usersBody")
+    window.onload = function () {
+        loadUsers(true);
+};
 
 function showPanel(currentHtmlPage) {
     const applicablePages = ["indexBody", "reservationsBody", "roomsBody"]
@@ -33,6 +35,10 @@ async function loadUsers(resetPage = false, clearFilters = false) {
         document.getElementById('userIdInput').value = '';
     }
 
+    const activeHeader = document.querySelector('.sortable[data-active="true"]');
+    const sortBy = activeHeader ? activeHeader.dataset.column : 'LastName'; // Default column
+    const order = activeHeader ? activeHeader.dataset.order : 'ASC';       // Default order
+
     let url = `${apiBaseUrl}/api/v1/users?page=${currentPage}&pageSize=${pageSize}&sortby=${encodeURIComponent(sortBy)}&order=${encodeURIComponent(order)}`;
 
     const params = new URLSearchParams(window.location.search);   
@@ -40,9 +46,7 @@ async function loadUsers(resetPage = false, clearFilters = false) {
         if (params.get("firstname")) url += `&firstName=${encodeURIComponent(params.get("firstname"))}`;
         if (params.get("lastname")) url += `&lastName=${encodeURIComponent(params.get("lastname"))}`;
         if (params.get("phonenumber")) url += `&phoneNumber=${encodeURIComponent(params.get("phonenumber"))}`;
-        if (params.get("email")) url += `&email=${encodeURIComponent(params.get("email"))}`;
-        if (params.get("sortby")) url += `&sortby=${encodeURIComponent(params.get("sortby"))}`
-        if (params.get("order")) url += `&order=${encodeURIComponent(params.get("order"))}`
+        if (params.get("email")) url += `&email=${encodeURIComponent(params.get("email"))}`;      
     } else {
         history.replaceState(null, '', window.location.pathname); // Clear query string
     }
@@ -95,68 +99,7 @@ async function loadUsers(resetPage = false, clearFilters = false) {
     }
 }
 
-if(currentHtmlPage === "usersBody")
-    window.onload = function () {
-        loadUsers(true);
-};
-
-function nextPage() {
-    currentPage++;
-    loadUsers(false, false);
-}
-
-function prevPage() {
-    if (currentPage > 1) {
-        currentPage--;
-        loadUsers(false, false);
-    } else {
-        alert('You are already on the first page!');
-    }
-}
-
-async function gotoPage() {
-    const pageInput = document.getElementById('pageInput').value;
-    const page = parseInt(pageInput);
-
-    if (isNaN(page) || page <= 0) {
-        alert('Please enter a valid page number.');
-        return;
-    }
-
-    const { totalCount } = await loadUsers();
-    const totalPages = Math.ceil(totalCount / pageSize); // Use your totalCount variable
-    if (page > totalPages) {       
-        document.getElementById('pageInput').value = '';        
-        return;
-    }
-
-    currentPage = page;
-    loadUsers(false, false);
-    document.getElementById('pageInput').value = '';
-}
-
-
-function resetPagination() {
-    document.getElementById('prevPageButton').disabled = true;
-    document.getElementById('nextPageButton').disabled = true;
-    document.getElementById('goToPageButton').disabled = true;
-    document.getElementById('pageInput').disabled = true;
-    document.getElementById('currentPageDisplay').textContent = '1';
-}
-
-function makeButtonsAndInputsVisible() {
-    const buttons = document.querySelectorAll('button');
-    buttons.forEach(button => {
-    button.style.visibility = 'visible';
-    });
-
-    const input = document.querySelectorAll('input');
-    input.forEach(input => {
-    input.style.visibility = 'visible';
-});            
-}
-
-async function getUserById(userId) {    
+async function loadUserById (userId) {    
     history.replaceState(null, '', window.location.pathname);
     if (!userId) {
         alert('Please enter a User ID.');
@@ -186,6 +129,61 @@ async function getUserById(userId) {
         alert(error.message);
         document.querySelector('.allUsersTable tbody').innerHTML = '';
     }
+}
+
+function nextPage() {
+    currentPage++;
+    loadUsers(false, false);
+}
+
+function prevPage() {
+    if (currentPage > 1) {
+        currentPage--;
+        loadUsers(false, false);
+    } else {
+        alert('You are already on the first page!');
+    }
+}
+
+async function gotoPage() {
+    const pageInput = document.getElementById('pageInput').value;
+    const page = parseInt(pageInput, 10);
+
+    if (isNaN(page) || page <= 0) {
+        alert('Please enter a valid page number.');
+        return;
+    }
+
+    const { totalCount } = await loadUsers();
+    const totalPages = Math.ceil(totalCount / pageSize); // Use your totalCount variable
+    if (page > totalPages) {       
+        document.getElementById('pageInput').value = '';        
+        return;
+    }
+
+    currentPage = page;
+    loadUsers(false, false);
+    document.getElementById('pageInput').value = '';
+}
+
+function resetPagination() {
+    document.getElementById('prevPageButton').disabled = true;
+    document.getElementById('nextPageButton').disabled = true;
+    document.getElementById('goToPageButton').disabled = true;
+    document.getElementById('pageInput').disabled = true;
+    document.getElementById('currentPageDisplay').textContent = '1';
+}
+
+function makeButtonsAndInputsVisible() {
+    const buttons = document.querySelectorAll('button');
+    buttons.forEach(button => {
+    button.style.visibility = 'visible';
+    });
+
+    const input = document.querySelectorAll('input');
+    input.forEach(input => {
+    input.style.visibility = 'visible';
+});            
 }
 
 function populateTable(data) {
@@ -222,20 +220,22 @@ function populateTable(data) {
 }
 
 function onSortHeaderClick(event) {
-    const header = event.target;
-    const column = header.dataset.column;
+    const header = event.target.closest('.sortable'); // Ensure a sortable header was clicked
+    if (!header) return;
 
-    if (!column) {
-        return; // Ignore if no data-column attribute
-    }
+    const currentOrder = header.dataset.order;
+    const newOrder = currentOrder === 'ASC' ? 'DESC' : 'ASC';
 
-    // Toggle sorting order if the same column is clicked again
-    if (sortBy === column) {
-        order = order === "ASC" ? "DESC" : "ASC";
-    } else {
-        sortBy = column; // Set new column for sorting
-        order = "ASC"; // Default to ascending for new column
-    }
+    // Reset other headers' active states
+    document.querySelectorAll('.sortable').forEach(h => {
+        h.dataset.active = false;
+        h.querySelector('i').className = 'fas fa-sort'; // Reset icon
+    });
+
+    // Set active state for clicked header
+    header.dataset.order = newOrder;
+    header.dataset.active = true;
+    header.querySelector('i').className = newOrder === 'ASC' ? 'fas fa-sort-up' : 'fas fa-sort-down';
 
     // Reload users with the new sorting parameters
     loadUsers(true);
@@ -243,26 +243,28 @@ function onSortHeaderClick(event) {
 
 showPanel(currentHtmlPage);
 
-// all eventlisterners must have conditional checks since the dont exist in index.html (should have used separate .js for each html(?))
+// all eventlisterners must have conditional checks since they dont exist in index.html (should have used separate .js for each html(?))
 if(document.getElementById('loadUsers')){
     document.getElementById('loadUsers').addEventListener('click', () => {
         loadUsers(true, true);
     });
 }
 
-const getUserByIdButton = document.getElementById('getUserById')
-if(getUserByIdButton){
-    getUserByIdButton.addEventListener('click', async () => {
+if(document.getElementById('getUserById')){
+    document.getElementById('getUserById').addEventListener('click', async () => {
         const userId = document.getElementById('userIdInput').value.trim();
-        getUserById(userId);
+        loadUserById (userId);
     })
 }
+
 if(document.getElementById('prevPageButton')){
     document.getElementById('prevPageButton').addEventListener('click', prevPage);
 }
+
 if(document.getElementById('nextPageButton')){
     document.getElementById('nextPageButton').addEventListener('click', nextPage);
 }
+
 if(document.getElementById('goToPageButton')){
 document.getElementById('goToPageButton').addEventListener('click', gotoPage);
 }

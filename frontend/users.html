@@ -6,6 +6,7 @@
     <title>Room Reservation - Users</title>   
     <link rel ="icon" href="images/calendar-color-icon.png"> 
     <link rel ="stylesheet" href="css/styles.css">       
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <script src="js/scripts.js" defer></script>    
 </head>
 <body id = "usersBody">
@@ -25,11 +26,11 @@
         <table class="allUsersTable">
             <thead>
                 <tr>
-                    <th title="Id">ID</th>
-                    <th data-column="LastName" class="sortable" title="Sort by Lastname">Lastname</th>
-                    <th data-column="FirstName" class="sortable" title="Sort by Firstname">Firstname</th>
+                    <th id="table-id-header">ID</th>
+                    <th data-column="LastName" class="sortable" data-order="ASC">Lastname <i class="fas fa-sort"></i></th>
+                    <th data-column="FirstName" class="sortable" data-order="ASC">Firstname <i class="fas fa-sort"></i></th>
                     <th>Phonenumber</th> 
-                    <th data-column="Email" class="sortable" title="Sort by Email">Email</th>
+                    <th data-column="Email" class="sortable" data-order="ASC">Email <i class="fas fa-sort"></i></th>
                 </tr>
             </thead>
             <tbody>
