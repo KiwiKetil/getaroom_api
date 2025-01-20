@@ -10,17 +10,17 @@
 </head>
 <body id="reservationsBody">
     <header>
-        <img src="images/getRoom_clean.png" alt="Company Logo" id="logo" />
-        <h1>Reservations Managment</h1>
+        <a href="index.html">
+            <img src="images/getRoom_clean.png" alt="Company Logo" id="logo"/>
+        </a>               
     </header>
-    <div id = "adminPanel" style="display: none;">
-        <header>
-            <img src="images/getRoom_clean.png" alt="Company Logo" id="logo">            
-            <h3> Choose where to go from here: </h3>  
-        </header>
-        <p><a href="index.html" id="backLink">Back to Homepage</a></p>    
-        <p><a href="users.html" id="usersLink">Manage Users</a></p>   
-        <p><a href="rooms.html" id="roomsLink">Manage Rooms</a></p> 
+    <div id = "adminPanel" style="display: none;">     
+        <div class = "nav-links">       
+            <a href="users.html" id="usersLink">Manage Users</a> 
+            <a href="reservations.html" id="reservationsLink">Manage Reservations</a>
+            <a href="rooms.html" id="roomsLink">Manage Rooms</a>
+        </div>
+    <h1>Reservations Managment</h1>
     </div>
     <div id = "userPanel" style="display: none;">
         <header>
@@ -30,7 +30,5 @@
             <p><a href="index.html" id="backLink">Back to Homepage</a></p>   
             <p><a href="rooms.html" id="roomsLink">Manage Rooms</a></p>
     </div>    
-
-
 </body>
 </html>

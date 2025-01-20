@@ -11,17 +11,32 @@
 </head>
 <body id = "usersBody">
     <header>
-        <img src="images/getRoom_clean.png" alt="Company Logo" id="logo"/>
-        <h1>Users Management</h1>
+        <a href="index.html">
+            <img src="images/getRoom_clean.png" alt="Company Logo" id="logo"/>
+        </a>                 
     </header>
-    <p><a href="index.html" id="backLink">Back to Homepage</a></p>
-    <p><a href="reservations.html" id="reservationsLink">Manage Reservations</a></p>
-    <p><a href="rooms.html" id="roomsLink">Manage Rooms</a></p>
+    <div class = "nav-links">       
+        <a href="users.html" id="usersLink">Manage Users</a> 
+        <a href="reservations.html" id="reservationsLink">Manage Reservations</a>
+        <a href="rooms.html" id="roomsLink">Manage Rooms</a>
+    </div>
+    <h1 id="users-managment-header" style="visibility: hidden;">Users Management</h1>
     <div class="flex-container">
         <div class="controls">
-            <button id ="loadUsers">All Users</button>    
-            <input type="text" id="userIdInput" placeholder="Enter User ID" autocomplete="off"/>
-            <button id ="getUserById">Get User by Id</button>
+            <button id ="loadUsers">All Users</button>             
+            <div class="search-container">
+                <select id="searchColumn">
+                <option value="" selected disabled hidden>Search by…</option>
+                  <option value="Id">ID</option>
+                  <option value="LastName">Last Name</option>                
+                  <option value="PhoneNumber">Phone Number</option>    
+                  <option value="Email">Email</option>  
+                </select>
+                <input type="text" id="searchInput" placeholder="Search..." autocomplete="off" />
+                <button id="searchButton">
+                  <i class="fas fa-search"></i> <!-- FontAwesome magnifying glass icon -->
+                </button>
+              </div>              
         </div>
         <table class="allUsersTable">
             <thead>
@@ -37,7 +52,7 @@
                 <!-- User(s) will be populated here -->
             </tbody>
             <p id="noDataMessage" style="display: none; text-align: center; font-weight: bold;"></p>
-        </table>    
+        </table>            
         <p id="currentPageContainer" style="visibility: hidden; text-align: center;">Current Page: <span id="currentPageDisplay">1</span></p>
         <div class="pagination">
             <button id="prevPageButton">Previous Page</button>
@@ -45,7 +60,6 @@
             <button id="goToPageButton">Go to Page</button>
             <input type="number" id="pageInput" min="1" placeholder="Page number">
         </div>
-    </div> 
-     
+    </div>      
 </body> 
 </html>

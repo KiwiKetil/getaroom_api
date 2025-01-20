@@ -19,6 +19,7 @@ public static class UserEndpoints
             {
                 return Results.NotFound("No users found");
             }
+            logger.LogDebug($"count is: {totalCount}");
 
             return Results.Ok(new
             {
