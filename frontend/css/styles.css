@@ -4,12 +4,24 @@ body {
 }
 
 #logo {
-    position: absolute; /* Allows positioning relative to the screen */
+   
     top: 10px; /* Adjust distance from the top */
     right: 40px; /* Adjust distance from the right */
-    width: 150px; /* Adjust logo width */
+    width: 250px; /* Adjust logo width */
     height: auto; /* Maintain aspect ratio */
 }   
+
+.nav-links {
+    display: flex;
+    justify-content: flex-start; /* Or 'flex-start' and use margins for spacing */
+    gap: 20px;  /* This adds spacing between items */
+    margin-bottom: 40px;
+    margin-top: 20px;
+}
+  
+.nav-links p {
+    margin: 0; /* Remove default paragraph margins */
+}  
 
 .allUsersTable {
     visibility: hidden;
@@ -52,9 +64,19 @@ body {
     text-align: left; /* Optional: Align text to the left */
 }
 
-
 .allUsersTable tbody tr:hover {
     background-color: #c6e5cd; /* Highlight row on hover */
+}
+
+#searchColumn, #searchInput{
+    font-size: 16;
+    width: 305px;
+    padding: 10px 20px;
+}
+
+#searchColumn{
+    width: 160px;
+    text-align: left;
 }
 
 .controls {
@@ -70,7 +92,7 @@ button {
     margin-top: 10px;
 }
 
-#userIdInput, #pageInput {
+#pageInput {
     visibility: hidden;
     padding: 10px 20px;
     margin-right: 10px;
@@ -80,9 +102,9 @@ button {
     font-size: 16px;
 }
 
-#userIdInput {
+/* #userIdInput {
     width: 305px;
-}
+} */
 
 #pageInput {    
     width: 200px;    

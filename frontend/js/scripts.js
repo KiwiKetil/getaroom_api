@@ -2,7 +2,8 @@ const apiBaseUrl = 'https://localhost:7089';
 const userRole = "admin"; // get from token(?)
 const currentHtmlPage = document.body.id;
 let currentPage = 1;
-const pageSize = 5;
+const pageSize = 10;
+let currentFilters = {};
 
 if(currentHtmlPage === "usersBody")
     window.onload = function () {
@@ -25,35 +26,30 @@ function showPanel(currentHtmlPage) {
     }
 }
 
-async function loadUsers(resetPage = false, clearFilters = false) {
+async function loadUsers(resetPage = false, filters = {}) {
     if (resetPage) {
         currentPage = 1;
         document.getElementById('prevPageButton').disabled = true;
         document.getElementById('nextPageButton').disabled = false;
         document.getElementById('goToPageButton').disabled = false;
-        document.getElementById('pageInput').disabled = false;
-        document.getElementById('userIdInput').value = '';
+        document.getElementById('pageInput').disabled = false;       
     }
 
     const activeHeader = document.querySelector('.sortable[data-active="true"]');
-    const sortBy = activeHeader ? activeHeader.dataset.column : 'LastName'; // Default column
-    const order = activeHeader ? activeHeader.dataset.order : 'ASC';       // Default order
+    const sortBy = activeHeader ? activeHeader.dataset.column : 'LastName';
+    const order = activeHeader ? activeHeader.dataset.order : 'ASC';
 
     let url = `${apiBaseUrl}/api/v1/users?page=${currentPage}&pageSize=${pageSize}&sortby=${encodeURIComponent(sortBy)}&order=${encodeURIComponent(order)}`;
 
-    const params = new URLSearchParams(window.location.search);   
-    if (!clearFilters) {
-        if (params.get("firstname")) url += `&firstName=${encodeURIComponent(params.get("firstname"))}`;
-        if (params.get("lastname")) url += `&lastName=${encodeURIComponent(params.get("lastname"))}`;
-        if (params.get("phonenumber")) url += `&phoneNumber=${encodeURIComponent(params.get("phonenumber"))}`;
-        if (params.get("email")) url += `&email=${encodeURIComponent(params.get("email"))}`;      
-    } else {
-        history.replaceState(null, '', window.location.pathname); // Clear query string
-    }
+    // Append the search filters
+    Object.keys(filters).forEach(key => {
+        if (filters[key]) {
+            url += `&${encodeURIComponent(key)}=${encodeURIComponent(filters[key])}`;
+        }
+    });
 
     try {
         const response = await fetch(url);
-
         if (response.status === 404) {
             currentPage = Math.max(1, currentPage - 1);
             document.getElementById('nextPageButton').disabled = true;
@@ -61,22 +57,18 @@ async function loadUsers(resetPage = false, clearFilters = false) {
             document.getElementById('pageInput').disabled = true;
             populateTable([]);
             makeButtonsAndInputsVisible();
-            return { totalCount: 0 }; // Return zero totalCount for empty results
+            return { totalCount: 0 };
         }
-
         if (!response.ok) {
             throw new Error(`Network response was not ok: ${response.statusText}`);
         }
-
         const jsonResponse = await response.json();
         const users = jsonResponse.data || [];
         const totalCount = jsonResponse.totalCount || 0;
-
         const totalPages = Math.ceil(totalCount / pageSize);
 
         populateTable(users);
         makeButtonsAndInputsVisible();
-
         const hasResults = users.length > 0;
         const isLastPage = currentPage >= totalPages;
 
@@ -87,15 +79,15 @@ async function loadUsers(resetPage = false, clearFilters = false) {
         document.getElementById('pageInput').disabled = !hasResults;
 
         document.getElementById('currentPageContainer').style.visibility = 'visible';
+        document.getElementById('users-managment-header').style.visibility = 'visible';
         document.getElementById('currentPageDisplay').textContent = `${currentPage} / ${totalPages}`;
 
         console.log(`Loaded page ${currentPage}`);
-
-        return { totalCount }; // Return the totalCount
+        return { totalCount };
     } catch (error) {
         console.error('Error fetching users:', error);
         alert('Failed to load all users. Check the console for more details.');
-        return { totalCount: 0 }; // Handle errors gracefully with zero totalCount
+        return { totalCount: 0 };
     }
 }
 
@@ -133,13 +125,13 @@ async function loadUserById (userId) {
 
 function nextPage() {
     currentPage++;
-    loadUsers(false, false);
+    loadUsers(false, currentFilters);
 }
 
 function prevPage() {
     if (currentPage > 1) {
         currentPage--;
-        loadUsers(false, false);
+        loadUsers(false, currentFilters);
     } else {
         alert('You are already on the first page!');
     }
@@ -154,15 +146,16 @@ async function gotoPage() {
         return;
     }
 
-    const { totalCount } = await loadUsers();
-    const totalPages = Math.ceil(totalCount / pageSize); // Use your totalCount variable
+    // Use currentFilters as the third parameter so that the search filters are preserved.
+    const { totalCount } = await loadUsers(false, currentFilters);
+    const totalPages = Math.ceil(totalCount / pageSize); 
     if (page > totalPages) {       
         document.getElementById('pageInput').value = '';        
         return;
     }
 
     currentPage = page;
-    loadUsers(false, false);
+    loadUsers(false, currentFilters);
     document.getElementById('pageInput').value = '';
 }
 
@@ -237,24 +230,47 @@ function onSortHeaderClick(event) {
     header.dataset.active = true;
     header.querySelector('i').className = newOrder === 'ASC' ? 'fas fa-sort-up' : 'fas fa-sort-down';
 
-    // Reload users with the new sorting parameters
-    loadUsers(true);
+    // Use the existing filters and reload users with the new sorting parameters
+    loadUsers(true, currentFilters);
 }
-
+    
 showPanel(currentHtmlPage);
 
 // all eventlisterners must have conditional checks since they dont exist in index.html (should have used separate .js for each html(?))
 if(document.getElementById('loadUsers')){
     document.getElementById('loadUsers').addEventListener('click', () => {
-        loadUsers(true, true);
+        loadUsers(true);
     });
 }
 
-if(document.getElementById('getUserById')){
-    document.getElementById('getUserById').addEventListener('click', async () => {
-        const userId = document.getElementById('userIdInput').value.trim();
-        loadUserById (userId);
-    })
+if (document.getElementById('searchButton')) {
+    document.getElementById('searchButton').addEventListener('click', () => {
+        // Retrieve the selected search column value.
+        const searchColumnElement = document.getElementById('searchColumn');
+        const selectedColumn = searchColumnElement.value;
+        
+        // Retrieve the search input value.
+        const searchTerm = document.getElementById('searchInput').value.trim();
+
+        if (!selectedColumn) {
+            alert('Please select a search criteria.');
+            return;
+        }
+
+        if(selectedColumn === 'Id'){
+            loadUserById(searchTerm)
+            return;
+        }
+        
+        // Create the filters object and update the global variable.
+        currentFilters = {};
+        currentFilters[selectedColumn] = searchTerm;
+
+        // Optionally, update active sorting here if needed
+
+        // Call loadUsers with the active filters.
+        loadUsers(true, currentFilters);
+    });
 }
 
 if(document.getElementById('prevPageButton')){
