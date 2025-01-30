@@ -68,4 +68,43 @@ public class UserService(IUserRepository userRepository, IMapper mapper, ILogger
         var userDTO = _mapper.Map<UserDTO>(res);
         return userDTO;
     }
+
+    public async Task<bool> ChangePasswordAsync(ChangePasswordDTO dto) 
+    {
+        _logger.LogDebug("Changing password for user {Email}", dto.Email);
+
+        var user = await _userRepository.GetUserByEmailAsync(dto.Email);
+        if (user == null)
+        {
+            _logger.LogDebug("User not found");
+            return false;
+        }
+
+        var credentials = await _userRepository.GetUserCredentialsByEmailAsync(dto.Email);
+        if (credentials == null)
+        {
+            _logger.LogDebug("User credentials not found for email {Email}", dto.Email);
+            return false;
+        }
+
+        var verified = BCrypt.Net.BCrypt.Verify(dto.CurrentPassword, credentials.HashedPassword);
+        if (!verified)
+        {
+            _logger.LogDebug("Invalid current password");
+            return false;
+        }
+
+        string newHashedPassword = BCrypt.Net.BCrypt.HashPassword(dto.NewPassword);
+        string newSalt = BCrypt.Net.BCrypt.GenerateSalt();
+
+        bool updateSuccess = await _userRepository.ChangePasswordAsync(user.Id, newHashedPassword, newSalt);
+        if (!updateSuccess)
+        {
+            _logger.LogError("Failed to update password for user {Email}", dto.Email);
+            return false;
+        }
+
+        _logger.LogInformation("Password changed successfully for user {Email}", dto.Email);
+        return true;
+    } 
 }
