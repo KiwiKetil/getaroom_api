@@ -32,7 +32,7 @@ async function loadUsers(resetPage = false, filters = {}) {
         document.getElementById('prevPageButton').disabled = true;
         document.getElementById('nextPageButton').disabled = false;
         document.getElementById('goToPageButton').disabled = false;
-        document.getElementById('pageInput').disabled = false;       
+        document.getElementById('pageInput').disabled = false;              
     }
 
     const activeHeader = document.querySelector('.sortable[data-active="true"]');
@@ -146,7 +146,7 @@ async function gotoPage() {
         return;
     }
 
-    // Use currentFilters as the third parameter so that the search filters are preserved.
+    // Use currentFilters as the second parameter so that the search filters are preserved.
     const { totalCount } = await loadUsers(false, currentFilters);
     const totalPages = Math.ceil(totalCount / pageSize); 
     if (page > totalPages) {       
@@ -233,12 +233,32 @@ function onSortHeaderClick(event) {
     // Use the existing filters and reload users with the new sorting parameters
     loadUsers(true, currentFilters);
 }
+
+function navigateTo(url) {
+    window.location.href = url;
+}
     
 showPanel(currentHtmlPage);
+
+if(document.getElementById('manageUsersButton')){
+    document.getElementById('manageUsersButton').addEventListener('click', () => navigateTo('users.html'));
+}
+
+if(document.getElementById('manageReservationsButton')){
+    document.getElementById('manageReservationsButton').addEventListener('click', () => navigateTo('reservations.html'));
+}
+
+if(document.getElementById('manageRoomsButton')){
+    document.getElementById('manageRoomsButton').addEventListener('click', () => navigateTo('rooms.html'));
+}
 
 // all eventlisterners must have conditional checks since they dont exist in index.html (should have used separate .js for each html(?))
 if(document.getElementById('loadUsers')){
     document.getElementById('loadUsers').addEventListener('click', () => {
+          document.querySelectorAll('.sortable').forEach(h => {
+        h.dataset.active = false;
+        h.querySelector('i').className = 'fas fa-sort'; // Reset icon
+    });
         loadUsers(true);
     });
 }
