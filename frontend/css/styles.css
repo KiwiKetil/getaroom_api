@@ -92,6 +92,10 @@ button {
     margin-top: 10px;
 }
 
+#manageUsersButton, #manageReservationsButton, #manageRoomsButton{
+    visibility: visible;
+}
+
 #pageInput {
     visibility: hidden;
     padding: 10px 20px;
@@ -101,10 +105,6 @@ button {
     border-radius: 4px;
     font-size: 16px;
 }
-
-/* #userIdInput {
-    width: 305px;
-} */
 
 #pageInput {    
     width: 200px;    
