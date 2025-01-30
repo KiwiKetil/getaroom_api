@@ -85,5 +85,18 @@ public static class UserEndpoints
             return res != null ? Results.Ok(res) : Results.Conflict(new { Message = "User already exists" });
         })
         .WithName("RegisterUser");
+
+        // new users must change password within 48hrs
+        app.MapPost("/api/v1/users/change-password", async ([FromBody] ChangePasswordDTO dto, IUserService userService, ILogger<Program> logger) =>
+        {
+            logger.LogDebug("User changing password");
+
+            var res = await userService.ChangePasswordAsync(dto);
+
+            return res 
+            ? Results.Ok(new { Message = "Password changed successfully." })
+            : Results.BadRequest(new { Message = "Password could not be changed. Please check your current password and try again." });
+        })
+        .WithName("ChangePassword");
     }
 }
