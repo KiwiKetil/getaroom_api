@@ -1,8 +1,9 @@
 ﻿using RoomSchedulerAPI.Features.Models.DTOs;
+using RoomSchedulerAPI.Features.Models.Entities;
 
 namespace RoomSchedulerAPI.Features.Services.Interfaces;
 
 public interface IUserAuthenticationService
 {
-    Task<bool> AuthenticateUserAsync(LoginDTO dto);
+    Task<User?> AuthenticateUserAsync(LoginDTO dto);
 }

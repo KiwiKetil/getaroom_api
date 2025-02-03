@@ -10,16 +10,21 @@ public class AuthenticationService(IUserRepository userRepository, ILogger<Authe
     private readonly IUserRepository _userRepository = userRepository;
     private readonly ILogger<AuthenticationService> _logger = logger;  
 
-    public async Task<bool> AuthenticateUserAsync(LoginDTO dto)
+    public async Task<User?> AuthenticateUserAsync(LoginDTO dto)
     {
-        var credentials = await _userRepository.GetUserCredentialsByEmailAsync(dto.Email);
+        var user = await _userRepository.GetUserByEmailAsync(dto.Email);
 
-        if (credentials != null && BCrypt.Net.BCrypt.Verify(dto.Password, credentials.HashedPassword))
+        if (user != null) 
         {
-            _logger.LogInformation("User Authenticated: {username}", dto.Email);
-            return true;
-        }
+            var credentials = await _userRepository.GetUserCredentialsByEmailAsync(user.Email);
 
-        return false;
+            if (credentials != null && BCrypt.Net.BCrypt.Verify(dto.Password, credentials.HashedPassword))
+            {
+                _logger.LogInformation("User Authenticated: {username}", dto.Email);
+                return user;
+            }
+        }       
+
+        return null;
     }
 }

@@ -1,5 +1,4 @@
-﻿
-using FluentValidation;
+﻿using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -11,7 +10,6 @@ using RoomSchedulerAPI.Features.Repositories;
 using RoomSchedulerAPI.Features.Repositories.Interfaces;
 using RoomSchedulerAPI.Features.Services;
 using RoomSchedulerAPI.Features.Services.Interfaces;
-using RoomSchedulerAPI.Features.Validators.UserValidators;
 using System.Text;
 
 
@@ -19,14 +17,13 @@ namespace RoomSchedulerAPI.Core.Extensions;
 
 public static class WebAppExtensions
 {
-    public static IServiceCollection RegisterServices(this IServiceCollection services, IConfiguration configuration)    
+    public static IServiceCollection RegisterServices(this IServiceCollection services, IConfiguration configuration)
     {
         // Swagger
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen();
 
         // CORS
-
         services.AddCors(options =>
         {
             options.AddPolicy("AllowLocalhost",
@@ -66,9 +63,14 @@ public static class WebAppExtensions
 
         // Repositories
         services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IUserRoleRepository, UserRoleRepository>();
 
         // AuthenticationService
         services.AddScoped<IUserAuthenticationService, AuthenticationService>();
+
+        // TokenGenerator
+
+        services.AddScoped<ITokenGenerator, TokenGenerator>();
 
         // JWT Authentication and Authorization
 
@@ -89,5 +91,7 @@ public static class WebAppExtensions
         services.AddAuthorization();
 
         return services;
+
+        
     }
 }

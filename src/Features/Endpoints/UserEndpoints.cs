@@ -101,20 +101,20 @@ public static class UserEndpoints
         })
         .WithName("ChangePassword");
 
-        app.MapPost("/api/v1/login", async ([FromBody] LoginDTO dto, IUserAuthenticationService authService, IUserRepository userRepository, ILogger<Program> logger) =>
+        app.MapPost("/api/v1/login", async ([FromBody] LoginDTO dto, IUserAuthenticationService authService, ITokenGenerator tokenGenerator, ILogger<Program> logger) =>
         {
             logger.LogDebug("User logging in");
 
-            var res = await authService.AuthenticateUserAsync(dto);
+            var authenticatedUser = await authService.AuthenticateUserAsync(dto);
 
-            if (res) 
+            if (authenticatedUser == null) 
             {
-                var token = await userRepository.GetUserByEmailAsync(dto.Email);
+                return Results.Problem("Login failed. Please check your username and/or password and try again.", statusCode: 401);
             }
 
-            return res
-            ? Results.Ok(new { Message = "Login Successful" })
-            : Results.Problem("Login failed. Please check your username and/or password and try again.", statusCode: 401);
+            var token = await tokenGenerator.GenerateTokenAsync(authenticatedUser);
+
+            return Results.Ok(new { Token = token });            
         })
         .WithName("UserLogin");
     }

@@ -1,6 +1,8 @@
-﻿namespace RoomSchedulerAPI.Features.Services.Interfaces;
+﻿using RoomSchedulerAPI.Features.Models.Entities;
+
+namespace RoomSchedulerAPI.Features.Services.Interfaces;
 
 public interface ITokenGenerator
 {
-    Task<string> GenerateJWTAsync();
+    Task<string> GenerateTokenAsync(User user);
 }
