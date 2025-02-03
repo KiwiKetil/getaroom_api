@@ -15,7 +15,7 @@ body {
     display: flex;
     justify-content: flex-start; /* Or 'flex-start' and use margins for spacing */
     gap: 20px;  /* This adds spacing between items */
-    margin-bottom: 40px;
+    margin-bottom: 20px;
     margin-top: 20px;
 }
   

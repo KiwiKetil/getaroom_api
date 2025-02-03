@@ -29,6 +29,8 @@ app.UseCors("AllowLocalhost");
 app.UseSerilogRequestLogging();
 app.UseHttpsRedirection();
 app.UseMiddleware<GlobalExceptionMiddleware>();
+app.UseAuthentication();
+app.UseAuthorization();
 app.MapUserEndpoints();
 app.MapApiHealthCheckEndpoint();
 app.MapDbHealthCheckEndpoint();

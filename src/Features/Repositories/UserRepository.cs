@@ -128,7 +128,6 @@ public class UserRepository(IDbConnectionFactory mySqlConnectionFactory, ILogger
         }
     }
 
-
     public async Task<User?> DeleteUserAsync(UserId id)
     {
         _logger.LogInformation("Deleting user with ID {userId} in DB", id);
@@ -167,16 +166,15 @@ public class UserRepository(IDbConnectionFactory mySqlConnectionFactory, ILogger
         }
     }
 
-
     public async Task<User?> GetUserByEmailAsync(string email)
     {
         _logger.LogInformation("Retrieving user with email {email} in DB", email);
 
         using var dbConnection = await _mySqlConnectionFactory.CreateConnectionAsync();
 
-        var emailSql = @"SELECT Id, FirstName, LastName, PhoneNumber, Email FROM Users WHERE email = @email";
+        var getUserbyEmailSql = @"SELECT Id, FirstName, LastName, PhoneNumber, Email FROM Users WHERE email = @email";
 
-        return await dbConnection.QueryFirstOrDefaultAsync<User>(emailSql, new { email });
+        return await dbConnection.QueryFirstOrDefaultAsync<User>(getUserbyEmailSql, new { email });
     }
 
     public async Task<User?> RegisterUserAsync(User user)
@@ -225,7 +223,6 @@ public class UserRepository(IDbConnectionFactory mySqlConnectionFactory, ILogger
         }
     }
 
-
     public async Task<bool> ChangePasswordAsync(UserId id, string newHashedPassword, string newSalt)
     {
         _logger.LogDebug("Updating password in DB");
@@ -235,8 +232,8 @@ public class UserRepository(IDbConnectionFactory mySqlConnectionFactory, ILogger
 
         try
         {
-            string sql = "UPDATE Users SET HashedPassword = @HashedPassword, Salt = @Salt WHERE Id = @Id";
-            int rowsAffected = await dbConnection.ExecuteAsync(sql,
+            string updateUserPasswordSql = "UPDATE Users SET HashedPassword = @HashedPassword, Salt = @Salt WHERE Id = @Id";
+            int rowsAffected = await dbConnection.ExecuteAsync(updateUserPasswordSql,
                 new { HashedPassword = newHashedPassword, Salt = newSalt, Id = id },
                 transaction);
 
@@ -256,14 +253,13 @@ public class UserRepository(IDbConnectionFactory mySqlConnectionFactory, ILogger
         }
     }
 
-
     public async Task<UserCredentials?> GetUserCredentialsByEmailAsync(string email)
     {
         _logger.LogInformation("Retrieving user credentials for email {Email} in DB", email);
 
         using var dbConnection = await _mySqlConnectionFactory.CreateConnectionAsync();
 
-        var credentialsSql = @"
+        var getCredentialsSql = @"
                 SELECT 
                     HashedPassword, 
                     Salt 
@@ -272,6 +268,6 @@ public class UserRepository(IDbConnectionFactory mySqlConnectionFactory, ILogger
                 WHERE 
                     Email = @Email";
 
-        return await dbConnection.QueryFirstOrDefaultAsync<UserCredentials>(credentialsSql, new { Email = email });
+        return await dbConnection.QueryFirstOrDefaultAsync<UserCredentials>(getCredentialsSql, new { Email = email });
     }
 }

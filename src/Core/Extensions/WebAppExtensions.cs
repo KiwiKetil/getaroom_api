@@ -1,6 +1,7 @@
-﻿
-using FluentValidation;
+﻿using FluentValidation;
 using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using RoomSchedulerAPI.Core.DB.DBConnection;
 using RoomSchedulerAPI.Core.DB.DBConnection.Interface;
 using RoomSchedulerAPI.Core.Middleware;
@@ -9,21 +10,20 @@ using RoomSchedulerAPI.Features.Repositories;
 using RoomSchedulerAPI.Features.Repositories.Interfaces;
 using RoomSchedulerAPI.Features.Services;
 using RoomSchedulerAPI.Features.Services.Interfaces;
-using RoomSchedulerAPI.Features.Validators.UserValidators;
+using System.Text;
 
 
 namespace RoomSchedulerAPI.Core.Extensions;
 
 public static class WebAppExtensions
 {
-    public static IServiceCollection RegisterServices(this IServiceCollection services, IConfiguration configuration)    
+    public static IServiceCollection RegisterServices(this IServiceCollection services, IConfiguration configuration)
     {
         // Swagger
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen();
 
         // CORS
-
         services.AddCors(options =>
         {
             options.AddPolicy("AllowLocalhost",
@@ -63,7 +63,35 @@ public static class WebAppExtensions
 
         // Repositories
         services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IUserRoleRepository, UserRoleRepository>();
+
+        // AuthenticationService
+        services.AddScoped<IUserAuthenticationService, AuthenticationService>();
+
+        // TokenGenerator
+
+        services.AddScoped<ITokenGenerator, TokenGenerator>();
+
+        // JWT Authentication and Authorization
+
+        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+          .AddJwtBearer(options =>
+          {
+              options.TokenValidationParameters = new TokenValidationParameters
+              {
+                  ValidateIssuer = true,
+                  ValidateAudience = true,
+                  ValidateLifetime = true,
+                  ValidateIssuerSigningKey = true,
+                  ValidIssuer = configuration["Jwt:Issuer"],
+                  ValidAudience = configuration["Jwt:Issuer"],
+                  IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"]!))
+              };
+          });
+        services.AddAuthorization();
 
         return services;
+
+        
     }
 }
