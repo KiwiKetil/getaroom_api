@@ -80,14 +80,7 @@ public class UserService(IUserRepository userRepository, IMapper mapper, ILogger
             return false;
         }
 
-        var credentials = await _userRepository.GetUserCredentialsByEmailAsync(dto.Email);
-        if (credentials == null)
-        {
-            _logger.LogDebug("User credentials not found for email {Email}", dto.Email);
-            return false;
-        }
-
-        var verified = BCrypt.Net.BCrypt.Verify(dto.CurrentPassword, credentials.HashedPassword);
+        var verified = BCrypt.Net.BCrypt.Verify(dto.CurrentPassword, user.HashedPassword);
         if (!verified)
         {
             _logger.LogDebug("Invalid current password");
