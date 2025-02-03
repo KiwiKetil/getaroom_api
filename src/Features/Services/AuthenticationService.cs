@@ -24,7 +24,6 @@ public class AuthenticationService(IUserRepository userRepository, ILogger<Authe
                 return user;
             }
         }       
-
         return null;
     }
 }
