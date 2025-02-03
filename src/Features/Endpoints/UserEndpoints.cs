@@ -1,6 +1,8 @@
 ﻿using FluentValidation;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using RoomSchedulerAPI.Features.Models.DTOs;
+using RoomSchedulerAPI.Features.Repositories.Interfaces;
 using RoomSchedulerAPI.Features.Services.Interfaces;
 
 namespace RoomSchedulerAPI.Features.Endpoints;
@@ -98,5 +100,22 @@ public static class UserEndpoints
             : Results.BadRequest(new { Message = "Password could not be changed. Please check your current password and try again." });
         })
         .WithName("ChangePassword");
+
+        app.MapPost("/api/v1/login", async ([FromBody] LoginDTO dto, IUserAuthenticationService authService, IUserRepository userRepository, ILogger<Program> logger) =>
+        {
+            logger.LogDebug("User logging in");
+
+            var res = await authService.AuthenticateUserAsync(dto);
+
+            if (res) 
+            {
+                var token = await userRepository.GetUserByEmailAsync(dto.Email);
+            }
+
+            return res
+            ? Results.Ok(new { Message = "Login Successful" })
+            : Results.Problem("Login failed. Please check your username and/or password and try again.", statusCode: 401);
+        })
+        .WithName("UserLogin");
     }
 }
