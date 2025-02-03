@@ -172,7 +172,7 @@ public class UserRepository(IDbConnectionFactory mySqlConnectionFactory, ILogger
 
         using var dbConnection = await _mySqlConnectionFactory.CreateConnectionAsync();
 
-        var getUserbyEmailSql = @"SELECT Id, FirstName, LastName, PhoneNumber, Email FROM Users WHERE email = @email";
+        var getUserbyEmailSql = @"SELECT Id, FirstName, LastName, PhoneNumber, Email, HashedPassword FROM Users WHERE email = @email";
 
         return await dbConnection.QueryFirstOrDefaultAsync<User>(getUserbyEmailSql, new { email });
     }
@@ -251,23 +251,5 @@ public class UserRepository(IDbConnectionFactory mySqlConnectionFactory, ILogger
             transaction.Rollback();
             return false;
         }
-    }
-
-    public async Task<UserCredentials?> GetUserCredentialsByEmailAsync(string email)
-    {
-        _logger.LogInformation("Retrieving user credentials for email {Email} in DB", email);
-
-        using var dbConnection = await _mySqlConnectionFactory.CreateConnectionAsync();
-
-        var getCredentialsSql = @"
-                SELECT 
-                    HashedPassword, 
-                    Salt 
-                FROM 
-                    Users 
-                WHERE 
-                    Email = @Email";
-
-        return await dbConnection.QueryFirstOrDefaultAsync<UserCredentials>(getCredentialsSql, new { Email = email });
     }
 }

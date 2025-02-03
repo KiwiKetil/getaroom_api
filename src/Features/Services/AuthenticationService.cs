@@ -14,16 +14,11 @@ public class AuthenticationService(IUserRepository userRepository, ILogger<Authe
     {
         var user = await _userRepository.GetUserByEmailAsync(dto.Email);
 
-        if (user != null) 
+        if (user != null && BCrypt.Net.BCrypt.Verify(dto.Password, user.HashedPassword)) 
         {
-            var credentials = await _userRepository.GetUserCredentialsByEmailAsync(user.Email);
-
-            if (credentials != null && BCrypt.Net.BCrypt.Verify(dto.Password, credentials.HashedPassword))
-            {
-                _logger.LogInformation("User Authenticated: {username}", dto.Email);
-                return user;
-            }
-        }       
+            _logger.LogInformation("User Authenticated: {username}", dto.Email);
+            return user;
+        }
         return null;
     }
 }
