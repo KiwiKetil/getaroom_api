@@ -1,32 +1,32 @@
 USE room_scheduler;
 
-INSERT INTO Users (Id, FirstName, LastName, PhoneNumber, Email, HashedPassword, Salt)
+INSERT INTO Users (Id, FirstName, LastName, PhoneNumber, Email, HashedPassword)
 VALUES 
-('f47ac10b-58cc-4372-a567-0e02b2c3d471', 'Sarah', 'Connor', '22234354', 'sarah@example.com', 'hashedpassword456', 'somesaltpls'),
-('d75a97de-58cc-4c56-bd74-95f12dbaf2da', 'John', 'Doe', '76354736', 'john.doe@example.com', 'hashedpassword123', 'salt123'),
-('b47ac10b-58cc-4372-a567-0e02b2c3d473', 'Jane', 'Smith', '76530989', 'jane.smith@example.com', 'hashedpassword789', 'salt789'),
-('c47ac10b-58cc-4372-a567-0e02b2c3d474', 'Emily', 'Jones', '66634567', 'emily.jones@example.com', 'hashedpassword456', 'salt456'),
-('8b20ac67-80ff-4ac4-a5f4-564c0a254e30', 'Michael', 'Brown', '54567890', 'michael.brown@example.com', 'hashedpassword111', 'salt111'),
-('6d7b1ca5-54f6-4859-a746-fc712d564128', 'Linda', 'Davis', '44458901', 'linda.davis@example.com', 'hashedpassword222', 'salt222'),
-('f7d235c9-8e5f-4db1-a64a-bae96f3e2e1e', 'Chris', 'Miller', '33369012', 'chris.miller@example.com', 'hashedpassword333', 'salt333'),
-('0eada259-0a95-4c55-9e87-888c1c45c601', 'Patricia', 'Wilson', '27890123', 'patricia.wilson@example.com', 'hashedpassword444', 'salt444'),
-('69d8924d-f13d-44a5-b52f-6170c5cf702d', 'David', 'Moore', '11189012', 'david.moore@example.com', 'hashedpassword555', 'salt555'),
-('e84ab3e6-5e7b-4c03-a8c0-155123f9f2e7', 'Jennifer', 'Taylor', '79012345', 'jennifer.taylor@example.com', 'hashedpassword666', 'salt666'),
-('a47ac10b-58cc-4372-a567-0e02b2c3d481', 'Steven', 'Anderson', '30123456', 'steven.anderson@example.com', 'hashedpassword777', 'salt777'),
-('b47ac10b-58cc-4372-a567-0e02b2c3d482', 'Laura', 'Thomas', '43212367', 'laura.thomas@example.com', 'hashedpassword888', 'salt888'),
-('c47ac10b-58cc-4372-a567-0e02b2c3d483', 'Brian', 'Jackson', '54323478', 'brian.jackson@example.com', 'hashedpassword999', 'salt999'),
-('d47ac10b-58cc-4372-a567-0e02b2c3d484', 'Lisa', 'White', '63456789', 'lisa.white@example.com', 'hashedpassword000', 'salt000'),
-('e47ac10b-58cc-4372-a567-0e02b2c3d485', 'Kevin', 'Harris', '76545670', 'kevin.harris@example.com', 'hashedpassword1234', 'salt1234'),
-('f57ac10b-58cc-4372-a567-0e02b2c3d486', 'James', 'Wilson', '55567890', 'james.wilson@example.com', 'hashedpassword001', 'salt001'),
-('e67ac10b-58cc-4372-a567-0e02b2c3d487', 'Anna', 'Scott', '54456789', 'anna.scott@example.com', 'hashedpassword002', 'salt002'),
-('d77ac10b-58cc-4372-a567-0e02b2c3d488', 'Peter', 'Brown', '53345678', 'peter.brown@example.com', 'hashedpassword003', 'salt003'),
-('c87ac10b-58cc-4372-a567-0e02b2c3d489', 'Laura', 'Taylor', '52234567', 'laura.taylor@example.com', 'hashedpassword004', 'salt004'),
-('b97ac10b-58cc-4372-a567-0e02b2c3d490', 'Sophie', 'Martin', '51123456', 'sophie.martin@example.com', 'hashedpassword005', 'salt005'),
-('a07ac10b-58cc-4372-a567-0e02b2c3d491', 'Nathan', 'Harris', '50012345', 'nathan.harris@example.com', 'hashedpassword006', 'salt006'),
-('997ac10b-58cc-4372-a567-0e02b2c3d492', 'Isabella', 'Moore', '48901234', 'isabella.moore@example.com', 'hashedpassword007', 'salt007'),
-('887ac10b-58cc-4372-a567-0e02b2c3d493', 'Ethan', 'King', '47890123', 'ethan.king@example.com', 'hashedpassword008', 'salt008'),
-('777ac10b-58cc-4372-a567-0e02b2c3d494', 'Emily', 'Allen', '46789012', 'emily.allen@example.com', 'hashedpassword009', 'salt009'),
-('667ac10b-58cc-4372-a567-0e02b2c3d495', 'Oliver', 'Young', '45678901', 'oliver.young@example.com', 'hashedpassword010', 'salt010');
+('f47ac10b-58cc-4372-a567-0e02b2c3d471', 'Sarah', 'Connor', '22234354', 'sarah@example.com', '$2a$11$J6F8Ba0CwJ7HdyD9aj9NUeGvANKsyPDFdZrIROMY2425CqnobPqL.'),
+('d75a97de-58cc-4c56-bd74-95f12dbaf2da', 'John', 'Doe', '76354736', 'john.doe@example.com', '$2a$11$e5FU8uAzlUY12irfoXu2s.7n8TI60vBEkjSVUAOlb9SU6KRv4JK6K'),
+('b47ac10b-58cc-4372-a567-0e02b2c3d473', 'Jane', 'Smith', '76530989', 'jane.smith@example.com', '$2a$11$vfdLpvN5lYioR7WWiNonRO1hFHU2U/P2ImUS3UZ9/VTQmRAK4K0IS'),
+('c47ac10b-58cc-4372-a567-0e02b2c3d474', 'Emily', 'Jones', '66634567', 'emily.jones@example.com', '$2a$11$j9el7y996VSs4F1ACHuDqu/f29zkbIe1.gLYqnOlm30JKy/q/TT9e'),
+('8b20ac67-80ff-4ac4-a5f4-564c0a254e30', 'Michael', 'Brown', '54567890', 'michael.brown@example.com', '$2a$11$NwF.wNswvGE/iP8P/vdCYewpYmNgK5grhoUXJcw7ganiMbI9Vh1aW'),
+('6d7b1ca5-54f6-4859-a746-fc712d564128', 'Linda', 'Davis', '44458901', 'linda.davis@example.com', '$2a$11$mWMnMyKTkEcH0ZVDKLKvvO99Rdr4XVvVJJeWrIy4CjjYze6yKh7pe'),
+('f7d235c9-8e5f-4db1-a64a-bae96f3e2e1e', 'Chris', 'Miller', '33369012', 'chris.miller@example.com', '$2a$11$Mw08I56b2IDORDOBHmb4we/cuBkhTa6FNAMXcrbYzXiWPkACGE.gC'),
+('0eada259-0a95-4c55-9e87-888c1c45c601', 'Patricia', 'Wilson', '27890123', 'patricia.wilson@example.com', '$2a$11$JtUOtOM.qbzCLVQ1hzvd9.tw5j7i519uOFEvCdL81nu2QD/2D.Ra.'),
+('69d8924d-f13d-44a5-b52f-6170c5cf702d', 'David', 'Moore', '11189012', 'david.moore@example.com', '$2a$11$GUQxMFNnfMwJUgF6tIs1JOmACewjB6rf7aZSAgDzCUBCEXt4DYuk6'),
+('e84ab3e6-5e7b-4c03-a8c0-155123f9f2e7', 'Jennifer', 'Taylor', '79012345', 'jennifer.taylor@example.com', '$2a$11$GBgkiSEgUYUcvkUxjEIznOc/4n4qIi3w55srvsIOxUogOJO7t5BPK'),
+('a47ac10b-58cc-4372-a567-0e02b2c3d481', 'Steven', 'Anderson', '30123456', 'steven.anderson@example.com', '$2a$11$heoHrqiF9ZV79gM4kuL6.OEHu4kc1mMUilyneuLAYRcIWHjKv/1pW'),
+('b47ac10b-58cc-4372-a567-0e02b2c3d482', 'Laura', 'Thomas', '43212367', 'laura.thomas@example.com', '$2a$11$3TmyfswU6Dyw7otdNR4JzuwovhlBKa2BEk8EHJYisOSQTNCciy5l2'),
+('c47ac10b-58cc-4372-a567-0e02b2c3d483', 'Brian', 'Jackson', '54323478', 'brian.jackson@example.com', '$2a$11$HVCtnAmjnJhRuCM1WMPkrOiWiDNeds1remeX4b0APH8pZPGlHuXrS'),
+('d47ac10b-58cc-4372-a567-0e02b2c3d484', 'Lisa', 'White', '63456789', 'lisa.white@example.com', '$2a$11$N9bMKavXRgbqAHj9ZI9DxeoXUWl5dLyNx8Qlap/wMLtgfmSwXZuU6'),
+('e47ac10b-58cc-4372-a567-0e02b2c3d485', 'Kevin', 'Harris', '76545670', 'kevin.harris@example.com', '$2a$11$LGO1MkVyYOJX08qWgXF9Q.BJFICMzoA1GQoe0xrwBG56bJNAwax2K'),
+('f57ac10b-58cc-4372-a567-0e02b2c3d486', 'James', 'Wilson', '55567890', 'james.wilson@example.com', '$2a$11$ux9NKP9wRL2oL2ueq7C4JucbpISrovDJWsH/r1zcR6MOvMxYExBka'),
+('e67ac10b-58cc-4372-a567-0e02b2c3d487', 'Anna', 'Scott', '54456789', 'anna.scott@example.com', '$2a$11$a8zgeqAcC9X1aBdBYf8ZveZ9338mJ5de0gltCwsXkbpz1n.7Bp6zy'),
+('d77ac10b-58cc-4372-a567-0e02b2c3d488', 'Peter', 'Brown', '53345678', 'peter.brown@example.com', '$2a$11$grFDrhlzHrZF86s7WEM8KOa88qKbbzIJTn4RANcIoNn3Up0q09N9W'),
+('c87ac10b-58cc-4372-a567-0e02b2c3d489', 'Laura', 'Taylor', '52234567', 'laura.taylor@example.com', '$2a$11$AQFLvS7Mx4.cQLPIUmXnYeX5oUZQs1UEP71p/YWSb5oH/MtZ4aUpC'),
+('b97ac10b-58cc-4372-a567-0e02b2c3d490', 'Sophie', 'Martin', '51123456', 'sophie.martin@example.com', '$2a$11$JeG1uG96eJjVNQjMWYjHxufAkM5ClxUJThDXZrlvoDWob3vXcyWsC'),
+('a07ac10b-58cc-4372-a567-0e02b2c3d491', 'Nathan', 'Harris', '50012345', 'nathan.harris@example.com', '$2a$11$hizg73/Yp9a9A9HM97cAu.1wobJiV9JMtWqUxqc/7BVQvS1abyJOC'),
+('997ac10b-58cc-4372-a567-0e02b2c3d492', 'Isabella', 'Moore', '48901234', 'isabella.moore@example.com', '$2a$11$6xXRL70I8ug4LiBUX2XLPegWiTOLJXzAXzzE9Sm5RrSLmTuTVDbJq'),
+('887ac10b-58cc-4372-a567-0e02b2c3d493', 'Ethan', 'King', '47890123', 'ethan.king@example.com', '$2a$11$SQPPklsWt/zxKGFVydN84ekWAOVcpNc2ml4hopHV2m.WEFqhKMNl2'),
+('777ac10b-58cc-4372-a567-0e02b2c3d494', 'Emily', 'Allen', '46789012', 'emily.allen@example.com', '$2a$11$sZESr63dKh43NXQdjA.EYuUo.N7rF5I1u7Twk06deKsG.8b7C0n3a'),
+('667ac10b-58cc-4372-a567-0e02b2c3d495', 'Oliver', 'Young', '45678901', 'oliver.young@example.com', '$2a$11$0IkhlmSbujL0kBvqiNfcr.XH4qZfPJFdD52En5JYoyM87GFW20L3e');
 
 INSERT INTO UserRoles (UserId, RoleName)
 VALUES    

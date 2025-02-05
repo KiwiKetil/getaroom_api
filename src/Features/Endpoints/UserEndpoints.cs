@@ -97,7 +97,7 @@ public static class UserEndpoints
 
             return res 
             ? Results.Ok(new { Message = "Password changed successfully." })
-            : Results.BadRequest(new { Message = "Password could not be changed. Please check your current password and try again." });
+            : Results.BadRequest(new { Message = "Password could not be changed. Please check your username or password and try again." });
         })
         .WithName("ChangePassword");
 
