@@ -78,7 +78,7 @@ public static class UserEndpoints
                 detail: "User could not be deleted"
                 );
         })
-        //.RequireAuthorization(new AuthorizeAttribute { Roles = "Admin, User" }) // user only self
+        //.RequireAuthorization(new AuthorizeAttribute { Roles = "Admin" }) // user only self? Only admin can delete?
         .WithName("DeleteUser");
 
         // admin only
@@ -93,9 +93,17 @@ public static class UserEndpoints
         .WithName("RegisterUser");
 
         // new users must change password within 48hrs
-        app.MapPost("/api/v1/users/change-password", async ([FromBody] ChangePasswordDTO dto, IUserService userService, ILogger<Program> logger) =>
+        app.MapPost("/api/v1/users/change-password", async ([FromBody] ChangePasswordDTO dto, IValidator <ChangePasswordDTO> validator, IUserService userService, ILogger<Program> logger) =>
         {
             logger.LogDebug("User changing password");
+
+            var validationResult = await validator.ValidateAsync(dto);
+
+            if (!validationResult.IsValid)
+            {
+                var errors = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
+                return Results.BadRequest(errors);
+            }
 
             var res = await userService.ChangePasswordAsync(dto);
 
