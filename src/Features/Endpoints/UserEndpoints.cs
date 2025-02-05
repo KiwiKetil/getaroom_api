@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RoomSchedulerAPI.Features.Models.DTOs;
 using RoomSchedulerAPI.Features.Repositories.Interfaces;
@@ -29,6 +30,7 @@ public static class UserEndpoints
                 Data = users                
             });
         })
+        //.RequireAuthorization(new AuthorizeAttribute { Roles = "Admin" })
         .WithName("GetAllUsers");
 
         // admin only
@@ -39,9 +41,9 @@ public static class UserEndpoints
             var user = await userService.GetUserByIdAsync(id);
             return user != null ? Results.Ok(user) : Results.NotFound("User was not found");
         })
+        //.RequireAuthorization(new AuthorizeAttribute { Roles = "Admin" })
         .WithName("GetUserById");
 
-        // admin and user the profile belongs to
         app.MapPut("/api/v1/users/{id}", async ([FromRoute] Guid id, [FromBody] UserUpdateDTO dto, IUserService userService, IValidator<UserUpdateDTO> validator, ILogger<Program> logger) =>
         {
             logger.LogDebug("Updating user with ID {userId}", id);
@@ -61,6 +63,7 @@ public static class UserEndpoints
                 detail: "User could not be updated"
                 );
         })
+        //.RequireAuthorization(new AuthorizeAttribute { Roles = "Admin, User" }) // user only self
         .WithName("UpdateUser");
 
         // admin only
@@ -75,6 +78,7 @@ public static class UserEndpoints
                 detail: "User could not be deleted"
                 );
         })
+        //.RequireAuthorization(new AuthorizeAttribute { Roles = "Admin, User" }) // user only self
         .WithName("DeleteUser");
 
         // admin only
@@ -99,6 +103,7 @@ public static class UserEndpoints
             ? Results.Ok(new { Message = "Password changed successfully." })
             : Results.BadRequest(new { Message = "Password could not be changed. Please check your username or password and try again." });
         })
+        //.RequireAuthorization(new AuthorizeAttribute { Roles = "Admin, User" }) // user only self
         .WithName("ChangePassword");
 
         app.MapPost("/api/v1/login", async ([FromBody] LoginDTO dto, IUserAuthenticationService authService, ITokenGenerator tokenGenerator, ILogger<Program> logger) =>
