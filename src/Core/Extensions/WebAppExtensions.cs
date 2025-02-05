@@ -69,11 +69,9 @@ public static class WebAppExtensions
         services.AddScoped<IUserAuthenticationService, AuthenticationService>();
 
         // TokenGenerator
-
         services.AddScoped<ITokenGenerator, TokenGenerator>();
 
         // JWT Authentication and Authorization
-
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
           .AddJwtBearer(options =>
           {
