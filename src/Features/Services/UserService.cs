@@ -62,7 +62,6 @@ public class UserService(IUserRepository userRepository, IMapper mapper, ILogger
         var user = _mapper.Map<User>(dto);
         user.Id = UserId.NewId;
         user.HashedPassword = BCrypt.Net.BCrypt.HashPassword(dto.Password);
-        user.Salt = BCrypt.Net.BCrypt.GenerateSalt();
 
         var res = await _userRepository.RegisterUserAsync(user);
         var userDTO = _mapper.Map<UserDTO>(res);
@@ -88,9 +87,8 @@ public class UserService(IUserRepository userRepository, IMapper mapper, ILogger
         }
 
         string newHashedPassword = BCrypt.Net.BCrypt.HashPassword(dto.NewPassword);
-        string newSalt = BCrypt.Net.BCrypt.GenerateSalt();
 
-        bool updateSuccess = await _userRepository.ChangePasswordAsync(user.Id, newHashedPassword, newSalt);
+        bool updateSuccess = await _userRepository.ChangePasswordAsync(user.Id, newHashedPassword);
         if (!updateSuccess)
         {
             _logger.LogError("Failed to update password for user {Email}", dto.Email);

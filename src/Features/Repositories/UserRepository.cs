@@ -186,8 +186,8 @@ public class UserRepository(IDbConnectionFactory mySqlConnectionFactory, ILogger
 
         try
         {
-            string registerUserSql = @"INSERT INTO Users (Id, FirstName, LastName, PhoneNumber, Email, HashedPassword, Salt)
-                                   VALUES (@Id, @FirstName, @LastName, @PhoneNumber, @Email, @HashedPassword, @Salt)";
+            string registerUserSql = @"INSERT INTO Users (Id, FirstName, LastName, PhoneNumber, Email, HashedPassword)
+                                   VALUES (@Id, @FirstName, @LastName, @PhoneNumber, @Email, @HashedPassword)";
 
             var parameters = new
             {
@@ -196,8 +196,7 @@ public class UserRepository(IDbConnectionFactory mySqlConnectionFactory, ILogger
                 user.LastName,
                 user.PhoneNumber,
                 user.Email,
-                user.HashedPassword,
-                user.Salt
+                user.HashedPassword
             };
 
             int rowsAffected = await dbConnection.ExecuteAsync(registerUserSql, parameters, transaction);
@@ -223,7 +222,7 @@ public class UserRepository(IDbConnectionFactory mySqlConnectionFactory, ILogger
         }
     }
 
-    public async Task<bool> ChangePasswordAsync(UserId id, string newHashedPassword, string newSalt)
+    public async Task<bool> ChangePasswordAsync(UserId id, string newHashedPassword)
     {
         _logger.LogDebug("Updating password in DB");
 
@@ -232,9 +231,9 @@ public class UserRepository(IDbConnectionFactory mySqlConnectionFactory, ILogger
 
         try
         {
-            string updateUserPasswordSql = "UPDATE Users SET HashedPassword = @HashedPassword, Salt = @Salt WHERE Id = @Id";
+            string updateUserPasswordSql = "UPDATE Users SET HashedPassword = @HashedPassword WHERE Id = @Id";
             int rowsAffected = await dbConnection.ExecuteAsync(updateUserPasswordSql,
-                new { HashedPassword = newHashedPassword, Salt = newSalt, Id = id },
+                new { HashedPassword = newHashedPassword, Id = id },
                 transaction);
 
             if (rowsAffected > 1)
