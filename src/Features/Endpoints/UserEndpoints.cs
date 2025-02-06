@@ -90,9 +90,11 @@ public static class UserEndpoints
 
             return res != null ? Results.Ok(res) : Results.Conflict(new { Message = "User already exists" });
         })
-        .WithName("RegisterUser");
+        .WithName("RegisterUser")
+        .RequireAuthorization(new AuthorizeAttribute { Roles = "Admin" });
 
-        // new users must change password within 48hrs
+
+        // new users must change passwordgiven by admin(?)
         app.MapPost("/api/v1/users/change-password", async ([FromBody] ChangePasswordDTO dto, IValidator <ChangePasswordDTO> validator, IUserService userService, ILogger<Program> logger) =>
         {
             logger.LogDebug("User changing password");
