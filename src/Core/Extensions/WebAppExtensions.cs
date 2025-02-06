@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using FluentValidation.AspNetCore;
+using FluentValidation.Resources;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using RoomSchedulerAPI.Core.DB.DBConnection;
@@ -10,6 +11,7 @@ using RoomSchedulerAPI.Features.Repositories;
 using RoomSchedulerAPI.Features.Repositories.Interfaces;
 using RoomSchedulerAPI.Features.Services;
 using RoomSchedulerAPI.Features.Services.Interfaces;
+using System.Globalization;
 using System.Text;
 
 
@@ -51,6 +53,11 @@ public static class WebAppExtensions
         // Fluent Validation
         services.AddValidatorsFromAssemblyContaining<UserService>();
         services.AddFluentValidationAutoValidation(config => config.DisableDataAnnotationsValidation = true);
+
+        ValidatorOptions.Global.LanguageManager = new LanguageManager
+        {
+            Culture = new CultureInfo("en")
+        };
 
         // ExceptionHandling
         services.AddScoped<GlobalExceptionMiddleware>();
