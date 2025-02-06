@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using RoomSchedulerAPI.Features.Models.DTOs;
+using RoomSchedulerAPI.Features.Models.DTOs.UserDTOs;
 
 namespace RoomSchedulerAPI.Features.Validators.UserValidators;
 
@@ -15,10 +15,12 @@ public class ChangePasswordDTOValidator : AbstractValidator<ChangePasswordDTO>
 
         RuleFor(x => x.CurrentPassword)
             .NotEmpty()
-            .Matches(PasswordPattern).WithMessage("Password must be 8-24 characters, include at least 1 number, 1 uppercase, 1 lowercase, and 1 special character ('! ? * # _ -')");
+            .Matches(PasswordPattern).WithMessage("Current Password must be 8-24 characters, include at least 1 number, 1 uppercase," +
+                                                  " 1 lowercase, and 1 special character ('! ? * # _ -')");
 
         RuleFor(x => x.NewPassword)
-            .NotEmpty().WithMessage("NewPassword cannot be empty")
-            .Matches(PasswordPattern).WithMessage("Password must be 8-24 characters, include at least 1 number, 1 uppercase, 1 lowercase, and 1 special character ('! ? * # _ -')");
+            .NotEmpty()
+            .Matches(PasswordPattern).WithMessage("New Password must be 8-24 characters, include at least 1 number, 1 uppercase," +
+                                                  " 1 lowercase, and 1 special character ('! ? * # _ -')");
     }
 }

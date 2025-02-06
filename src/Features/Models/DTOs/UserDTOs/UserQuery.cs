@@ -1,4 +1,4 @@
-﻿namespace RoomSchedulerAPI.Features.Models.DTOs;
+﻿namespace RoomSchedulerAPI.Features.Models.DTOs.UserDTOs;
 
 public record UserQuery
 (
@@ -9,5 +9,5 @@ public record UserQuery
     string SortBy = "LastName",
     string Order = "ASC",
     int Page = 1,
-    int PageSize = 10    
+    int PageSize = 10
 );

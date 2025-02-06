@@ -1,4 +1,4 @@
-﻿using RoomSchedulerAPI.Features.Models.DTOs;
+﻿using RoomSchedulerAPI.Features.Models.DTOs.UserDTOs;
 using RoomSchedulerAPI.Features.Models.Entities;
 using RoomSchedulerAPI.Features.Repositories.Interfaces;
 using RoomSchedulerAPI.Features.Services.Interfaces;

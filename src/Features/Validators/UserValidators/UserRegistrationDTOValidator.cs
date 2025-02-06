@@ -3,13 +3,25 @@ using RoomSchedulerAPI.Features.Models.DTOs.UserDTOs;
 
 namespace RoomSchedulerAPI.Features.Validators.UserValidators;
 
-public class LoginDTOValidator : AbstractValidator<LoginDTO>
+public class UserRegistrationDTOValidator : AbstractValidator<UserRegistrationDTO>
 {
     private const string PasswordPattern = @"^(?=.*[0-9])(?=.*[A-Z])(?=.*[a-z])(?=.*[!?*#_-]).{8,24}$";
 
-    public LoginDTOValidator()
+    public UserRegistrationDTOValidator()
     {
-        RuleFor(x => x.Email)                 
+        RuleFor(x => x.FirstName)
+            .NotEmpty()
+            .MaximumLength(16);
+
+        RuleFor(x => x.LastName)
+            .NotEmpty()
+            .MaximumLength(24);
+
+        RuleFor(x => x.PhoneNumber)
+            .NotEmpty()
+            .Matches(@"^\+?[1-9]\d{7,14}$");
+
+        RuleFor(x => x.Email)
             .NotEmpty()
             .EmailAddress();
 

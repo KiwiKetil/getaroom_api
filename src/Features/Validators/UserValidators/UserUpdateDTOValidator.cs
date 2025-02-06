@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using RoomSchedulerAPI.Features.Models.DTOs;
+using RoomSchedulerAPI.Features.Models.DTOs.UserDTOs;
 using System.Text.RegularExpressions;
 
 namespace RoomSchedulerAPI.Features.Validators.UserValidators;
@@ -10,12 +10,10 @@ public class UserUpdateDTOValidator : AbstractValidator<UserUpdateDTO>
     {
         RuleFor(x => x.FirstName)
             .NotEmpty()
-            .NotEqual("string")
             .MaximumLength(16);
 
         RuleFor(x => x.LastName)
             .NotEmpty()
-            .NotEqual("string")
             .MaximumLength(24);
 
         RuleFor(x => x.PhoneNumber)
