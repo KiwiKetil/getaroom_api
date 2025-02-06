@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using RoomSchedulerAPI.Features.Models.DTOs;
+using RoomSchedulerAPI.Features.Models.DTOs.UserDTOs;
 using RoomSchedulerAPI.Features.Repositories.Interfaces;
 using RoomSchedulerAPI.Features.Services.Interfaces;
 
@@ -48,7 +48,7 @@ public static class UserEndpoints
         {
             logger.LogDebug("Updating user with ID {userId}", id);
 
-            var validationResult = await validator.ValidateAsync(dto);
+            var validationResult = validator.Validate(dto);
 
             if (!validationResult.IsValid)
             {
@@ -78,20 +78,28 @@ public static class UserEndpoints
                 detail: "User could not be deleted"
                 );
         })
-        //.RequireAuthorization(new AuthorizeAttribute { Roles = "Admin" }) // user only self? Only admin can delete?
+        //.RequireAuthorization(new AuthorizeAttribute { Roles = "Admin" }) // user only self? Or only admin can delete?
         .WithName("DeleteUser");
 
         // admin only
-        app.MapPost("/api/v1/users/register", async ([FromBody] UserRegistrationDTO dto, IUserService userService, ILogger<Program> logger) =>
+        app.MapPost("/api/v1/users/register", async ([FromBody] UserRegistrationDTO dto, IValidator<UserRegistrationDTO> validator, IUserService userService, ILogger<Program> logger) =>
         {
             logger.LogDebug("Registering new user");
+
+            var validationResult = validator.Validate(dto);
+
+            if (!validationResult.IsValid)
+            {
+                var errors = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
+                return Results.BadRequest(errors);
+            }
 
             var res = await userService.RegisterUserAsync(dto);
 
             return res != null ? Results.Ok(res) : Results.Conflict(new { Message = "User already exists" });
         })
-        .WithName("RegisterUser")
-        .RequireAuthorization(new AuthorizeAttribute { Roles = "Admin" });
+        .WithName("RegisterUser");
+        // .RequireAuthorization(new AuthorizeAttribute { Roles = "Admin" });
 
 
         // new users must change passwordgiven by admin(?)
@@ -99,7 +107,7 @@ public static class UserEndpoints
         {
             logger.LogDebug("User changing password");
 
-            var validationResult = await validator.ValidateAsync(dto);
+            var validationResult = validator.Validate(dto);
 
             if (!validationResult.IsValid)
             {
@@ -116,9 +124,16 @@ public static class UserEndpoints
         //.RequireAuthorization(new AuthorizeAttribute { Roles = "Admin, User" }) // user only self
         .WithName("ChangePassword");
 
-        app.MapPost("/api/v1/login", async ([FromBody] LoginDTO dto, IUserAuthenticationService authService, ITokenGenerator tokenGenerator, ILogger<Program> logger) =>
+        app.MapPost("/api/v1/login", async ([FromBody] LoginDTO dto, IValidator<LoginDTO> validator, IUserAuthenticationService authService, ITokenGenerator tokenGenerator, ILogger<Program> logger) =>
         {
             logger.LogDebug("User logging in");
+
+            var validationResult = validator.Validate(dto);
+            if (!validationResult.IsValid) 
+            {
+                var errors = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
+                return Results.BadRequest(errors);
+            }
 
             var authenticatedUser = await authService.AuthenticateUserAsync(dto);
 
