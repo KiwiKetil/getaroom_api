@@ -1,6 +1,6 @@
-# To Test This API
+## To Test This API
 
-## 1. Execute Database Scripts
+### 1. Execute Database Scripts
 
 Execute the 3 scripts in the `RoomSchedulerAPI/Core/DB/DBScripts` folder in MySQL as follows:
 
@@ -13,7 +13,7 @@ Execute the 3 scripts in the `RoomSchedulerAPI/Core/DB/DBScripts` folder in MySQ
 3. **Execute `room_scheduler_create_testdata.sql`:**  
    This script will insert sample test data into the database.
 
-## 2. Configure Environment Variables for Database Credentials
+### 2. Configure Environment Variables for Database Credentials
 
 Set the following environment variables using the values you specified in `room_scheduler_create_db.sql`:
 
@@ -23,7 +23,7 @@ Set the following environment variables using the values you specified in `room_
 - **ROOM_DB_PASSWORD:**  
   Set this to the corresponding password.
 
-## 3. Configure JWT User Secrets (Development Only)
+### 3. Configure JWT User Secrets (Development Only)
 
 1. Open a terminal in the API’s base folder (the folder containing your project’s `.csproj` file).
 
