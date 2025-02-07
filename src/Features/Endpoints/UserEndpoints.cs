@@ -1,9 +1,7 @@
 ﻿using FluentValidation;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RoomSchedulerAPI.Features.Models.DTOs.UserDTOs;
-using RoomSchedulerAPI.Features.Repositories.Interfaces;
 using RoomSchedulerAPI.Features.Services.Interfaces;
 
 namespace RoomSchedulerAPI.Features.Endpoints;
@@ -15,7 +13,7 @@ public static class UserEndpoints
         // admin only
         app.MapGet("/api/v1/users", static async (IUserService userService, ILogger<Program> logger, [AsParameters] UserQuery query) =>
         {
-            logger.LogDebug("Retrieving all users");
+            logger.LogDebug("Retrieving users");
 
             var (users, totalCount) = await userService.GetUsersAsync(query);
             if (!users.Any())
@@ -28,10 +26,10 @@ public static class UserEndpoints
             return Results.Ok(new
             {
                 TotalCount = totalCount,
-                Data = users                
+                Data = users
             });
         })
-        //.RequireAuthorization(new AuthorizeAttribute { Roles = "Admin" })
+        // .RequireAuthorization(new AuthorizeAttribute { Roles = "Admin" })
         .WithName("GetAllUsers");
 
         // admin only
@@ -104,7 +102,7 @@ public static class UserEndpoints
 
 
         // new users must change passwordgiven by admin(?)
-        app.MapPost("/api/v1/users/change-password", static async ([FromBody] ChangePasswordDTO dto, IValidator <ChangePasswordDTO> validator, IUserService userService, ILogger<Program> logger) =>
+        app.MapPost("/api/v1/users/change-password", static async ([FromBody] ChangePasswordDTO dto, IValidator<ChangePasswordDTO> validator, IUserService userService, ILogger<Program> logger) =>
         {
             logger.LogDebug("User changing password");
 
@@ -118,7 +116,7 @@ public static class UserEndpoints
 
             var res = await userService.ChangePasswordAsync(dto);
 
-            return res 
+            return res
             ? Results.Ok(new { Message = "Password changed successfully." })
             : Results.BadRequest(new { Message = "Password could not be changed. Please check your username or password and try again." });
         })
@@ -130,7 +128,7 @@ public static class UserEndpoints
             logger.LogDebug("User logging in");
 
             var validationResult = validator.Validate(dto);
-            if (!validationResult.IsValid) 
+            if (!validationResult.IsValid)
             {
                 var errors = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
                 return Results.BadRequest(errors);
@@ -138,14 +136,14 @@ public static class UserEndpoints
 
             var authenticatedUser = await authService.AuthenticateUserAsync(dto);
 
-            if (authenticatedUser == null) 
+            if (authenticatedUser == null)
             {
                 return Results.Problem("Login failed. Please check your username and/or password and try again.", statusCode: 401);
             }
 
             var token = await tokenGenerator.GenerateTokenAsync(authenticatedUser);
 
-            return Results.Ok(new { Token = token });            
+            return Results.Ok(new { Token = token });
         })
         .WithName("UserLogin");
     }
