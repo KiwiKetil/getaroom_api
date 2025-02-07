@@ -7,7 +7,7 @@ let currentFilters = {};
 
 if(currentHtmlPage === "usersBody")
     window.onload = function () {
-        loadUsers(true);
+        fetchUsers(true);
 };
 
 function showPanel(currentHtmlPage) {
@@ -26,7 +26,7 @@ function showPanel(currentHtmlPage) {
     }
 }
 
-async function loadUsers(resetPage = false, filters = {}) {
+async function fetchUsers(resetPage = false, filters = {}) {
     if (resetPage) {
         currentPage = 1;
         document.getElementById('prevPageButton').disabled = true;
@@ -91,7 +91,7 @@ async function loadUsers(resetPage = false, filters = {}) {
     }
 }
 
-async function loadUserById (userId) {    
+async function fetchUserById (userId) {    
     history.replaceState(null, '', window.location.pathname);
     if (!userId) {
         alert('Please enter a User ID.');
@@ -125,13 +125,13 @@ async function loadUserById (userId) {
 
 function nextPage() {
     currentPage++;
-    loadUsers(false, currentFilters);
+    fetchUsers(false, currentFilters);
 }
 
 function prevPage() {
     if (currentPage > 1) {
         currentPage--;
-        loadUsers(false, currentFilters);
+        fetchUsers(false, currentFilters);
     } else {
         alert('You are already on the first page!');
     }
@@ -147,7 +147,7 @@ async function gotoPage() {
     }
 
     // Use currentFilters as the second parameter so that the search filters are preserved.
-    const { totalCount } = await loadUsers(false, currentFilters);
+    const { totalCount } = await fetchUsers(false, currentFilters);
     const totalPages = Math.ceil(totalCount / pageSize); 
     if (page > totalPages) {       
         document.getElementById('pageInput').value = '';        
@@ -155,7 +155,7 @@ async function gotoPage() {
     }
 
     currentPage = page;
-    loadUsers(false, currentFilters);
+    fetchUsers(false, currentFilters);
     document.getElementById('pageInput').value = '';
 }
 
@@ -231,7 +231,7 @@ function onSortHeaderClick(event) {
     header.querySelector('i').className = newOrder === 'ASC' ? 'fas fa-sort-up' : 'fas fa-sort-down';
 
     // Use the existing filters and reload users with the new sorting parameters
-    loadUsers(true, currentFilters);
+    fetchUsers(true, currentFilters);
 }
 
 function navigateTo(url) {
@@ -253,13 +253,13 @@ if(document.getElementById('manageRoomsButton')){
 }
 
 // all eventlisterners must have conditional checks since they dont exist in index.html (should have used separate .js for each html(?))
-if(document.getElementById('loadUsers')){
-    document.getElementById('loadUsers').addEventListener('click', () => {
+if(document.getElementById('fetchUsers')){
+    document.getElementById('fetchUsers').addEventListener('click', () => {
           document.querySelectorAll('.sortable').forEach(h => {
         h.dataset.active = false;
         h.querySelector('i').className = 'fas fa-sort'; // Reset icon
     });
-        loadUsers(true);
+        fetchUsers(true);
     });
 }
 
@@ -278,7 +278,7 @@ if (document.getElementById('searchButton')) {
         }
 
         if(selectedColumn === 'Id'){
-            loadUserById(searchTerm)
+            fetchUserById(searchTerm)
             return;
         }
         
@@ -288,8 +288,8 @@ if (document.getElementById('searchButton')) {
 
         // Optionally, update active sorting here if needed
 
-        // Call loadUsers with the active filters.
-        loadUsers(true, currentFilters);
+        // Call fetchUsers with the active filters.
+        fetchUsers(true, currentFilters);
     });
 }
 

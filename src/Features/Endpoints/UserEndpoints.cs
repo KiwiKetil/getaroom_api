@@ -13,7 +13,7 @@ public static class UserEndpoints
     public static void MapUserEndpoints(this WebApplication app)
     {
         // admin only
-        app.MapGet("/api/v1/users", async (IUserService userService, ILogger<Program> logger, [AsParameters] UserQuery query) =>
+        app.MapGet("/api/v1/users", static async (IUserService userService, ILogger<Program> logger, [AsParameters] UserQuery query) =>
         {
             logger.LogDebug("Retrieving all users");
 
@@ -22,7 +22,8 @@ public static class UserEndpoints
             {
                 return Results.NotFound("No users found");
             }
-            logger.LogDebug($"count is: {totalCount}");
+
+            logger.LogDebug("Count is: {totalCount}", totalCount);
 
             return Results.Ok(new
             {
@@ -34,7 +35,7 @@ public static class UserEndpoints
         .WithName("GetAllUsers");
 
         // admin only
-        app.MapGet("/api/v1/users/{id}", async ([FromRoute] Guid id, IUserService userService, ILogger<Program> logger) => // async is for everything inside the body
+        app.MapGet("/api/v1/users/{id}", static async ([FromRoute] Guid id, IUserService userService, ILogger<Program> logger) => // async is for everything inside the body
         {
             logger.LogDebug("Retrieving user with ID {userId}", id);
 
@@ -44,7 +45,7 @@ public static class UserEndpoints
         //.RequireAuthorization(new AuthorizeAttribute { Roles = "Admin" })
         .WithName("GetUserById");
 
-        app.MapPut("/api/v1/users/{id}", async ([FromRoute] Guid id, [FromBody] UserUpdateDTO dto, IUserService userService, IValidator<UserUpdateDTO> validator, ILogger<Program> logger) =>
+        app.MapPut("/api/v1/users/{id}", static async ([FromRoute] Guid id, [FromBody] UserUpdateDTO dto, IUserService userService, IValidator<UserUpdateDTO> validator, ILogger<Program> logger) =>
         {
             logger.LogDebug("Updating user with ID {userId}", id);
 
@@ -67,7 +68,7 @@ public static class UserEndpoints
         .WithName("UpdateUser");
 
         // admin only
-        app.MapDelete("/api/v1/users/{id}", async ([FromRoute] Guid id, IUserService userService, ILogger<Program> logger) =>
+        app.MapDelete("/api/v1/users/{id}", static async ([FromRoute] Guid id, IUserService userService, ILogger<Program> logger) =>
         {
             logger.LogDebug("Deleting user with ID {userId}", id);
 
@@ -78,11 +79,11 @@ public static class UserEndpoints
                 detail: "User could not be deleted"
                 );
         })
-        //.RequireAuthorization(new AuthorizeAttribute { Roles = "Admin" }) // user only self? Or only admin can delete?
+        //.RequireAuthorization(new AuthorizeAttribute { Roles = "Admin" }) // Only admin can delete
         .WithName("DeleteUser");
 
         // admin only
-        app.MapPost("/api/v1/users/register", async ([FromBody] UserRegistrationDTO dto, IValidator<UserRegistrationDTO> validator, IUserService userService, ILogger<Program> logger) =>
+        app.MapPost("/api/v1/users/register", static async ([FromBody] UserRegistrationDTO dto, IValidator<UserRegistrationDTO> validator, IUserService userService, ILogger<Program> logger) =>
         {
             logger.LogDebug("Registering new user");
 
@@ -103,7 +104,7 @@ public static class UserEndpoints
 
 
         // new users must change passwordgiven by admin(?)
-        app.MapPost("/api/v1/users/change-password", async ([FromBody] ChangePasswordDTO dto, IValidator <ChangePasswordDTO> validator, IUserService userService, ILogger<Program> logger) =>
+        app.MapPost("/api/v1/users/change-password", static async ([FromBody] ChangePasswordDTO dto, IValidator <ChangePasswordDTO> validator, IUserService userService, ILogger<Program> logger) =>
         {
             logger.LogDebug("User changing password");
 
@@ -121,10 +122,10 @@ public static class UserEndpoints
             ? Results.Ok(new { Message = "Password changed successfully." })
             : Results.BadRequest(new { Message = "Password could not be changed. Please check your username or password and try again." });
         })
-        //.RequireAuthorization(new AuthorizeAttribute { Roles = "Admin, User" }) // user only self
+        //.RequireAuthorization(new AuthorizeAttribute { Roles = "User" }) // user only self
         .WithName("ChangePassword");
 
-        app.MapPost("/api/v1/login", async ([FromBody] LoginDTO dto, IValidator<LoginDTO> validator, IUserAuthenticationService authService, ITokenGenerator tokenGenerator, ILogger<Program> logger) =>
+        app.MapPost("/api/v1/login", static async ([FromBody] LoginDTO dto, IValidator<LoginDTO> validator, IUserAuthenticationService authService, ITokenGenerator tokenGenerator, ILogger<Program> logger) =>
         {
             logger.LogDebug("User logging in");
 
