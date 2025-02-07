@@ -13,6 +13,6 @@
    - **ROOM_DB_PASSWORD**: set this to the password for that user.
   
 3. Set User secrets for JWT Key:
-   dotnet user-secrets init
-   dotnet user-secrets set "Jwt:Key" "YourLocalSecretKeyOfAtLeast256Bits"
+   - dotnet user-secrets init   
+   - dotnet user-secrets set "Jwt:Key" "YourLocalSecretKeyOfAtLeast256Bits"
 
