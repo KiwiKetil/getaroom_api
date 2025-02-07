@@ -29,5 +29,5 @@ Set the following environment variables using the values you specified in `room_
 
 2. Run the following commands:
 
-   dotnet user-secrets init
-   dotnet user-secrets set "Jwt:Key" "YourLocalSecretKeyOfAtLeast256Bits"
+   - dotnet user-secrets init
+   - dotnet user-secrets set "Jwt:Key" "YourLocalSecretKeyOfAtLeast256Bits"
