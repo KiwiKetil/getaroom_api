@@ -13,6 +13,8 @@ public class UserRepository(IDbConnectionFactory mySqlConnectionFactory, ILogger
 
     public async Task<(IEnumerable<User> Users, int TotalCount)> GetUsersAsync(UserQuery query)
     {
+        _logger.LogDebug("Retrieving usera from DB");
+
         using var dbConnection = await _mySqlConnectionFactory.CreateConnectionAsync();
 
         var baseSql = "FROM Users WHERE 1=1";

@@ -14,7 +14,7 @@ public class UserService(IUserRepository userRepository, IMapper mapper, ILogger
 
     public async Task<(IEnumerable<UserDTO> Users, int TotalCount)> GetUsersAsync(UserQuery query)
     {
-        _logger.LogDebug("Retrieving all users");
+        _logger.LogDebug("Retrieving users");
 
         var (users, totalCount) = await _userRepository.GetUsersAsync(query);
         var dtos = users.Select(user => _mapper.Map<UserDTO>(user)).ToList();

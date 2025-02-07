@@ -15,7 +15,7 @@ public static class UserEndpoints
         // admin only
         app.MapGet("/api/v1/users", static async (IUserService userService, ILogger<Program> logger, [AsParameters] UserQuery query) =>
         {
-            logger.LogDebug("Retrieving all users");
+            logger.LogDebug("Retrieving users");
 
             var (users, totalCount) = await userService.GetUsersAsync(query);
             if (!users.Any())
