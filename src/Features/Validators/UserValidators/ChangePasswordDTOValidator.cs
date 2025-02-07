@@ -17,7 +17,6 @@ public class ChangePasswordDTOValidator : AbstractValidator<ChangePasswordDTO>
             .NotEmpty()
             .Matches(PasswordPattern).WithMessage("Current Password must be 8-24 characters, include at least 1 number, 1 uppercase," +
                                                   " 1 lowercase, and 1 special character ('! ? * # _ -')");
-
         RuleFor(x => x.NewPassword)
             .NotEmpty()
             .Matches(PasswordPattern).WithMessage("New Password must be 8-24 characters, include at least 1 number, 1 uppercase," +
