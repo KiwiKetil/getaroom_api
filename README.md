@@ -1,18 +1,33 @@
-# To Test This API:
+# To Test This API
 
-1. Execute the 3 scripts in the `RoomSchedulerAPI/Core/DB/DBScripts` folder in MySQL as follows:
+## 1. Execute Database Scripts
 
-   - Open `room_scheduler_create_db.sql`. Before executing the script, update the script with your desired `YOUR_USERNAME` and `YOUR_PASSWORD`.
-   - Execute `room_scheduler_create_tables.sql`.
-   - Execute `room_scheduler_create_testdata.sql`.
+Execute the 3 scripts in the `RoomSchedulerAPI/Core/DB/DBScripts` folder in MySQL as follows:
 
-2. Set the username and password you chose in the `room_scheduler_create_db.sql` as environment variables:
+1. **Open `room_scheduler_create_db.sql`:**  
+   Before executing this script in MySQL, update it with your desired credentials by replacing the placeholders with your chosen values for `YOUR_USERNAME` and `YOUR_PASSWORD`.
 
-   - **ROOM_DB_USER**: set this to the username created in `room_scheduler_create_db.sql`.
+2. **Execute `room_scheduler_create_tables.sql`:**  
+   This script will create the necessary tables in the database.
 
-   - **ROOM_DB_PASSWORD**: set this to the password chosen in `room_scheduler_create_db.sql`.
-  
-3. Set User secrets for JWT Key. Run these commands in API base path:
-   - dotnet user-secrets init   
-   - dotnet user-secrets set "Jwt:Key" "YourLocalSecretKeyOfAtLeast256Bits"
+3. **Execute `room_scheduler_create_testdata.sql`:**  
+   This script will insert sample test data into the database.
 
+## 2. Configure Environment Variables for Database Credentials
+
+Set the following environment variables using the values you specified in `room_scheduler_create_db.sql`:
+
+- **ROOM_DB_USER:**  
+  Set this to the username you configured.
+
+- **ROOM_DB_PASSWORD:**  
+  Set this to the corresponding password.
+
+## 3. Configure JWT User Secrets (Development Only)
+
+1. Open a terminal in the API’s base folder (the folder containing your project’s `.csproj` file).
+
+2. Run the following commands:
+
+   dotnet user-secrets init
+   dotnet user-secrets set "Jwt:Key" "YourLocalSecretKeyOfAtLeast256Bits"
