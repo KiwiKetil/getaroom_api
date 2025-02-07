@@ -95,8 +95,6 @@ public static class WebAppExtensions
           });
         services.AddAuthorization();
 
-        return services;
-
-        
+        return services;        
     }
 }

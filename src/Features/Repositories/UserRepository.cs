@@ -13,7 +13,7 @@ public class UserRepository(IDbConnectionFactory mySqlConnectionFactory, ILogger
 
     public async Task<(IEnumerable<User> Users, int TotalCount)> GetUsersAsync(UserQuery query)
     {
-        _logger.LogDebug("Retrieving usera from DB");
+        _logger.LogDebug("Retrieving users from DB");
 
         using var dbConnection = await _mySqlConnectionFactory.CreateConnectionAsync();
 
@@ -44,23 +44,16 @@ public class UserRepository(IDbConnectionFactory mySqlConnectionFactory, ILogger
             parameters.Add("Email", $"{ query.Email}%");
         }
 
-        // Query to get total count
-        var countSql = $"SELECT COUNT(*) {baseSql}";
-        var totalCount = await dbConnection.ExecuteScalarAsync<int>(countSql, parameters);
-                
         var skipNumber = (query.Page - 1) * query.PageSize;
-
-        // Handle sorting and pagination
-        var dataSql = $"SELECT * {baseSql} ORDER BY {query.SortBy} {query.Order} LIMIT @PageSize OFFSET @SkipNumber";
         parameters.Add("PageSize", query.PageSize);
         parameters.Add("SkipNumber", skipNumber);
 
-        parameters.Add("PageSize", query.PageSize);
-        parameters.Add("SkipNumber", skipNumber);
+        var countSql = $"SELECT COUNT(*) {baseSql}";
+        var totalCount = await dbConnection.ExecuteScalarAsync<int>(countSql, parameters);                      
 
+        var dataSql = $"SELECT * {baseSql} ORDER BY {query.SortBy} {query.Order} LIMIT @PageSize OFFSET @SkipNumber";      
         var users = await dbConnection.QueryAsync<User>(dataSql, parameters);
 
-        // Return both users and total count
         return (users, totalCount);
     }
 
