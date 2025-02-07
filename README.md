@@ -11,3 +11,8 @@
    - **ROOM_DB_USER**: set this to the username created in `create_db.sql`.
 
    - **ROOM_DB_PASSWORD**: set this to the password for that user.
+  
+3. Set User secrets for JWT Key:
+   dotnet user-secrets init
+   dotnet user-secrets set "Jwt:Key" "YourLocalSecretKeyOfAtLeast256Bits"
+
