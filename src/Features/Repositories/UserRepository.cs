@@ -46,13 +46,13 @@ public class UserRepository(IDbConnectionFactory mySqlConnectionFactory, ILogger
 
         var skipNumber = (query.Page - 1) * query.PageSize;
         parameters.Add("PageSize", query.PageSize);
-        parameters.Add("SkipNumber", skipNumber);
-
-        var countSql = $"SELECT COUNT(*) {baseSql}";
-        var totalCount = await dbConnection.ExecuteScalarAsync<int>(countSql, parameters);                      
+        parameters.Add("SkipNumber", skipNumber);                          
 
         var dataSql = $"SELECT * {baseSql} ORDER BY {query.SortBy} {query.Order} LIMIT @PageSize OFFSET @SkipNumber";      
         var users = await dbConnection.QueryAsync<User>(dataSql, parameters);
+
+        var countSql = $"SELECT COUNT(*) {baseSql}";
+        var totalCount = await dbConnection.ExecuteScalarAsync<int>(countSql, parameters);
 
         return (users, totalCount);
     }
