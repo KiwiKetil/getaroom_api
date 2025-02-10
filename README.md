@@ -12,8 +12,9 @@ Execute the 3 scripts in the `RoomSchedulerAPI/Core/DB/DBScripts` folder in MySQ
 
 3. **Execute `room_scheduler_create_testdata.sql`:**  
    This script will insert sample test data into the database.
-   Note: All test user passwords are their first name followed by 123!.
-   For example, if the user's first name is "John", the password is John123!.
+   
+   Note: All test user passwords are their first name followed by 123!
+   For example, if the user's first name is "John", the password is John123!
 
 #### 2. Configure Environment Variables for Database Credentials
 
