@@ -3,10 +3,10 @@ CREATE DATABASE room_scheduler;
 USE room_scheduler;
 
 # create user
-CREATE USER IF NOT EXISTS 'room_scheduler-app'@'localhost' IDENTIFIED BY 'room_scheduler123';
-CREATE USER IF NOT EXISTS 'room_scheduler-app'@'%' IDENTIFIED BY 'room_scheduler123';
+CREATE USER IF NOT EXISTS 'YOUR_USERNAME'@'localhost' IDENTIFIED BY 'YOUR_PASSWORD';
+CREATE USER IF NOT EXISTS 'YOUR_USERNAME'@'%' IDENTIFIED BY 'YOUR_PASSWORD';
  
  # grant access:
-GRANT ALL privileges ON room_scheduler.* TO 'room_scheduler-app'@'%';
-GRANT ALL privileges ON room_scheduler.* TO 'room_scheduler-app'@'localhost';
+GRANT ALL privileges ON room_scheduler.* TO 'YOUR_USERNAME'@'%';
+GRANT ALL privileges ON room_scheduler.* TO 'YOUR_USERNAME'@'localhost';
 FLUSH PRIVILEGES
