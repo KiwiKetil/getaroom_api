@@ -30,8 +30,8 @@ public static class UserEndpoints
                 Data = users
             });
         })
-        .RequireAuthorization(new AuthorizeAttribute { Roles = "Admin" })
-        .WithName("GetAllUsers");
+            .RequireAuthorization(new AuthorizeAttribute { Roles = "Admin" })
+            .WithName("GetAllUsers");
 
         // admin only
         app.MapGet("/api/v1/users/{id}", static async ([FromRoute] Guid id, ClaimsPrincipal claims, IUserService userService, ILogger<Program> logger) => // async is for everything inside the body
@@ -53,15 +53,15 @@ public static class UserEndpoints
             var user = await userService.GetUserByIdAsync(id);
             return user != null ? Results.Ok(user) : Results.NotFound("User was not found");
         })
-        .RequireAuthorization(new AuthorizeAttribute { Roles = "Admin, User" })
-        .WithName("GetUserById");
+            .RequireAuthorization()
+            .WithName("GetUserById");
 
         app.MapPut("/api/v1/users/{id}", static async ([FromRoute] Guid id, ClaimsPrincipal claims, [FromBody] UserUpdateDTO dto, IUserService userService, IValidator<UserUpdateDTO> validator, ILogger<Program> logger) =>
         {
             logger.LogDebug("Updating user with ID {userId}", id);
 
             var isAdmin = claims.IsInRole("Admin");
-
+            
             if (!isAdmin) 
             {
                 var userIdClaim = claims.FindFirst("sub") ?? claims.FindFirst(ClaimTypes.NameIdentifier);
@@ -87,8 +87,8 @@ public static class UserEndpoints
                 detail: "User could not be updated"
                 );
         })
-        .RequireAuthorization(new AuthorizeAttribute { Roles = "Admin, User" }) // user only self
-        .WithName("UpdateUser");
+            .RequireAuthorization() 
+            .WithName("UpdateUser");
 
         // admin only
         app.MapDelete("/api/v1/users/{id}", static async ([FromRoute] Guid id, IUserService userService, ILogger<Program> logger) =>
@@ -102,8 +102,8 @@ public static class UserEndpoints
                 detail: "User could not be deleted"
                 );
         })
-        .RequireAuthorization(new AuthorizeAttribute { Roles = "Admin" })
-        .WithName("DeleteUser");
+            .RequireAuthorization(new AuthorizeAttribute { Roles = "Admin" })
+            .WithName("DeleteUser");
 
         // admin only
         app.MapPost("/api/v1/users/register", static async ([FromBody] UserRegistrationDTO dto, IValidator<UserRegistrationDTO> validator, IUserService userService, ILogger<Program> logger) =>
@@ -122,14 +122,26 @@ public static class UserEndpoints
 
             return res != null ? Results.Ok(res) : Results.Conflict(new { Message = "User already exists" });
         })
-        .WithName("RegisterUser")
-        .RequireAuthorization(new AuthorizeAttribute { Roles = "Admin" });
+            .WithName("RegisterUser")
+            .RequireAuthorization(new AuthorizeAttribute { Roles = "Admin" });
 
 
-        // new users must change passwordgiven by admin(?)
-        app.MapPost("/api/v1/users/change-password", static async ([FromBody] ChangePasswordDTO dto, IValidator<ChangePasswordDTO> validator, IUserService userService, ILogger<Program> logger) =>
+        // new users must change passwordgiven by admin within(?)
+        app.MapPost("/api/v1/users/change-password", static async ([FromBody] ChangePasswordDTO dto, ClaimsPrincipal claims, IValidator<ChangePasswordDTO> validator, IUserService userService, ILogger<Program> logger) =>
         {
             logger.LogDebug("User changing password");
+
+            var isAdmin = claims.IsInRole("Admin");
+
+            if (!isAdmin)
+            {
+                var userIdClaim = claims.FindFirst("name") ?? claims.FindFirst(ClaimTypes.Name);
+
+                if (userIdClaim == null || userIdClaim.Value != dto.Email)
+                {
+                    return Results.Forbid();
+                }
+            }
 
             var validationResult = await validator.ValidateAsync(dto);
 
@@ -145,7 +157,8 @@ public static class UserEndpoints
             ? Results.Ok(new { Message = "Password changed successfully." })
             : Results.BadRequest(new { Message = "Password could not be changed. Please check your username or password and try again." });
         })
-        .WithName("ChangePassword");
+            .RequireAuthorization()
+            .WithName("ChangePassword");
 
         app.MapPost("/api/v1/login", static async ([FromBody] LoginDTO dto, IValidator<LoginDTO> validator, IUserAuthenticationService authService, ITokenGenerator tokenGenerator, ILogger<Program> logger) =>
         {
@@ -169,6 +182,6 @@ public static class UserEndpoints
 
             return Results.Ok(new { Token = token });
         })
-        .WithName("UserLogin");
+            .WithName("UserLogin");
     }
 }
