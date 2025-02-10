@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RoomSchedulerAPI.Features.Models.DTOs.UserDTOs;
 using RoomSchedulerAPI.Features.Services.Interfaces;
+using System.Security.Claims;
 
 namespace RoomSchedulerAPI.Features.Endpoints;
 
@@ -29,25 +30,49 @@ public static class UserEndpoints
                 Data = users
             });
         })
-        // .RequireAuthorization(new AuthorizeAttribute { Roles = "Admin" })
+        .RequireAuthorization(new AuthorizeAttribute { Roles = "Admin" })
         .WithName("GetAllUsers");
 
         // admin only
-        app.MapGet("/api/v1/users/{id}", static async ([FromRoute] Guid id, IUserService userService, ILogger<Program> logger) => // async is for everything inside the body
+        app.MapGet("/api/v1/users/{id}", static async ([FromRoute] Guid id, ClaimsPrincipal claims, IUserService userService, ILogger<Program> logger) => // async is for everything inside the body
         {
             logger.LogDebug("Retrieving user with ID {userId}", id);
+
+            var isAdmin = claims.IsInRole("Admin");
+
+            if (!isAdmin)
+            {
+                var userIdClaim = claims.FindFirst("sub") ?? claims.FindFirst(ClaimTypes.NameIdentifier);
+
+                if (userIdClaim == null || userIdClaim.Value != id.ToString())
+                {
+                    return Results.Forbid();
+                }
+            }
 
             var user = await userService.GetUserByIdAsync(id);
             return user != null ? Results.Ok(user) : Results.NotFound("User was not found");
         })
-        //.RequireAuthorization(new AuthorizeAttribute { Roles = "Admin" })
+        .RequireAuthorization(new AuthorizeAttribute { Roles = "Admin, User" })
         .WithName("GetUserById");
 
-        app.MapPut("/api/v1/users/{id}", static async ([FromRoute] Guid id, [FromBody] UserUpdateDTO dto, IUserService userService, IValidator<UserUpdateDTO> validator, ILogger<Program> logger) =>
+        app.MapPut("/api/v1/users/{id}", static async ([FromRoute] Guid id, ClaimsPrincipal claims, [FromBody] UserUpdateDTO dto, IUserService userService, IValidator<UserUpdateDTO> validator, ILogger<Program> logger) =>
         {
             logger.LogDebug("Updating user with ID {userId}", id);
 
-            var validationResult = validator.Validate(dto);
+            var isAdmin = claims.IsInRole("Admin");
+
+            if (!isAdmin) 
+            {
+                var userIdClaim = claims.FindFirst("sub") ?? claims.FindFirst(ClaimTypes.NameIdentifier);
+
+                if (userIdClaim == null || userIdClaim.Value != id.ToString())
+                {
+                    return Results.Forbid();
+                }
+            }            
+
+            var validationResult = await validator.ValidateAsync(dto);
 
             if (!validationResult.IsValid)
             {
@@ -62,7 +87,7 @@ public static class UserEndpoints
                 detail: "User could not be updated"
                 );
         })
-        //.RequireAuthorization(new AuthorizeAttribute { Roles = "Admin, User" }) // user only self
+        .RequireAuthorization(new AuthorizeAttribute { Roles = "Admin, User" }) // user only self
         .WithName("UpdateUser");
 
         // admin only
@@ -77,7 +102,7 @@ public static class UserEndpoints
                 detail: "User could not be deleted"
                 );
         })
-        //.RequireAuthorization(new AuthorizeAttribute { Roles = "Admin" }) // Only admin can delete
+        .RequireAuthorization(new AuthorizeAttribute { Roles = "Admin" })
         .WithName("DeleteUser");
 
         // admin only
@@ -85,7 +110,7 @@ public static class UserEndpoints
         {
             logger.LogDebug("Registering new user");
 
-            var validationResult = validator.Validate(dto);
+            var validationResult = await validator.ValidateAsync(dto);
 
             if (!validationResult.IsValid)
             {
@@ -97,8 +122,8 @@ public static class UserEndpoints
 
             return res != null ? Results.Ok(res) : Results.Conflict(new { Message = "User already exists" });
         })
-        .WithName("RegisterUser");
-        // .RequireAuthorization(new AuthorizeAttribute { Roles = "Admin" });
+        .WithName("RegisterUser")
+        .RequireAuthorization(new AuthorizeAttribute { Roles = "Admin" });
 
 
         // new users must change passwordgiven by admin(?)
@@ -106,7 +131,7 @@ public static class UserEndpoints
         {
             logger.LogDebug("User changing password");
 
-            var validationResult = validator.Validate(dto);
+            var validationResult = await validator.ValidateAsync(dto);
 
             if (!validationResult.IsValid)
             {
@@ -120,14 +145,13 @@ public static class UserEndpoints
             ? Results.Ok(new { Message = "Password changed successfully." })
             : Results.BadRequest(new { Message = "Password could not be changed. Please check your username or password and try again." });
         })
-        //.RequireAuthorization(new AuthorizeAttribute { Roles = "User" }) // user only self
         .WithName("ChangePassword");
 
         app.MapPost("/api/v1/login", static async ([FromBody] LoginDTO dto, IValidator<LoginDTO> validator, IUserAuthenticationService authService, ITokenGenerator tokenGenerator, ILogger<Program> logger) =>
         {
             logger.LogDebug("User logging in");
 
-            var validationResult = validator.Validate(dto);
+            var validationResult = await validator.ValidateAsync(dto);
             if (!validationResult.IsValid)
             {
                 var errors = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
