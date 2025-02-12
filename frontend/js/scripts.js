@@ -284,9 +284,7 @@ if (document.getElementById('searchButton')) {
         
         // Create the filters object and update the global variable.
         currentFilters = {};
-        currentFilters[selectedColumn] = searchTerm;
-
-        // Optionally, update active sorting here if needed
+        currentFilters[selectedColumn] = searchTerm;        
 
         // Call fetchUsers with the active filters.
         fetchUsers(true, currentFilters);
