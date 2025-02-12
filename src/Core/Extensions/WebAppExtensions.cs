@@ -72,6 +72,7 @@ public static class WebAppExtensions
         // Repositories
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IUserRoleRepository, UserRoleRepository>();
+        services.AddScoped<IPasswordHistoryRepository, PasswordHistoryRepository>();
 
         // AuthenticationService
         services.AddScoped<IUserAuthenticationService, AuthenticationService>();

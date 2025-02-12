@@ -4,5 +4,5 @@ namespace RoomSchedulerAPI.Features.Services.Interfaces;
 
 public interface ITokenGenerator
 {
-    Task<string> GenerateTokenAsync(User user);
+    Task<string> GenerateTokenAsync(User authenticateduser, bool hasChangedPassword);
 }

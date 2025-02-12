@@ -14,25 +14,26 @@ public class TokenGenerator(IUserRoleRepository userRoleRepository, IConfigurati
     private readonly IConfiguration _config = config;
     private readonly ILogger _logger = logger;
 
-    public async Task<string> GenerateTokenAsync(User user)
+    public async Task<string> GenerateTokenAsync(User authenticateduser, bool hasChangedPassword)
     {
-        if (user == null)
+        if (authenticateduser == null)
         {
             throw new ArgumentException("An authenticated user is needed to create a token");
         }
 
-        _logger.LogDebug("Generating token for user ID: {UserId}", user.Id);
+        _logger.LogDebug("Generating token for user ID: {UserId}", authenticateduser.Id);
 
         var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]!));
         var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
-        var userRoles = await _userRoleRepository.GetUserRoles(user.Id);
-        var userId = user.Id;
-        var userName = user.Email;
+        var userRoles = await _userRoleRepository.GetUserRoles(authenticateduser.Id);
+        var userId = authenticateduser.Id;
+        var userName = authenticateduser.Email;
 
         List<Claim> claims = [];
         claims.Add(new Claim(JwtRegisteredClaimNames.Sub, userId.Value.ToString()));
         claims.Add(new Claim(JwtRegisteredClaimNames.Name, userName.ToString()));
+        claims.Add(new Claim("passwordChanged", hasChangedPassword ? "true" : "false"));
 
         foreach (var role in userRoles)
         {
