@@ -126,8 +126,8 @@ BEGIN
         OLD.Email,
         CURRENT_TIMESTAMP,
         CASE 
-            WHEN SESSION_USER() LIKE 'room_scheduler-app@%' THEN 'API'
-            ELSE 'Admin'
+            WHEN SESSION_USER() LIKE 'YOUR_USERNAME@%' THEN 'API'
+            ELSE 'DB'
         END,
         roles -- Use the aggregated JSON value
     );
