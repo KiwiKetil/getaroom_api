@@ -84,20 +84,13 @@ CREATE TABLE IF NOT EXISTS DeletedUsers (
 -- ===========================
 
 DELIMITER $$
-
 CREATE PROCEDURE GetUserRolesAsJSON(IN p_userId CHAR(36), OUT roles JSON)
 BEGIN
-    SELECT IFNULL(JSON_ARRAYAGG(JSON_OBJECT('RoleName', RoleName)), '[]')
-    INTO roles
+    SELECT IFNULL(JSON_ARRAYAGG(JSON_OBJECT('RoleName', RoleName)), '[]') -- if !null return value, if null return []
+    INTO roles 
     FROM UserRoles
-    WHERE UserId = p_userId; -- was behind scenes: WHERE UserRoles.UserId = UserRoles.UserId; when UserID = userID bec takes presedence. 
-    -- The issue was that both UserIds in your WHERE clause were referring to the UserId column in the UserRoles table, not comparing the parameter UserId to the column UserId
-    -- This type of error is a well-known issue in SQL programming but can be overlooked. 
-    --  it's a best practice to use naming conventions that differentiate parameters from column names 
-    -- Use Distinct Names: Always ensure that procedure parameters and local variables have names that do not conflict with column names in your database.
-    -- Adopt Naming Conventions: Prefix parameter names with p_, in_, or another identifier to differentiate them from column names.
+    WHERE UserId = p_userId; 
 END$$
-
 DELIMITER ;
 
 -- ===========================
@@ -105,7 +98,6 @@ DELIMITER ;
 -- ===========================
 
 DELIMITER $$
-
 CREATE TRIGGER before_users_delete_archive
 BEFORE DELETE ON Users
 FOR EACH ROW
@@ -132,7 +124,6 @@ BEGIN
         roles -- Use the aggregated JSON value
     );
 END$$
-
 DELIMITER ;
 
 -- ===========================
@@ -140,7 +131,6 @@ DELIMITER ;
 -- ===========================
 
 DELIMITER $$
-
 CREATE TRIGGER assign_role_new_user
 AFTER INSERT ON Users
 FOR EACH ROW
@@ -148,7 +138,6 @@ BEGIN
 	INSERT INTO userroles (RoleName, UserId)
     VALUES ('User', NEW.Id);
 END$$
-
 DELIMITER ;
 
 
