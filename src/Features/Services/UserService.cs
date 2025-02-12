@@ -6,9 +6,10 @@ using RoomSchedulerAPI.Features.Services.Interfaces;
 
 namespace RoomSchedulerAPI.Features.Services;
 
-public class UserService(IUserRepository userRepository, IMapper mapper, ILogger<UserService> logger) : IUserService
+public class UserService(IUserRepository userRepository, IPasswordHistoryRepository passwordHistoryRepository, IMapper mapper, ILogger<UserService> logger) : IUserService
 {
     private readonly IUserRepository _userRepository = userRepository;
+    private readonly IPasswordHistoryRepository _passwordHistoryRepository = passwordHistoryRepository;
     private readonly ILogger<UserService> _logger = logger;
     private readonly IMapper _mapper = mapper;
 
@@ -95,7 +96,18 @@ public class UserService(IUserRepository userRepository, IMapper mapper, ILogger
             return false;
         }
 
+        await _passwordHistoryRepository.InsertPasswordChangeRecordAsync(user.Id.Value);
+
         _logger.LogInformation("Password changed successfully for user {Email}", dto.Email);
         return true;
-    } 
+    }
+
+    public async Task<bool> HasChangedPassword(UserId id)
+    {
+        _logger.LogDebug("Checking if user has updated Password");
+
+        var hasChangedPassword = await _passwordHistoryRepository.PasswordChangeExistsAsync(id);
+
+        return hasChangedPassword;
+    }
 }

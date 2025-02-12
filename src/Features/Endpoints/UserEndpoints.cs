@@ -10,8 +10,7 @@ namespace RoomSchedulerAPI.Features.Endpoints;
 public static class UserEndpoints
 {
     public static void MapUserEndpoints(this WebApplication app)
-    {
-        // admin only
+    {        
         app.MapGet("/api/v1/users",
             static async (IUserService userService, 
             ILogger<Program> logger,
@@ -142,8 +141,6 @@ public static class UserEndpoints
         .WithName("RegisterUser")
         .RequireAuthorization(new AuthorizeAttribute { Roles = "Admin" });
 
-
-        // new users must change passwordgiven by admin within(?)
         app.MapPost("/api/v1/users/change-password", 
             static async ([FromBody] ChangePasswordDTO dto,
             IValidator<ChangePasswordDTO> validator,
@@ -185,6 +182,7 @@ public static class UserEndpoints
         app.MapPost("/api/v1/login", 
             static async ([FromBody] LoginDTO dto, 
             IValidator<LoginDTO> validator, 
+            IUserService userService,
             IUserAuthenticationService authService,
             ITokenGenerator tokenGenerator, 
             ILogger<Program> logger) =>
@@ -205,7 +203,9 @@ public static class UserEndpoints
                     return Results.Problem("Login failed. Please check your username and/or password and try again.", statusCode: 401);
                 }
 
-                var token = await tokenGenerator.GenerateTokenAsync(authenticatedUser);
+                bool hasChangedPassword = await userService.HasChangedPassword(authenticatedUser.Id);
+
+                var token = await tokenGenerator.GenerateTokenAsync(authenticatedUser, hasChangedPassword);
 
                 return Results.Ok(new { Token = token });
         })

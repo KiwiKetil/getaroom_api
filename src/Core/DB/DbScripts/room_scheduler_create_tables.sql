@@ -69,14 +69,21 @@ FOREIGN KEY (RoleName) REFERENCES Roles(RoleName)  ON DELETE CASCADE
 
 CREATE TABLE IF NOT EXISTS DeletedUsers (
     UserId CHAR(36) NOT NULL,
-    FirstName VARCHAR(30),
-    LastName VARCHAR(30),
-    PhoneNumber VARCHAR(15),
-    Email VARCHAR(50),
+    FirstName VARCHAR(30) NOT NULL,
+    LastName VARCHAR(30) NOT NULL,
+    PhoneNumber VARCHAR(15) NOT NULL,
+    Email VARCHAR(50) NOT NULL,
     DeletedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    DeletedBy VARCHAR(25) DEFAULT 'SQLAdmin',
-    UserRoles JSON NOT NULL, -- Store the roles as JSON
+    DeletedBy VARCHAR(25) NOT NULL,
+    UserRoles JSON NOT NULL,
     PRIMARY KEY (UserId)
+);
+
+CREATE TABLE IF NOT EXISTS PasswordHistory (
+	Id CHAR(36) PRIMARY KEY,
+    UserId CHAR(36) NOT NULL,
+    ChangedDate TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (UserId) REFERENCES Users(Id) ON DELETE CASCADE
 );
 
 -- ===========================
