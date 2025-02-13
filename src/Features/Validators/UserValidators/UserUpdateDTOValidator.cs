@@ -1,6 +1,5 @@
 ﻿using FluentValidation;
 using RoomSchedulerAPI.Features.Models.DTOs.UserDTOs;
-using System.Text.RegularExpressions;
 
 namespace RoomSchedulerAPI.Features.Validators.UserValidators;
 
@@ -18,7 +17,7 @@ public class UserUpdateDTOValidator : AbstractValidator<UserUpdateDTO>
 
         RuleFor(x => x.PhoneNumber)
             .NotEmpty()
-            .Matches(@"^\+?[1-9]\d{7,14}$"); 
+            .Matches(@"^\+?[1-9]\d{7,14}$");
 
         RuleFor(x => x.Email)
             .NotEmpty()

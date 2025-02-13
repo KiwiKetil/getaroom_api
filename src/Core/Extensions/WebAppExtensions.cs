@@ -95,7 +95,17 @@ public static class WebAppExtensions
                   IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"]!))
               };
           });
-        services.AddAuthorization();
+
+        services.AddAuthorizationBuilder()
+            .AddPolicy("PasswordChangedPolicy", policy =>
+            {
+                policy.RequireClaim("passwordChanged", "true");
+            })
+            .AddPolicy("AdminAndPasswordChangedPolicy", policy =>
+            {
+                policy.RequireRole("Admin");
+                policy.RequireClaim("passwordchanged", "true");
+            });
 
         return services;        
     }
