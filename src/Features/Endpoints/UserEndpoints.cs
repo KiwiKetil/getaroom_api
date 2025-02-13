@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RoomSchedulerAPI.Features.Models.DTOs.UserDTOs;
+using RoomSchedulerAPI.Features.Services;
 using RoomSchedulerAPI.Features.Services.Interfaces;
 using System.Security.Claims;
 
@@ -145,6 +146,7 @@ public static class UserEndpoints
             static async ([FromBody] ChangePasswordDTO dto,
             IValidator<ChangePasswordDTO> validator,
             IUserService userService,
+            ITokenGenerator tokenGenerator,
             ILogger<Program> logger,
             ClaimsPrincipal claims) =>
         {
@@ -170,11 +172,24 @@ public static class UserEndpoints
                     return Results.BadRequest(errors);
                 }
 
-                var res = await userService.ChangePasswordAsync(dto);
+                var passwordChanged = await userService.ChangePasswordAsync(dto );
 
-                return res
-                ? Results.Ok(new { Message = "Password changed successfully." })
-                : Results.BadRequest(new { Message = "Password could not be changed. Please check your username or password and try again." });
+                if (!passwordChanged)
+                { 
+                    return Results.BadRequest(new { Message = "Password could not be changed. Please check your username or password and try again." });
+                }
+
+                var user = await userService.GetUserByEmailAsync(dto.Email);
+                if (user is null)
+                {
+                    logger.LogError("User not found for email {Email}", dto.Email);
+                    return Results.NotFound("User not found.");
+                }
+
+                var newToken = await tokenGenerator.GenerateTokenAsync(user, true);
+
+                return Results.Ok(new { token = newToken });
+
         })
         .RequireAuthorization()
         .WithName("ChangePassword");

@@ -12,4 +12,5 @@ public interface IUserService
     Task<UserDTO?> RegisterUserAsync(UserRegistrationDTO dto);
     Task<bool> ChangePasswordAsync(ChangePasswordDTO dto);
     Task<bool> HasChangedPassword(UserId id);
+    Task<User?> GetUserByEmailAsync(string email);
 }
