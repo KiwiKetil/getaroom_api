@@ -110,4 +110,13 @@ public class UserService(IUserRepository userRepository, IPasswordHistoryReposit
 
         return hasChangedPassword;
     }
+
+    public async Task<User?> GetUserByEmailAsync(string email)
+    {
+        _logger.LogDebug("Retrieving user by email {email}", email);
+
+        var user = await _userRepository.GetUserByEmailAsync(email);
+
+        return user;
+    }
 }
