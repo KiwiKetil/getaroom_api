@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using RoomSchedulerAPI.Features.Models.DTOs.Token;
 using RoomSchedulerAPI.Features.Models.DTOs.UserDTOs;
 using RoomSchedulerAPI.Features.Services;
 using RoomSchedulerAPI.Features.Services.Interfaces;
@@ -157,7 +158,6 @@ public static class UserEndpoints
                 if (!isAdmin)
                 {
                     var userIdClaim = claims.FindFirst("name") ?? claims.FindFirst(ClaimTypes.Name);
-
                     if (userIdClaim == null || userIdClaim.Value != dto.Email)
                     {
                         return Results.Forbid();
@@ -165,7 +165,6 @@ public static class UserEndpoints
                 }
 
                 var validationResult = await validator.ValidateAsync(dto);
-
                 if (!validationResult.IsValid)
                 {
                     var errors = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
@@ -173,7 +172,6 @@ public static class UserEndpoints
                 }
 
                 var passwordChanged = await userService.ChangePasswordAsync(dto );
-
                 if (!passwordChanged)
                 { 
                     return Results.BadRequest(new { Message = "Password could not be changed. Please check your username or password and try again." });
@@ -188,7 +186,7 @@ public static class UserEndpoints
 
                 var newToken = await tokenGenerator.GenerateTokenAsync(user, true);
 
-                return Results.Ok(new { token = newToken });
+                return Results.Ok(new TokenResponse { Token = newToken });
         })
         .RequireAuthorization()
         .WithName("ChangePassword");
@@ -221,7 +219,7 @@ public static class UserEndpoints
 
                 var token = await tokenGenerator.GenerateTokenAsync(authenticatedUser, hasChangedPassword);
 
-                return Results.Ok(new { Token = token });
+                return Results.Ok(new TokenResponse{ Token = token });
         })
         .WithName("UserLogin");
     }
