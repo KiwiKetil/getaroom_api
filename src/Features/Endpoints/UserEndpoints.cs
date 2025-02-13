@@ -33,10 +33,10 @@ public static class UserEndpoints
                     Data = users
                 });
         })
-        .RequireAuthorization(new AuthorizeAttribute { Roles = "Admin" })
+        .RequireAuthorization("AdminAndPasswordChangedPolicy")
         .WithName("GetAllUsers");
         
-        app.MapGet("/api/v1/users/{id}", 
+        app.MapGet("/api/v1/users/{id}",
             static async ([FromRoute] Guid id,
             IUserService userService,
             ILogger<Program> logger,
@@ -59,7 +59,7 @@ public static class UserEndpoints
                 var user = await userService.GetUserByIdAsync(id);
                 return user != null ? Results.Ok(user) : Results.NotFound("User was not found");
         })
-        .RequireAuthorization()
+        .RequireAuthorization("PasswordChangedPolicy")
         .WithName("GetUserById");
 
         app.MapPut("/api/v1/users/{id}", 
@@ -99,7 +99,7 @@ public static class UserEndpoints
                     detail: "User could not be updated"
                 );
         })
-        .RequireAuthorization()
+        .RequireAuthorization("PasswordChangedPolicy")
         .WithName("UpdateUser");
 
         app.MapDelete("/api/v1/users/{id}", 
@@ -116,7 +116,7 @@ public static class UserEndpoints
                     detail: "User could not be deleted"
                 );
         })
-        .RequireAuthorization(new AuthorizeAttribute { Roles = "Admin" })
+        .RequireAuthorization("AdminAndPasswordChangedPolicy")
         .WithName("DeleteUser");
 
         app.MapPost("/api/v1/users/register", 
@@ -139,8 +139,8 @@ public static class UserEndpoints
 
                 return res != null ? Results.Ok(res) : Results.Conflict(new { Message = "User already exists" });
         })
-        .WithName("RegisterUser")
-        .RequireAuthorization(new AuthorizeAttribute { Roles = "Admin" });
+        .RequireAuthorization("AdminAndPasswordChangedPolicy")
+        .WithName("RegisterUser");
 
         app.MapPost("/api/v1/users/change-password", 
             static async ([FromBody] ChangePasswordDTO dto,
@@ -189,7 +189,6 @@ public static class UserEndpoints
                 var newToken = await tokenGenerator.GenerateTokenAsync(user, true);
 
                 return Results.Ok(new { token = newToken });
-
         })
         .RequireAuthorization()
         .WithName("ChangePassword");

@@ -4,7 +4,6 @@ namespace RoomSchedulerAPI.Features.Endpoints.Diagnostics;
 
 public static class ApiHealthCheck
 {
-    // Kun admin
     public static void MapApiHealthCheckEndpoint(this WebApplication app)
     {
         app.MapGet("/api/v1/hello", () =>
@@ -16,6 +15,7 @@ public static class ApiHealthCheck
                 sb.Append($"Address: {adr.AddressFamily} {adr}\n");
             }
             return $"Hello from host: {hostName}\n{sb}";
-        });
+        })
+        .RequireAuthorization("AdminAndPasswordChangedPolicy");
     }
 }
