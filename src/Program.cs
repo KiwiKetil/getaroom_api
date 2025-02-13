@@ -36,3 +36,5 @@ app.MapApiHealthCheckEndpoint();
 app.MapDbHealthCheckEndpoint();
 
 app.Run();
+
+public partial class Program { }; // for integration testing (?) Trengs pga toplevel statement må ha entry point (pga er internal default når ikke setter public i main)
