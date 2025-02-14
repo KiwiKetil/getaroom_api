@@ -98,14 +98,14 @@ public static class WebAppExtensions
 
         // Authorization policies
         services.AddAuthorizationBuilder()
-            .AddPolicy("PasswordChangedPolicy", policy =>
+            .AddPolicy("PasswordUpdatedPolicy", policy =>
             {
-                policy.RequireClaim("passwordChanged", "true");
+                policy.RequireClaim("passwordUpdated", "true");
             })
-            .AddPolicy("AdminAndPasswordChangedPolicy", policy =>
+            .AddPolicy("AdminAndPasswordUpdatedPolicy", policy =>
             {
                 policy.RequireRole("Admin");
-                policy.RequireClaim("passwordchanged", "true");
+                policy.RequireClaim("passwordUpdated", "true");
             });
 
         return services;        

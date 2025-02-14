@@ -16,6 +16,6 @@ public static class ApiHealthCheck
             }
             return $"Hello from host: {hostName}\n{sb}";
         })
-        .RequireAuthorization("AdminAndPasswordChangedPolicy");
+        .RequireAuthorization("AdminAndPasswordUpdatedPolicy");
     }
 }

@@ -14,7 +14,7 @@ public class TokenGenerator(IUserRoleRepository userRoleRepository, IConfigurati
     private readonly IConfiguration _config = config;
     private readonly ILogger _logger = logger;
 
-    public async Task<string> GenerateTokenAsync(User authenticateduser, bool hasChangedPassword)
+    public async Task<string> GenerateTokenAsync(User authenticateduser, bool hasUpdatedPassword)
     {
         if (authenticateduser == null)
         {
@@ -33,7 +33,7 @@ public class TokenGenerator(IUserRoleRepository userRoleRepository, IConfigurati
         List<Claim> claims = [];
         claims.Add(new Claim(JwtRegisteredClaimNames.Sub, userId.Value.ToString()));
         claims.Add(new Claim(JwtRegisteredClaimNames.Name, userName.ToString()));
-        claims.Add(new Claim("passwordChanged", hasChangedPassword ? "true" : "false"));
+        claims.Add(new Claim("passwordUpdated", hasUpdatedPassword ? "true" : "false"));
 
         foreach (var role in userRoles)
         {

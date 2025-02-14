@@ -34,6 +34,6 @@ public static class DBHealthCheck
                 return Results.Problem($"Connection failed: {ex.Message}");
             }
         })
-        .RequireAuthorization("AdminAndPasswordChangedPolicy");
+        .RequireAuthorization("AdminAndPasswordUpdatedPolicy");
     }
 }
