@@ -1,6 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using FluentValidation;
+using Microsoft.AspNetCore.Mvc;
 using RoomSchedulerAPI.Features.Models.DTOs.UserDTOs;
+using RoomSchedulerAPI.Features.Services;
 using RoomSchedulerAPI.Features.Services.Interfaces;
+using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 
 namespace RoomSchedulerAPI.Features.Endpoints;
@@ -44,4 +47,41 @@ public static class UserEndpointsLogic
         var user = await userService.GetUserByIdAsync(id);
         return user != null ? Results.Ok(user) : Results.NotFound("User was not found");
     }
+
+    public static async Task<IResult> UpdateUserLogicAsync([FromRoute] Guid id, [FromBody] UserUpdateDTO dto, IUserService userService,
+            IValidator<UserUpdateDTO> validator,
+            ILogger<Program> logger,
+            ClaimsPrincipal claims) 
+    {
+        logger.LogDebug("Updating user with ID {userId}", id);
+
+        var isAdmin = claims.IsInRole("Admin");
+
+        if (!isAdmin)
+        {
+            var userIdClaim = claims.FindFirst("sub") ?? claims.FindFirst(ClaimTypes.NameIdentifier);
+
+            if (userIdClaim == null || userIdClaim.Value != id.ToString())
+            {
+                return Results.Forbid();
+            }
+        }
+
+        var validationResult = await validator.ValidateAsync(dto);
+
+        if (!validationResult.IsValid)
+        {
+            var errors = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
+            return Results.BadRequest(errors);
+        }
+
+        var user = await userService.UpdateUserAsync(id, dto);
+        return user != null ? Results.Ok(user) : Results.Problem(
+            title: "An issue occured",
+            statusCode: 409,
+            detail: "User could not be updated"
+        );
+    }
+
+
 }
