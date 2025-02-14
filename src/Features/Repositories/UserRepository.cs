@@ -217,7 +217,7 @@ public class UserRepository(IDbConnectionFactory mySqlConnectionFactory, ILogger
         }
     }
 
-    public async Task<bool> ChangePasswordAsync(UserId id, string newHashedPassword)
+    public async Task<bool> UpdatePasswordAsync(UserId id, string newHashedPassword)
     {
         _logger.LogDebug("Updating password in DB");
 
