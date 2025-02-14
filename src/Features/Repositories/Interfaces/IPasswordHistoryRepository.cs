@@ -4,7 +4,7 @@ namespace RoomSchedulerAPI.Features.Repositories.Interfaces;
 
 public interface IPasswordHistoryRepository
 {
-    Task<bool> PasswordChangeExistsAsync(UserId id);
+    Task<bool> PasswordUpdateExistsAsync(UserId id);
 
-    Task InsertPasswordChangeRecordAsync(Guid userId);
+    Task InsertPasswordUpdateRecordAsync(Guid userId);
 }

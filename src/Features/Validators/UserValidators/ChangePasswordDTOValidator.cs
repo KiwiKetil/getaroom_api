@@ -3,7 +3,7 @@ using RoomSchedulerAPI.Features.Models.DTOs.UserDTOs;
 
 namespace RoomSchedulerAPI.Features.Validators.UserValidators;
 
-public class ChangePasswordDTOValidator : AbstractValidator<ChangePasswordDTO>
+public class ChangePasswordDTOValidator : AbstractValidator<UpdatePasswordDTO>
 {
     private const string PasswordPattern = @"^(?=.*[0-9])(?=.*[A-Z])(?=.*[a-z])(?=.*[!?*#_-]).{8,24}$";
 

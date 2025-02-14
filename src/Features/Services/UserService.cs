@@ -69,7 +69,7 @@ public class UserService(IUserRepository userRepository, IPasswordHistoryReposit
         return userDTO;
     }
 
-    public async Task<bool> ChangePasswordAsync(ChangePasswordDTO dto) 
+    public async Task<bool> UpdatePasswordAsync(UpdatePasswordDTO dto) 
     {
         _logger.LogDebug("Changing password for user {Email}", dto.Email);
 
@@ -96,17 +96,17 @@ public class UserService(IUserRepository userRepository, IPasswordHistoryReposit
             return false;
         }
 
-        await _passwordHistoryRepository.InsertPasswordChangeRecordAsync(user.Id.Value);
+        await _passwordHistoryRepository.InsertPasswordUpdateRecordAsync(user.Id.Value);
 
         _logger.LogInformation("Password changed successfully for user {Email}", dto.Email);
         return true;
     }
 
-    public async Task<bool> HasChangedPassword(UserId id)
+    public async Task<bool> HasUpdatedPassword(UserId id)
     {
         _logger.LogDebug("Checking if user has updated Password");
 
-        var hasChangedPassword = await _passwordHistoryRepository.PasswordChangeExistsAsync(id);
+        var hasChangedPassword = await _passwordHistoryRepository.PasswordUpdateExistsAsync(id);
 
         return hasChangedPassword;
     }

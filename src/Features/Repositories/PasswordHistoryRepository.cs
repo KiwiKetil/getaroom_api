@@ -10,7 +10,7 @@ public class PasswordHistoryRepository(IDbConnectionFactory mySqlConnectionFacto
     private readonly ILogger _logger = logger;
     private readonly IDbConnectionFactory _mySqlConnectionFactory = mySqlConnectionFactory;  
 
-    public async Task<bool> PasswordChangeExistsAsync(UserId id)
+    public async Task<bool> PasswordUpdateExistsAsync(UserId id)
     {
         _logger.LogDebug("Checking db if user has updated default password");
 
@@ -22,7 +22,7 @@ public class PasswordHistoryRepository(IDbConnectionFactory mySqlConnectionFacto
         return count > 0;
     }
 
-    public async Task InsertPasswordChangeRecordAsync(Guid userId)
+    public async Task InsertPasswordUpdateRecordAsync(Guid userId)
     {
         using var dbConnection = await _mySqlConnectionFactory.CreateConnectionAsync();
         string sql = @"
