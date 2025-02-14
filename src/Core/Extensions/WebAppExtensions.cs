@@ -96,6 +96,7 @@ public static class WebAppExtensions
               };
           });
 
+        // Authorization policies
         services.AddAuthorizationBuilder()
             .AddPolicy("PasswordChangedPolicy", policy =>
             {

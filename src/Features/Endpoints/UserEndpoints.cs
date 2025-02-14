@@ -13,26 +13,9 @@ public static class UserEndpoints
 {
     public static void MapUserEndpoints(this WebApplication app)
     {        
-        app.MapGet("/api/v1/users",
-            static async (IUserService userService, 
-            ILogger<Program> logger,
-            [AsParameters] UserQuery query) =>
+        app.MapGet("/api/v1/users", async (IUserService userService, ILogger<Program> logger, [AsParameters] UserQuery query) => 
         {
-                logger.LogDebug("Retrieving users");
-
-                var (users, totalCount) = await userService.GetUsersAsync(query);
-                if (!users.Any())
-                {
-                    return Results.NotFound("No users found");
-                }
-
-                logger.LogDebug("Count is: {totalCount}", totalCount);
-
-                return Results.Ok(new
-                {
-                    TotalCount = totalCount,
-                    Data = users
-                });
+            return await UserEndpointsLogic.GetAllUsersLogicAsync(userService, logger, query);
         })
         .RequireAuthorization("AdminAndPasswordChangedPolicy")
         .WithName("GetAllUsers");
@@ -143,6 +126,36 @@ public static class UserEndpoints
         .RequireAuthorization("AdminAndPasswordChangedPolicy")
         .WithName("RegisterUser");
 
+        app.MapPost("/api/v1/login",
+            static async ([FromBody] LoginDTO dto,
+            IValidator<LoginDTO> validator,
+            IUserService userService,
+            IUserAuthenticationService authService,
+            ITokenGenerator tokenGenerator,
+            ILogger<Program> logger) =>
+            {
+                logger.LogDebug("User logging in");
+
+                var validationResult = await validator.ValidateAsync(dto);
+                if (!validationResult.IsValid)
+                {
+                    var errors = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
+                    return Results.BadRequest(errors);
+                }
+
+                var authenticatedUser = await authService.AuthenticateUserAsync(dto);
+                if (authenticatedUser == null)
+                {
+                    return Results.Problem("Login failed. Please check your username and/or password and try again.", statusCode: 401);
+                }
+
+                bool hasChangedPassword = await userService.HasChangedPassword(authenticatedUser.Id);
+                var token = await tokenGenerator.GenerateTokenAsync(authenticatedUser, hasChangedPassword);
+
+                return Results.Ok(new TokenResponse { Token = token });
+            })
+        .WithName("UserLogin");
+
         app.MapPost("/api/v1/users/change-password", 
             static async ([FromBody] ChangePasswordDTO dto,
             IValidator<ChangePasswordDTO> validator,
@@ -180,7 +193,7 @@ public static class UserEndpoints
                 var user = await userService.GetUserByEmailAsync(dto.Email);
                 if (user is null)
                 {
-                    logger.LogError("User not found for email {Email}", dto.Email);
+                    logger.LogError("User not found by email {Email}", dto.Email);
                     return Results.NotFound("User not found.");
                 }
 
@@ -190,37 +203,5 @@ public static class UserEndpoints
         })
         .RequireAuthorization()
         .WithName("ChangePassword");
-
-        app.MapPost("/api/v1/login", 
-            static async ([FromBody] LoginDTO dto, 
-            IValidator<LoginDTO> validator, 
-            IUserService userService,
-            IUserAuthenticationService authService,
-            ITokenGenerator tokenGenerator, 
-            ILogger<Program> logger) =>
-        {
-                logger.LogDebug("User logging in");
-
-                var validationResult = await validator.ValidateAsync(dto);
-                if (!validationResult.IsValid)
-                {
-                    var errors = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
-                    return Results.BadRequest(errors);
-                }
-
-                var authenticatedUser = await authService.AuthenticateUserAsync(dto);
-
-                if (authenticatedUser == null)
-                {
-                    return Results.Problem("Login failed. Please check your username and/or password and try again.", statusCode: 401);
-                }
-
-                bool hasChangedPassword = await userService.HasChangedPassword(authenticatedUser.Id);
-
-                var token = await tokenGenerator.GenerateTokenAsync(authenticatedUser, hasChangedPassword);
-
-                return Results.Ok(new TokenResponse{ Token = token });
-        })
-        .WithName("UserLogin");
     }
 }
