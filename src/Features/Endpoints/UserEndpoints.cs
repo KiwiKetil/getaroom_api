@@ -30,42 +30,9 @@ public static class UserEndpoints
         .WithName("GetUserById");
 
         // https://localhost:7089/api/v1/users/b97ac10b-58cc-4372-a567-0e02b2c3d490
-        app.MapPut("/api/v1/users/{id}", 
-            static async ([FromRoute] Guid id,             
-            [FromBody] UserUpdateDTO dto,
-            IUserService userService, 
-            IValidator<UserUpdateDTO> validator, 
-            ILogger<Program> logger,
-            ClaimsPrincipal claims) =>
+        app.MapPut("/api/v1/users/{id}", async ([FromRoute] Guid id, [FromBody] UserUpdateDTO dto, IUserService userService, IValidator<UserUpdateDTO> validator, ILogger<Program> logger, ClaimsPrincipal claims) =>
         {
-                logger.LogDebug("Updating user with ID {userId}", id);
-
-                var isAdmin = claims.IsInRole("Admin");
-
-                if (!isAdmin)
-                {
-                    var userIdClaim = claims.FindFirst("sub") ?? claims.FindFirst(ClaimTypes.NameIdentifier);
-
-                    if (userIdClaim == null || userIdClaim.Value != id.ToString())
-                    {
-                        return Results.Forbid();
-                    }
-                }
-
-                var validationResult = await validator.ValidateAsync(dto);
-
-                if (!validationResult.IsValid)
-                {
-                    var errors = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
-                    return Results.BadRequest(errors);
-                }
-
-                var user = await userService.UpdateUserAsync(id, dto);
-                return user != null ? Results.Ok(user) : Results.Problem(
-                    title: "An issue occured",
-                    statusCode: 409,
-                    detail: "User could not be updated"
-                );
+            return await UserEndpointsLogic.UpdateUserLogicAsync(id, dto, userService, validator, logger, claims);
         })
         .RequireAuthorization("PasswordUpdatedPolicy")
         .WithName("UpdateUser");
