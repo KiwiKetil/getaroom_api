@@ -38,19 +38,9 @@ public static class UserEndpoints
         .WithName("UpdateUser");
 
         // https://localhost:7089/api/v1/users/6d7b1ca5-54f6-4859-a746-fc712d564128
-        app.MapDelete("/api/v1/users/{id}", 
-            static async ([FromRoute] Guid id,
-            IUserService userService, 
-            ILogger<Program> logger) =>
+        app.MapDelete("/api/v1/users/{id}", async ([FromRoute] Guid id, IUserService userService, ILogger<Program> logger) =>
         {
-                logger.LogDebug("Deleting user with ID {userId}", id);
-
-                var user = await userService.DeleteUserAsync(id);
-                return user != null ? Results.Ok(user) : Results.Problem(
-                    title: "An issue occured",
-                    statusCode: 409,
-                    detail: "User could not be deleted"
-                );
+            return await UserEndpointsLogic.DeleteUserLogicAsync(id, userService, logger);
         })
         .RequireAuthorization("AdminAndPasswordUpdatedPolicy")
         .WithName("DeleteUser");
