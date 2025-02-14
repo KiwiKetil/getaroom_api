@@ -71,7 +71,7 @@ public class UserService(IUserRepository userRepository, IPasswordHistoryReposit
 
     public async Task<bool> UpdatePasswordAsync(UpdatePasswordDTO dto) 
     {
-        _logger.LogDebug("Changing password for user {Email}", dto.Email);
+        _logger.LogDebug("Updating password for user {Email}", dto.Email);
 
         var user = await _userRepository.GetUserByEmailAsync(dto.Email);
         if (user == null)
@@ -89,7 +89,7 @@ public class UserService(IUserRepository userRepository, IPasswordHistoryReposit
 
         string newHashedPassword = BCrypt.Net.BCrypt.HashPassword(dto.NewPassword);
 
-        bool updateSuccess = await _userRepository.ChangePasswordAsync(user.Id, newHashedPassword);
+        bool updateSuccess = await _userRepository.UpdatePasswordAsync(user.Id, newHashedPassword);
         if (!updateSuccess)
         {
             _logger.LogError("Failed to update password for user {Email}", dto.Email);
@@ -98,7 +98,7 @@ public class UserService(IUserRepository userRepository, IPasswordHistoryReposit
 
         await _passwordHistoryRepository.InsertPasswordUpdateRecordAsync(user.Id.Value);
 
-        _logger.LogInformation("Password changed successfully for user {Email}", dto.Email);
+        _logger.LogInformation("Password updated successfully for user {Email}", dto.Email);
         return true;
     }
 
