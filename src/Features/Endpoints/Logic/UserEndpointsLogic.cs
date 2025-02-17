@@ -5,11 +5,11 @@ using RoomSchedulerAPI.Features.Models.DTOs.UserDTOs;
 using RoomSchedulerAPI.Features.Services.Interfaces;
 using System.Security.Claims;
 
-namespace RoomSchedulerAPI.Features.Endpoints;
+namespace RoomSchedulerAPI.Features.Endpoints.Logic;
 
 public static class UserEndpointsLogic
 {
-    public static async Task<IResult> GetAllUsersLogicAsync(IUserService userService, UserQuery query, ILogger logger)
+    public static async Task<IResult> GetAllUsersLogicAsync(IUserService userService, [AsParameters] UserQuery query, ILogger<Program> logger)
     {
         logger.LogDebug("Retrieving users");
 
@@ -94,7 +94,7 @@ public static class UserEndpointsLogic
         );
     }
 
-    public static async Task<IResult> RegisterUserLogicAsync([FromBody] UserRegistrationDTO dto, IValidator<UserRegistrationDTO> validator, 
+    public static async Task<IResult> RegisterUserLogicAsync([FromBody] UserRegistrationDTO dto, IValidator<UserRegistrationDTO> validator,
         IUserService userService, ILogger<Program> logger)
     {
         logger.LogDebug("Registering new user");
