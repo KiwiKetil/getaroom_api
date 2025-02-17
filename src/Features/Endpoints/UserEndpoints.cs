@@ -17,8 +17,7 @@ public static class UserEndpoints
         app.MapGet("/api/v1/users", 
             async (IUserService userService,
             [AsParameters] UserQuery query,
-            ILogger<Program> logger
-) => 
+            ILogger<Program> logger) => 
             {
                 return await UserEndpointsLogic.GetAllUsersLogicAsync(userService, query, logger);
             })

@@ -94,7 +94,8 @@ public static class UserEndpointsLogic
         );
     }
 
-    public static async Task<IResult> RegisterUserLogicAsync([FromBody] UserRegistrationDTO dto, IValidator<UserRegistrationDTO> validator, IUserService userService, ILogger<Program> logger)
+    public static async Task<IResult> RegisterUserLogicAsync([FromBody] UserRegistrationDTO dto, IValidator<UserRegistrationDTO> validator, 
+        IUserService userService, ILogger<Program> logger)
     {
         logger.LogDebug("Registering new user");
 
@@ -112,7 +113,8 @@ public static class UserEndpointsLogic
 
     }
 
-    public static async Task<IResult> UserLoginLogicAsync([FromBody] LoginDTO dto, IValidator<LoginDTO> validator, IUserService userService, IUserAuthenticationService authService, ITokenGenerator tokenGenerator, ILogger<Program> logger)
+    public static async Task<IResult> UserLoginLogicAsync([FromBody] LoginDTO dto, IValidator<LoginDTO> validator, IUserService userService,
+        IUserAuthenticationService authService, ITokenGenerator tokenGenerator, ILogger<Program> logger)
     {
         logger.LogDebug("User logging in");
 
