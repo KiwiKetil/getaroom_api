@@ -13,13 +13,13 @@ public class UserService(IUserRepository userRepository, IPasswordHistoryReposit
     private readonly ILogger<UserService> _logger = logger;
     private readonly IMapper _mapper = mapper;
 
-    public async Task<(IEnumerable<UserDTO> Users, int TotalCount)> GetUsersAsync(UserQuery query)
+    public async Task<UsersAndCountDTO> GetUsersAsync(UserQuery query)
     {
         _logger.LogDebug("Retrieving users");
 
         var (users, totalCount) = await _userRepository.GetUsersAsync(query);
         var dtos = users.Select(user => _mapper.Map<UserDTO>(user)).ToList();
-        return (dtos,totalCount);
+        return new UsersAndCountDTO(totalCount, dtos);
     }
 
     public async Task<UserDTO?> GetUserByIdAsync(Guid id)

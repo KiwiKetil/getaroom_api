@@ -9,23 +9,19 @@ namespace RoomSchedulerAPI.Features.Endpoints.Logic;
 
 public static class UserEndpointsLogic
 {
-    public static async Task<IResult> GetAllUsersLogicAsync(IUserService userService, [AsParameters] UserQuery query, ILogger<Program> logger)
+    public static async Task<IResult> GetUsersLogicAsync(IUserService userService, [AsParameters] UserQuery query, ILogger<Program> logger)
     {
         logger.LogDebug("Retrieving users");
 
-        var (users, totalCount) = await userService.GetUsersAsync(query);
-        if (!users.Any())
+        var usersAndCount = await userService.GetUsersAsync(query);
+        if (!usersAndCount.Data.Any())
         {
             return Results.NotFound("No users found");
         }
 
-        logger.LogDebug("Count is: {totalCount}", totalCount);
+        logger.LogDebug("Count is: {totalCount}", usersAndCount.TotalCount);
 
-        return Results.Ok(new
-        {
-            TotalCount = totalCount,
-            Data = users
-        });
+        return Results.Ok(usersAndCount);
     }
 
     public static async Task<IResult> GetUserByIdLogicAsync([FromRoute] Guid id, IUserService userService, ClaimsPrincipal claims, ILogger<Program> logger)
@@ -43,14 +39,12 @@ public static class UserEndpointsLogic
             }
         }
 
-        var user = await userService.GetUserByIdAsync(id);
-        return user != null ? Results.Ok(user) : Results.NotFound("User was not found");
+        var userDTO = await userService.GetUserByIdAsync(id);
+        return userDTO != null ? Results.Ok(userDTO) : Results.NotFound("User was not found");
     }
 
     public static async Task<IResult> UpdateUserLogicAsync([FromRoute] Guid id, [FromBody] UserUpdateDTO dto, IUserService userService,
-            IValidator<UserUpdateDTO> validator,
-            ClaimsPrincipal claims,
-            ILogger<Program> logger)
+            IValidator<UserUpdateDTO> validator, ClaimsPrincipal claims, ILogger<Program> logger)
     {
         logger.LogDebug("Updating user with ID {userId}", id);
 
@@ -74,8 +68,8 @@ public static class UserEndpointsLogic
             return Results.BadRequest(errors);
         }
 
-        var user = await userService.UpdateUserAsync(id, dto);
-        return user != null ? Results.Ok(user) : Results.Problem(
+        var userDTO = await userService.UpdateUserAsync(id, dto);
+        return userDTO != null ? Results.Ok(userDTO) : Results.Problem(
             title: "An issue occured",
             statusCode: 409,
             detail: "User could not be updated"
@@ -86,8 +80,8 @@ public static class UserEndpointsLogic
     {
         logger.LogDebug("Deleting user with ID {userId}", id);
 
-        var user = await userService.DeleteUserAsync(id);
-        return user != null ? Results.Ok(user) : Results.Problem(
+        var userDTO = await userService.DeleteUserAsync(id);
+        return userDTO != null ? Results.Ok(userDTO) : Results.Problem(
             title: "An issue occured",
             statusCode: 409,
             detail: "User could not be deleted"
@@ -107,9 +101,9 @@ public static class UserEndpointsLogic
             return Results.BadRequest(errors);
         }
 
-        var res = await userService.RegisterUserAsync(dto);
+        var userDTO = await userService.RegisterUserAsync(dto);
 
-        return res != null ? Results.Ok(res) : Results.Conflict(new { Message = "User already exists" });
+        return userDTO != null ? Results.Ok(userDTO) : Results.Conflict(new { Message = "User already exists" });
 
     }
 
@@ -137,13 +131,8 @@ public static class UserEndpointsLogic
         return Results.Ok(new TokenResponse { Token = token });
     }
 
-    public static async Task<IResult> UpdatePasswordLogicAsync([FromBody] UpdatePasswordDTO dto,
-            IValidator<UpdatePasswordDTO> validator,
-            IUserService userService,
-            ITokenGenerator tokenGenerator,
-            ClaimsPrincipal claims,
-            ILogger<Program> logger
-)
+    public static async Task<IResult> UpdatePasswordLogicAsync([FromBody] UpdatePasswordDTO dto, IValidator<UpdatePasswordDTO> validator,
+            IUserService userService, ITokenGenerator tokenGenerator, ClaimsPrincipal claims, ILogger<Program> logger)
     {
         logger.LogDebug("User updating password");
 
