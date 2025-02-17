@@ -2,17 +2,14 @@
 using Microsoft.AspNetCore.Mvc;
 using RoomSchedulerAPI.Features.Models.DTOs.Token;
 using RoomSchedulerAPI.Features.Models.DTOs.UserDTOs;
-using RoomSchedulerAPI.Features.Services;
 using RoomSchedulerAPI.Features.Services.Interfaces;
-using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
-using System.Security.Policy;
 
 namespace RoomSchedulerAPI.Features.Endpoints;
 
 public static class UserEndpointsLogic
 {
-    public static async Task<IResult> GetAllUsersLogicAsync(IUserService userService, ILogger logger, UserQuery query)
+    public static async Task<IResult> GetAllUsersLogicAsync(IUserService userService, UserQuery query, ILogger logger)
     {
         logger.LogDebug("Retrieving users");
 
@@ -31,7 +28,7 @@ public static class UserEndpointsLogic
         });
     }
 
-    public static async Task<IResult> GetUserByIdLogicAsync([FromRoute] Guid id, IUserService userService, ILogger<Program> logger, ClaimsPrincipal claims)
+    public static async Task<IResult> GetUserByIdLogicAsync([FromRoute] Guid id, IUserService userService, ClaimsPrincipal claims, ILogger<Program> logger)
     {
         logger.LogDebug("Retrieving user with ID {userId}", id);
 
@@ -52,8 +49,8 @@ public static class UserEndpointsLogic
 
     public static async Task<IResult> UpdateUserLogicAsync([FromRoute] Guid id, [FromBody] UserUpdateDTO dto, IUserService userService,
             IValidator<UserUpdateDTO> validator,
-            ILogger<Program> logger,
-            ClaimsPrincipal claims)
+            ClaimsPrincipal claims,
+            ILogger<Program> logger)
     {
         logger.LogDebug("Updating user with ID {userId}", id);
 
@@ -138,4 +135,49 @@ public static class UserEndpointsLogic
         return Results.Ok(new TokenResponse { Token = token });
     }
 
+    public static async Task<IResult> UpdatePasswordLogicAsync([FromBody] UpdatePasswordDTO dto,
+            IValidator<UpdatePasswordDTO> validator,
+            IUserService userService,
+            ITokenGenerator tokenGenerator,
+            ClaimsPrincipal claims,
+            ILogger<Program> logger
+)
+    {
+        logger.LogDebug("User updating password");
+
+        var isAdmin = claims.IsInRole("Admin");
+
+        if (!isAdmin)
+        {
+            var userIdClaim = claims.FindFirst("name") ?? claims.FindFirst(ClaimTypes.Name);
+            if (userIdClaim == null || userIdClaim.Value != dto.Email)
+            {
+                return Results.Forbid();
+            }
+        }
+
+        var validationResult = await validator.ValidateAsync(dto);
+        if (!validationResult.IsValid)
+        {
+            var errors = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
+            return Results.BadRequest(errors);
+        }
+
+        var passwordChanged = await userService.UpdatePasswordAsync(dto);
+        if (!passwordChanged)
+        {
+            return Results.BadRequest(new { Message = "Password could not be updated. Please check your username or password and try again." });
+        }
+
+        var user = await userService.GetUserByEmailAsync(dto.Email);
+        if (user is null)
+        {
+            logger.LogError("User not found by email {Email}", dto.Email);
+            return Results.NotFound("User not found.");
+        }
+
+        var newToken = await tokenGenerator.GenerateTokenAsync(user, true);
+
+        return Results.Ok(new TokenResponse { Token = newToken });
+    }
 }

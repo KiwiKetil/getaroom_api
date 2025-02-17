@@ -16,10 +16,11 @@ public static class UserEndpoints
         // https://localhost:7089/api/v1/users?page=1&pageSize=10     
         app.MapGet("/api/v1/users", 
             async (IUserService userService,
-            ILogger<Program> logger, 
-            [AsParameters] UserQuery query) => 
+            [AsParameters] UserQuery query,
+            ILogger<Program> logger
+) => 
             {
-                return await UserEndpointsLogic.GetAllUsersLogicAsync(userService, logger, query);
+                return await UserEndpointsLogic.GetAllUsersLogicAsync(userService, query, logger);
             })
         .RequireAuthorization("AdminAndPasswordUpdatedPolicy")
         .WithName("GetAllUsers");
@@ -28,10 +29,10 @@ public static class UserEndpoints
         app.MapGet("/api/v1/users/{id}", 
             async ([FromRoute] Guid id, 
             IUserService userService, 
-            ILogger<Program> logger,
-            ClaimsPrincipal claims) =>
+            ClaimsPrincipal claims,
+            ILogger<Program> logger) =>
             {
-                return await UserEndpointsLogic.GetUserByIdLogicAsync(id, userService, logger, claims);        
+                return await UserEndpointsLogic.GetUserByIdLogicAsync(id, userService, claims, logger);        
             })
         .RequireAuthorization("PasswordUpdatedPolicy")
         .WithName("GetUserById");
@@ -42,10 +43,10 @@ public static class UserEndpoints
             [FromBody] UserUpdateDTO dto,
             IUserService userService, 
             IValidator<UserUpdateDTO> validator, 
-            ILogger<Program> logger,
-            ClaimsPrincipal claims) =>
+            ClaimsPrincipal claims,
+            ILogger<Program> logger) =>
             {
-                return await UserEndpointsLogic.UpdateUserLogicAsync(id, dto, userService, validator, logger, claims);
+                return await UserEndpointsLogic.UpdateUserLogicAsync(id, dto, userService, validator, claims, logger);
             })
         .RequireAuthorization("PasswordUpdatedPolicy")
         .WithName("UpdateUser");
@@ -92,46 +93,11 @@ public static class UserEndpoints
             IValidator<UpdatePasswordDTO> validator,
             IUserService userService,
             ITokenGenerator tokenGenerator,
-            ILogger<Program> logger,
-            ClaimsPrincipal claims) =>
-        {
-                logger.LogDebug("User updating password");
-
-                var isAdmin = claims.IsInRole("Admin");
-
-                if (!isAdmin)
-                {
-                    var userIdClaim = claims.FindFirst("name") ?? claims.FindFirst(ClaimTypes.Name);
-                    if (userIdClaim == null || userIdClaim.Value != dto.Email)
-                    {
-                        return Results.Forbid();
-                    }
-                }
-
-                var validationResult = await validator.ValidateAsync(dto);
-                if (!validationResult.IsValid)
-                {
-                    var errors = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
-                    return Results.BadRequest(errors);
-                }
-
-                var passwordChanged = await userService.UpdatePasswordAsync(dto );
-                if (!passwordChanged)
-                { 
-                    return Results.BadRequest(new { Message = "Password could not be updated. Please check your username or password and try again." });
-                }
-
-                var user = await userService.GetUserByEmailAsync(dto.Email);
-                if (user is null)
-                {
-                    logger.LogError("User not found by email {Email}", dto.Email);
-                    return Results.NotFound("User not found.");
-                }
-
-                var newToken = await tokenGenerator.GenerateTokenAsync(user, true);
-
-                return Results.Ok(new TokenResponse { Token = newToken });
-        })
+            ClaimsPrincipal claims,
+            ILogger<Program> logger) =>
+            {
+                return await UserEndpointsLogic.UpdatePasswordLogicAsync(dto, validator, userService, tokenGenerator, claims, logger);
+            })
         .RequireAuthorization()
         .WithName("UpdatePassword");
     }
