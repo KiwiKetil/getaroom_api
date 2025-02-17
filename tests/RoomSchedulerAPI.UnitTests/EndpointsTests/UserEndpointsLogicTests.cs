@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
 using RoomSchedulerAPI.Features.Endpoints.Logic;
@@ -18,11 +17,11 @@ public class UserEndpointsLogicTests
         var userServiceMock = new Mock<IUserService>();
         var loggerMock = new Mock<ILogger<Program>>();
         var query = new UserQuery(null, null, null, null);
-        
-        var users = new List<UserDTO>();
-        var links = new List<Link>(); 
 
-        var userDTOs = new List<UserDTO> 
+        var users = new List<UserDTO>();
+        var links = new List<Link>();
+
+        var userDTOs = new List<UserDTO>
         {
             new(UserId.NewId, "Ketil", "Sveberg", "91914455", "ketilsveberg@gmail.com", links),
             new(UserId.NewId, "Kristoffer", "Sveberg", "91918262", "kristoffersveberg@gmail.com", links),
@@ -40,22 +39,18 @@ public class UserEndpointsLogicTests
         Assert.NotNull(okResult.Value);
         Assert.Equal(totalCount, okResult.Value.TotalCount);
         Assert.Equal(userDTOs, okResult.Value.Data);
+        okResult.Value.Data.Should().BeEquivalentTo(userDTOs, options => options.WithStrictOrdering());
 
-        Assert.Equal(userDTOs.Count, okResult.Value.Data.Count());
-
-        foreach (var expectedUser in userDTOs)
-        {
-            var actualUser = okResult.Value.Data.FirstOrDefault(u => u.Email == expectedUser.Email);
-            Assert.NotNull(actualUser);
-            Assert.Equal(expectedUser.FirstName, actualUser.FirstName);
-            Assert.Equal(expectedUser.LastName, actualUser.LastName);
-            Assert.Equal(expectedUser.PhoneNumber, actualUser.PhoneNumber);
-            Assert.Equal(expectedUser.Email, actualUser.Email);
-            Assert.Equal(expectedUser.Links, actualUser.Links);
-
-            // okResult.Value.Data.Should().BeEquivalentTo(userDTOs, options => options.IncludingAllRuntimeProperties()); //??fluentassertions!!??
-
-        }
+        //foreach (var expectedUser in userDTOs)
+        //{
+        //    var actualUser = okResult.Value.Data.FirstOrDefault(u => u.Email == expectedUser.Email);
+        //    Assert.NotNull(actualUser);
+        //    Assert.Equal(expectedUser.FirstName, actualUser.FirstName);
+        //    Assert.Equal(expectedUser.LastName, actualUser.LastName);
+        //    Assert.Equal(expectedUser.PhoneNumber, actualUser.PhoneNumber);
+        //    Assert.Equal(expectedUser.Email, actualUser.Email);
+        //    Assert.Equal(expectedUser.Links, actualUser.Links);
+        //}
     }
 
 }
