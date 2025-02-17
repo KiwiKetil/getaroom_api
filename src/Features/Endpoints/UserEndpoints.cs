@@ -46,25 +46,9 @@ public static class UserEndpoints
         .WithName("DeleteUser");
 
         // https://localhost:7089/api/v1/users/register
-        app.MapPost("/api/v1/users/register", 
-            static async ([FromBody] UserRegistrationDTO dto, 
-            IValidator<UserRegistrationDTO> validator, 
-            IUserService userService, 
-            ILogger<Program> logger) =>
+        app.MapPost("/api/v1/users/register", static async ([FromBody] UserRegistrationDTO dto, IValidator<UserRegistrationDTO> validator, IUserService userService, ILogger<Program> logger) =>
         {
-                logger.LogDebug("Registering new user");
-
-                var validationResult = await validator.ValidateAsync(dto);
-
-                if (!validationResult.IsValid)
-                {
-                    var errors = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
-                    return Results.BadRequest(errors);
-                }
-
-                var res = await userService.RegisterUserAsync(dto);
-
-                return res != null ? Results.Ok(res) : Results.Conflict(new { Message = "User already exists" });
+            return await UserEndpointsLogic.RegisterUserLogicAsync(dto, validator, userService, logger);
         })
         .RequireAuthorization("AdminAndPasswordUpdatedPolicy")
         .WithName("RegisterUser");

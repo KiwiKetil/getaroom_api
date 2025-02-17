@@ -1,8 +1,11 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using RoomSchedulerAPI.Features.Models.DTOs.UserDTOs;
+using RoomSchedulerAPI.Features.Services;
 using RoomSchedulerAPI.Features.Services.Interfaces;
+using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
+using System.Security.Policy;
 
 namespace RoomSchedulerAPI.Features.Endpoints;
 
@@ -92,6 +95,25 @@ public static class UserEndpointsLogic
             detail: "User could not be deleted"
         );
     }
+
+    public static async Task<IResult> RegisterUserLogicAsync([FromBody] UserRegistrationDTO dto, IValidator<UserRegistrationDTO> validator, IUserService userService, ILogger<Program> logger)
+    {
+        logger.LogDebug("Registering new user");
+
+        var validationResult = await validator.ValidateAsync(dto);
+
+        if (!validationResult.IsValid)
+        {
+            var errors = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
+            return Results.BadRequest(errors);
+        }
+
+        var res = await userService.RegisterUserAsync(dto);
+
+        return res != null ? Results.Ok(res) : Results.Conflict(new { Message = "User already exists" });
+
+    }
+
 
 
 }
