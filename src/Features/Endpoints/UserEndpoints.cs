@@ -15,9 +15,9 @@ public static class UserEndpoints
     public static void MapUserEndpoints(this WebApplication app)
     {   
         // https://localhost:7089/api/v1/users?page=1&pageSize=10     
-        app.MapGet("/api/v1/users", UserEndpointsLogic.GetAllUsersLogicAsync)
+        app.MapGet("/api/v1/users", UserEndpointsLogic.GetUsersLogicAsync)
         .RequireAuthorization("AdminAndPasswordUpdatedPolicy")
-        .WithName("GetAllUsers");
+        .WithName("GetUsers");
 
         // https://localhost:7089/api/v1/users/887ac10b-58cc-4372-a567-0e02b2c3d493
         app.MapGet("/api/v1/users/{id}", UserEndpointsLogic.GetUserByIdLogicAsync)            
