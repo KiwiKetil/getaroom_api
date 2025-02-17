@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
+using RoomSchedulerAPI.Features.Models.DTOs.Token;
 using RoomSchedulerAPI.Features.Models.DTOs.UserDTOs;
 using RoomSchedulerAPI.Features.Services;
 using RoomSchedulerAPI.Features.Services.Interfaces;
@@ -114,6 +115,27 @@ public static class UserEndpointsLogic
 
     }
 
+    public static async Task<IResult> UserLoginLogicAsync([FromBody] LoginDTO dto, IValidator<LoginDTO> validator, IUserService userService, IUserAuthenticationService authService, ITokenGenerator tokenGenerator, ILogger<Program> logger)
+    {
+        logger.LogDebug("User logging in");
 
+        var validationResult = await validator.ValidateAsync(dto);
+        if (!validationResult.IsValid)
+        {
+            var errors = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
+            return Results.BadRequest(errors);
+        }
+
+        var authenticatedUser = await authService.AuthenticateUserAsync(dto);
+        if (authenticatedUser == null)
+        {
+            return Results.Problem("Login failed. Please check your username and/or password and try again.", statusCode: 401);
+        }
+
+        bool hasUpdatedPassword = await userService.HasUpdatedPassword(authenticatedUser.Id);
+        var token = await tokenGenerator.GenerateTokenAsync(authenticatedUser, hasUpdatedPassword);
+
+        return Results.Ok(new TokenResponse { Token = token });
+    }
 
 }
