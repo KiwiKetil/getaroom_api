@@ -224,5 +224,28 @@ public class UserEndpointsLogicTests
         Assert.Equal(userDTO, okResult.Value);
     }
 
-    # endregion UpdateUserLogicAsync
+    // test as valid User also not just admin - should return ok and validData
+    [Fact]
+    public async Task UpdateUserLogicAsync_AsValidUser_WhenUpdateIsSuccessful_ReturnsOkAndValidData() 
+    { 
+        // Arrange
+
+
+        // Act
+
+
+        // Assert
+
+
+
+    }
+    
+    // test as not authUser forbidden()
+    // test Results.Problem (null)
+    // test BadRequest() Validation fails
+
+    // more..??
+
+
+    #endregion UpdateUserLogicAsync
 }
