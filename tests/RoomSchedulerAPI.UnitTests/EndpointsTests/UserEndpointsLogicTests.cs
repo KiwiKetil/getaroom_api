@@ -136,10 +136,34 @@ public class UserEndpointsLogicTests
         var NotFoundResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.NotFound<string>>(result);
         Assert.NotNull(NotFoundResult);
         Assert.Equal("User was not found", NotFoundResult.Value);
-
     }
 
-    //test for "forbid" også - just one
+    [Fact]
+    public async Task GetUserByIdLogicAsync_WhenNotAuthorized_ReturnsForbid()
+    {
+        // Arrange
+        var userServiceMock = new Mock<IUserService>();
+        var loggerMock = new Mock<ILogger<Program>>();
+
+        var userGuid = Guid.NewGuid();
+        var userId = new UserId(userGuid);
+        var links = new List<Link>();
+
+        var claimsIdentity = new ClaimsIdentity(
+        [
+            new Claim(ClaimTypes.Role, "User")
+        ], "TestAuthentication");
+        var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
+
+        userServiceMock.Setup(x => x.GetUserByIdAsync(userGuid)).ReturnsAsync((UserDTO?)null);
+
+        // Act
+        var result = await UserEndpointsLogic.GetUserByIdLogicAsync(userGuid, userServiceMock.Object, claimsPrincipal, loggerMock.Object);
+
+        // Assert
+        var forbidResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.ForbidHttpResult>(result);
+    }
+
 
     #endregion GetUserById
 }
