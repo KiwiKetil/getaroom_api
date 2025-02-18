@@ -108,20 +108,34 @@ public class UserEndpointsLogicTests
         var okResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.Ok<UserDTO>>(result);
         Assert.NotNull(okResult);
         Assert.Equal(userDTO, okResult.Value);
-        okResult.Value.Should().BeEquivalentTo(userDTO);  // redundant bec userDTO is record and by design overrides the default equality, so it compares by value rather than ref.
+        okResult.Value.Should().BeEquivalentTo(userDTO);  // redundant bec Equal(). UserDTO is record(overrides the default equality), and therefore compares by value rather than ref.
     }
 
+    [Fact]
     public async Task GetUserByIdLogicAsync_AsAdmin_WhenUserDoesNotExist_ReturnsNotFound() 
     {
         // Arrange
+        var userServiceMock = new Mock<IUserService>();
+        var loggerMock = new Mock<ILogger<Program>>();
 
+        var guid = Guid.NewGuid();
 
+        var claimsIdentity = new ClaimsIdentity(
+        [
+            new Claim(ClaimTypes.Role, "Admin")
+            
+        ],"TestAuthentication");
+        var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
+
+        userServiceMock.Setup(x => x.GetUserByIdAsync(guid)).ReturnsAsync((UserDTO?)null);
 
         // Act
-
+        var result = await UserEndpointsLogic.GetUserByIdLogicAsync(guid, userServiceMock.Object, claimsPrincipal,loggerMock.Object);
 
         // Assert
-
+        var NotFoundResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.NotFound<string>>(result);
+        Assert.NotNull(NotFoundResult);
+        Assert.Equal("User was not found", NotFoundResult.Value);
 
     }
 
