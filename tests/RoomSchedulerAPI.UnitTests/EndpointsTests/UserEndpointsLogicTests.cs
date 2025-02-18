@@ -1,6 +1,7 @@
 ﻿using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
+using MySqlX.XDevAPI.Common;
 using RoomSchedulerAPI.Features.Endpoints.Logic;
 using RoomSchedulerAPI.Features.HateOAS;
 using RoomSchedulerAPI.Features.Models.DTOs.UserDTOs;
@@ -10,8 +11,10 @@ using RoomSchedulerAPI.Features.Services.Interfaces;
 namespace RoomSchedulerAPI.UnitTests.EndpointsTests;
 public class UserEndpointsLogicTests
 {
+    #region GetUsers
+
     [Fact]
-    public async Task GetAllUsersLogicAsync_ReturnsOk_WhenUsersExist()
+    public async Task GetUsersLogicAsync_ReturnsOk_WhenUsersExist()
     {
         // Arrange
         var userServiceMock = new Mock<IUserService>();
@@ -41,6 +44,7 @@ public class UserEndpointsLogicTests
         Assert.Equal(userDTOs, okResult.Value.Data);
         okResult.Value.Data.Should().BeEquivalentTo(userDTOs, options => options.WithStrictOrdering());
 
+        // alternativ til fluentassertions:
         //foreach (var expectedUser in userDTOs)
         //{
         //    var actualUser = okResult.Value.Data.FirstOrDefault(u => u.Email == expectedUser.Email);
@@ -53,4 +57,43 @@ public class UserEndpointsLogicTests
         //}
     }
 
+    [Fact]
+    public async Task GetUsersLogicAsync_ReturnsNotFound_WhenNoUsersExist() 
+    {
+        // Arrange
+        var userServiceMock = new Mock<IUserService>();
+        var loggerMock = new Mock<ILogger<Program>>();
+        UserQuery query = new(null,null,null,null);
+        var usersAndCountDTO = new UsersAndCountDTO(0, []);
+
+        userServiceMock.Setup(x => x.GetUsersAsync(query)).ReturnsAsync(usersAndCountDTO);
+
+        // Act
+        var result = await UserEndpointsLogic.GetUsersLogicAsync(userServiceMock.Object, query, loggerMock.Object);
+
+        //Assert
+        var notFoundResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.NotFound<string>>(result);
+        Assert.NotNull(notFoundResult.Value);
+        Assert.Equal("No users found", notFoundResult.Value);
+
+    }
+
+    #endregion GetUsers
+
+    #region GetUserById
+
+    [Fact]
+    public async Task GetUserByIdLogicAsync() 
+    {
+        // Arrange
+
+
+
+        // Act
+
+
+        // Assert
+    }
+
+    #endregion GetUserById
 }
