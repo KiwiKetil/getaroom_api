@@ -1,6 +1,10 @@
 ﻿using FluentAssertions;
+using FluentValidation;
+using FluentValidation.Results;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
+using Org.BouncyCastle.Tls;
 using RoomSchedulerAPI.Features.Endpoints.Logic;
 using RoomSchedulerAPI.Features.HateOAS;
 using RoomSchedulerAPI.Features.Models.DTOs.UserDTOs;
@@ -42,19 +46,7 @@ public class UserEndpointsLogicTests
         Assert.NotNull(okResult.Value);
         Assert.Equal(totalCount, okResult.Value.TotalCount);
         Assert.Equal(userDTOs, okResult.Value.Data);
-        okResult.Value.Data.Should().BeEquivalentTo(userDTOs, options => options.WithStrictOrdering()); 
-
-        // alternativ til fluentassertions:
-        //foreach (var expectedUser in userDTOs)
-        //{
-        //    var actualUser = okResult.Value.Data.FirstOrDefault(u => u.Email == expectedUser.Email);
-        //    Assert.NotNull(actualUser);
-        //    Assert.Equal(expectedUser.FirstName, actualUser.FirstName);
-        //    Assert.Equal(expectedUser.LastName, actualUser.LastName);
-        //    Assert.Equal(expectedUser.PhoneNumber, actualUser.PhoneNumber);
-        //    Assert.Equal(expectedUser.Email, actualUser.Email);
-        //    Assert.Equal(expectedUser.Links, actualUser.Links);
-        //}
+        okResult.Value.Data.Should().BeEquivalentTo(userDTOs, options => options.WithStrictOrdering());      
     }
 
     [Fact]
@@ -108,7 +100,38 @@ public class UserEndpointsLogicTests
         var okResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.Ok<UserDTO>>(result);
         Assert.NotNull(okResult);
         Assert.Equal(userDTO, okResult.Value);
-        okResult.Value.Should().BeEquivalentTo(userDTO);  // redundant bec Equal(). UserDTO is record(overrides the default equality), and therefore compares by value rather than ref.
+        okResult.Value.Should().BeEquivalentTo(userDTO);  // userDTO is type Record, therefore prob not needed since Equals() compare by value anyways.
+    }
+
+    [Fact]
+    public async Task GetUserByIdLogicAsync_AsValidUser_WhenUserExists_ReturnsOkAndValidData()
+    {
+        // Arrange
+        var userServiceMock = new Mock<IUserService>();
+        var loggerMock = new Mock<ILogger<Program>>();
+
+        var userGuid = Guid.NewGuid();
+        var userId = new UserId(userGuid);
+        var links = new List<Link>();
+        var userDTO = new UserDTO(userId, "Ketil", "Sveberg", "91914455", "ketilsveberg@gmail.com", links);
+
+        var claimsIdentity = new ClaimsIdentity(
+        [
+            new Claim(ClaimTypes.Role, "User"),
+            new Claim(ClaimTypes.NameIdentifier, userGuid.ToString())
+        ], "TestAuthentication");
+        var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
+
+        userServiceMock.Setup(x => x.GetUserByIdAsync(userGuid)).ReturnsAsync(userDTO);
+
+        // Act
+        var result = await UserEndpointsLogic.GetUserByIdLogicAsync(userGuid, userServiceMock.Object, claimsPrincipal, loggerMock.Object);
+
+        // Assert
+        var okResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.Ok<UserDTO>>(result);
+        Assert.NotNull(okResult);
+        Assert.Equal(userDTO, okResult.Value);
+        okResult.Value.Should().BeEquivalentTo(userDTO);  // userDTO is type Record, therefore prob not needed since Equals() compare by value anyways.
     }
 
     [Fact]
@@ -136,10 +159,93 @@ public class UserEndpointsLogicTests
         var NotFoundResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.NotFound<string>>(result);
         Assert.NotNull(NotFoundResult);
         Assert.Equal("User was not found", NotFoundResult.Value);
-
     }
 
-    //test for "forbid" også - just one
+    [Fact]
+    public async Task GetUserByIdLogicAsync_WhenNotAuthorized_ReturnsForbid()
+    {
+        // Arrange
+        var userServiceMock = new Mock<IUserService>();
+        var loggerMock = new Mock<ILogger<Program>>();
+
+        var userGuid = Guid.NewGuid();
+        var userId = new UserId(userGuid);
+        var links = new List<Link>();
+
+        var claimsIdentity = new ClaimsIdentity(
+        [
+            new Claim(ClaimTypes.Role, "User")
+        ], "TestAuthentication");
+        var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
+
+        userServiceMock.Setup(x => x.GetUserByIdAsync(userGuid)).ReturnsAsync((UserDTO?)null);
+
+        // Act
+        var result = await UserEndpointsLogic.GetUserByIdLogicAsync(userGuid, userServiceMock.Object, claimsPrincipal, loggerMock.Object);
+
+        // Assert
+        var forbidResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.ForbidHttpResult>(result);
+    }
 
     #endregion GetUserById
+
+    #region UpdateUserLogicAsync
+
+    [Fact]
+    public async Task UpdateUserLogicAsync_AsAdmin_WhenUpdateIsSuccessful_ReturnsOkAndValidData() 
+    {
+        // Arrange
+        var userServiceMock = new Mock<IUserService>();
+        var loggerMock = new Mock<ILogger<Program>>();
+        var guid = Guid.NewGuid();
+        var userId = new UserId(guid);
+        var links = new List<Link>();
+        var userUpdateDTO = new UserUpdateDTO("Lars", "Larsen", "22223333", "lars@gmail.com");
+        var userDTO = new UserDTO(userId,"Lars", "Larsen", "22223333", "lars@gmail.com", links);
+
+        var claimsIdentity = new ClaimsIdentity(
+        [
+            new Claim(ClaimTypes.Role, "Admin")
+        ], "TestAuthentication");
+        var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
+
+        var validatorMock = new Mock<IValidator<UserUpdateDTO>>();
+        validatorMock.Setup(v => v.ValidateAsync(userUpdateDTO, It.IsAny<CancellationToken>()))
+             .ReturnsAsync(new ValidationResult());
+
+        userServiceMock.Setup(x => x.UpdateUserAsync(guid, userUpdateDTO)).ReturnsAsync(userDTO);
+
+        //Act
+        var result = await UserEndpointsLogic.UpdateUserLogicAsync(guid, userUpdateDTO, userServiceMock.Object, validatorMock.Object, claimsPrincipal, loggerMock.Object);
+
+        //Assert
+        var okResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.Ok<UserDTO>>(result);
+        Assert.NotNull(okResult);
+        Assert.Equal(userDTO, okResult.Value);
+    }
+
+    // test as valid User also not just admin - should return ok and validData
+    [Fact]
+    public async Task UpdateUserLogicAsync_AsValidUser_WhenUpdateIsSuccessful_ReturnsOkAndValidData() 
+    { 
+        // Arrange
+
+
+        // Act
+
+
+        // Assert
+
+
+
+    }
+    
+    // test as not authUser forbidden()
+    // test Results.Problem (null)
+    // test BadRequest() Validation fails
+
+    // more..??
+
+
+    #endregion UpdateUserLogicAsync
 }
