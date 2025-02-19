@@ -162,12 +162,12 @@ public class UserEndpointsLogicTests
     }
 
     [Fact]
-    public async Task GetUserByIdLogicAsync_WhenNotAuthorizedBecauseIDsDontMatch_ReturnsForbid()
+    public async Task GetUserByIdLogicAsync_WhenUserIsNotAuthorized_ReturnsForbidden()
     {
-        // Arrange
+        // Arrange|
         var userServiceMock = new Mock<IUserService>();
         var loggerMock = new Mock<ILogger<Program>>();
-
+        
         var userGuid = Guid.NewGuid();
         var userId = new UserId(userGuid);
         var links = new List<Link>();
@@ -175,7 +175,7 @@ public class UserEndpointsLogicTests
         var claimsIdentity = new ClaimsIdentity(
         [
             new Claim(ClaimTypes.Role, "User"),
-            new Claim(ClaimTypes.NameIdentifier, Guid.NewGuid().ToString())
+            new Claim(ClaimTypes.NameIdentifier, Guid.NewGuid().ToString()) // user Idclaim wont match target id => Forbidden()
         ], "TestAuthentication");
         var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
 
@@ -225,7 +225,6 @@ public class UserEndpointsLogicTests
         Assert.Equal(userDTO, okResult.Value);
     }
 
-    // test as valid User also not just admin - should return ok and validData
     [Fact]
     public async Task UpdateUserLogicAsync_AsValidUser_WhenUpdateIsSuccessful_ReturnsOkAndValidData() 
     {
@@ -262,7 +261,44 @@ public class UserEndpointsLogicTests
         Assert.Equal(userDTO, okResult.Value);
     }
 
-    // test as not authUser forbidden()
+    [Fact]
+    public async Task UpdateUserLogicAsync_WhenUserIsNotAuthorized_ReturnsForbidden() 
+    {
+        // Arrange
+        var userServiceMock = new Mock<IUserService>();
+        var loggerMock = new Mock<ILogger<Program>>();
+        var validatorMock = new Mock<IValidator<UserUpdateDTO>>();
+
+        var guid = Guid.NewGuid();
+        var userId = new UserId(guid);
+
+        var claimsIdentity = new ClaimsIdentity(
+        [
+            new Claim(ClaimTypes.Role, "User"),
+            new Claim(ClaimTypes.NameIdentifier, Guid.NewGuid().ToString()) // user Idclaim wont match target id => Forbidden()
+        ], "TestAuthentication");
+        var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
+
+        var links = new List<Link>();
+        var userUpdateDTO = new UserUpdateDTO("Sarah", "Connor", "12344321", "sarah@example.com");
+        var userDTO = new UserDTO(userId, "Sarah", "Connor", "12344321", "sarah@example.com", links);
+
+        validatorMock.Setup(v => v.ValidateAsync(userUpdateDTO, It.IsAny<CancellationToken>()))
+         .ReturnsAsync(new ValidationResult());
+
+        userServiceMock.Setup(x => x.UpdateUserAsync(guid, userUpdateDTO))
+         .ReturnsAsync(userDTO);
+
+        // Act
+        var result = await UserEndpointsLogic.UpdateUserLogicAsync(guid, userUpdateDTO, userServiceMock.Object, validatorMock.Object, claimsPrincipal, loggerMock.Object);
+
+        // Assert
+        var forbidResultResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.ForbidHttpResult>(result);
+    }
+
+
+
+
     // test Results.Problem (null)
     // test BadRequest() Validation fails
 
