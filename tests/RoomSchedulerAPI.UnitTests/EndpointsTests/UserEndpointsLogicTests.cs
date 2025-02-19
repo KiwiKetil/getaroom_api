@@ -364,8 +364,25 @@ public class UserEndpointsLogicTests
 
     #region DeleteUserLogicAsync
 
-    //[Fact]
-    //public async void 
+    [Fact]
+    public async Task DeleteUserAsync_AsAdmin_ReturnsOkAndValidData() 
+    {
+        // Arrange
+        var guid = Guid.NewGuid();
+        var userId = new UserId(guid);
+        var links = new List<Link>();
+        var userDTO = new UserDTO(userId, "Bill", "Jones", "81625342", "billjones@test.no", links);
+
+        _userServiceMock.Setup(x => x.DeleteUserAsync(guid)).ReturnsAsync(userDTO);
+
+        // Act
+        var result = await UserEndpointsLogic.DeleteUserLogicAsync(guid, _userServiceMock.Object, _loggerMock.Object);
+
+        // Assert
+        var okResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.Ok<UserDTO>>(result);
+        Assert.NotNull(okResult.Value);
+        Assert.Equal(userDTO, okResult.Value);
+    }
 
     #endregion DeleteUserLogicAsync
 }
