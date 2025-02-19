@@ -15,16 +15,16 @@ using System.Security.Claims;
 namespace RoomSchedulerAPI.UnitTests.EndpointsTests;
 public class UserEndpointsLogicTests
 {
+    private readonly Mock<IUserService> _userServiceMock = new();
+    private readonly Mock<ILogger<Program>> _loggerMock = new();
+ 
     #region GetUsers
 
     [Fact]
     public async Task GetUsersLogicAsync_WhenUsersExist_ReturnsOkWithValidData()
     {
         // Arrange
-        var userServiceMock = new Mock<IUserService>();
-        var loggerMock = new Mock<ILogger<Program>>();
         var query = new UserQuery(null, null, null, null);
-
         var users = new List<UserDTO>();
         var links = new List<Link>();
 
@@ -36,10 +36,10 @@ public class UserEndpointsLogicTests
         };
         int totalCount = userDTOs.Count;
 
-        userServiceMock.Setup(x => x.GetUsersAsync(It.IsAny<UserQuery>())).ReturnsAsync(new UsersAndCountDTO(totalCount, userDTOs));
+        _userServiceMock.Setup(x => x.GetUsersAsync(It.IsAny<UserQuery>())).ReturnsAsync(new UsersAndCountDTO(totalCount, userDTOs));
 
         // Act
-        var result = await UserEndpointsLogic.GetUsersLogicAsync(userServiceMock.Object, query, loggerMock.Object);
+        var result = await UserEndpointsLogic.GetUsersLogicAsync(_userServiceMock.Object, query, _loggerMock.Object);
 
         // Assert    
         var okResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.Ok<UsersAndCountDTO>>(result);
@@ -53,15 +53,13 @@ public class UserEndpointsLogicTests
     public async Task GetUsersLogicAsync_WhenNoUsersExist_ReturnsNotFoundWithEmptyData()
     {
         // Arrange
-        var userServiceMock = new Mock<IUserService>();
-        var loggerMock = new Mock<ILogger<Program>>();
-        UserQuery query = new(null, null, null, null);
+        var query = new UserQuery(null, null, null, null);
         var usersAndCountDTO = new UsersAndCountDTO(0, []);
 
-        userServiceMock.Setup(x => x.GetUsersAsync(query)).ReturnsAsync(usersAndCountDTO);
+        _userServiceMock.Setup(x => x.GetUsersAsync(query)).ReturnsAsync(usersAndCountDTO);
 
         // Act
-        var result = await UserEndpointsLogic.GetUsersLogicAsync(userServiceMock.Object, query, loggerMock.Object);
+        var result = await UserEndpointsLogic.GetUsersLogicAsync(_userServiceMock.Object, query, _loggerMock.Object);
 
         //Assert
         var notFoundResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.NotFound<string>>(result);
@@ -77,9 +75,6 @@ public class UserEndpointsLogicTests
     public async Task GetUserByIdLogicAsync_AsAdmin_WhenUserExists_ReturnsOkAndValidData()
     {
         // Arrange
-        var userServiceMock = new Mock<IUserService>();
-        var loggerMock = new Mock<ILogger<Program>>();
-
         var userGuid = Guid.NewGuid();
         var userId = new UserId(userGuid);
         var links = new List<Link>();
@@ -91,10 +86,10 @@ public class UserEndpointsLogicTests
         ], "TestAuthentication");
         var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
 
-        userServiceMock.Setup(x => x.GetUserByIdAsync(userGuid)).ReturnsAsync(userDTO);
+        _userServiceMock.Setup(x => x.GetUserByIdAsync(userGuid)).ReturnsAsync(userDTO);
 
         // Act
-        var result = await UserEndpointsLogic.GetUserByIdLogicAsync(userGuid, userServiceMock.Object, claimsPrincipal, loggerMock.Object);
+        var result = await UserEndpointsLogic.GetUserByIdLogicAsync(userGuid, _userServiceMock.Object, claimsPrincipal, _loggerMock.Object);
 
         // Assert
         var okResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.Ok<UserDTO>>(result);
@@ -107,9 +102,6 @@ public class UserEndpointsLogicTests
     public async Task GetUserByIdLogicAsync_AsValidUser_WhenUserExists_ReturnsOkAndValidData()
     {
         // Arrange
-        var userServiceMock = new Mock<IUserService>();
-        var loggerMock = new Mock<ILogger<Program>>();
-
         var userGuid = Guid.NewGuid();
         var userId = new UserId(userGuid);
         var links = new List<Link>();
@@ -122,10 +114,10 @@ public class UserEndpointsLogicTests
         ], "TestAuthentication");
         var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
 
-        userServiceMock.Setup(x => x.GetUserByIdAsync(userGuid)).ReturnsAsync(userDTO);
+        _userServiceMock.Setup(x => x.GetUserByIdAsync(userGuid)).ReturnsAsync(userDTO);
 
         // Act
-        var result = await UserEndpointsLogic.GetUserByIdLogicAsync(userGuid, userServiceMock.Object, claimsPrincipal, loggerMock.Object);
+        var result = await UserEndpointsLogic.GetUserByIdLogicAsync(userGuid, _userServiceMock.Object, claimsPrincipal, _loggerMock.Object);
 
         // Assert
         var okResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.Ok<UserDTO>>(result);
@@ -138,9 +130,6 @@ public class UserEndpointsLogicTests
     public async Task GetUserByIdLogicAsync_AsAdmin_WhenUserDoesNotExist_ReturnsNotFound() 
     {
         // Arrange
-        var userServiceMock = new Mock<IUserService>();
-        var loggerMock = new Mock<ILogger<Program>>();
-
         var guid = Guid.NewGuid();
 
         var claimsIdentity = new ClaimsIdentity(
@@ -150,10 +139,10 @@ public class UserEndpointsLogicTests
         ],"TestAuthentication");
         var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
 
-        userServiceMock.Setup(x => x.GetUserByIdAsync(guid)).ReturnsAsync((UserDTO?)null);
+        _userServiceMock.Setup(x => x.GetUserByIdAsync(guid)).ReturnsAsync((UserDTO?)null);
 
         // Act
-        var result = await UserEndpointsLogic.GetUserByIdLogicAsync(guid, userServiceMock.Object, claimsPrincipal,loggerMock.Object);
+        var result = await UserEndpointsLogic.GetUserByIdLogicAsync(guid, _userServiceMock.Object, claimsPrincipal, _loggerMock.Object);
 
         // Assert
         var NotFoundResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.NotFound<string>>(result);
@@ -164,10 +153,7 @@ public class UserEndpointsLogicTests
     [Fact]
     public async Task GetUserByIdLogicAsync_WhenUserIsNotAuthorized_ReturnsForbidden()
     {
-        // Arrange|
-        var userServiceMock = new Mock<IUserService>();
-        var loggerMock = new Mock<ILogger<Program>>();
-        
+        // Arrange        
         var userGuid = Guid.NewGuid();
         var userId = new UserId(userGuid);
         var links = new List<Link>();
@@ -179,10 +165,10 @@ public class UserEndpointsLogicTests
         ], "TestAuthentication");
         var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
 
-        userServiceMock.Setup(x => x.GetUserByIdAsync(userGuid)).ReturnsAsync((UserDTO?)null);
+        _userServiceMock.Setup(x => x.GetUserByIdAsync(userGuid)).ReturnsAsync((UserDTO?)null);
 
         // Act
-        var result = await UserEndpointsLogic.GetUserByIdLogicAsync(userGuid, userServiceMock.Object, claimsPrincipal, loggerMock.Object);
+        var result = await UserEndpointsLogic.GetUserByIdLogicAsync(userGuid, _userServiceMock.Object, claimsPrincipal, _loggerMock.Object);
 
         // Assert
         var forbidResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.ForbidHttpResult>(result);
@@ -196,8 +182,6 @@ public class UserEndpointsLogicTests
     public async Task UpdateUserLogicAsync_AsAdmin_WhenUpdateIsSuccessful_ReturnsOkAndValidData() 
     {
         // Arrange
-        var userServiceMock = new Mock<IUserService>();
-        var loggerMock = new Mock<ILogger<Program>>();
         var guid = Guid.NewGuid();
         var userId = new UserId(guid);
         var links = new List<Link>();
@@ -214,10 +198,10 @@ public class UserEndpointsLogicTests
         validatorMock.Setup(v => v.ValidateAsync(userUpdateDTO, It.IsAny<CancellationToken>()))
              .ReturnsAsync(new ValidationResult());
 
-        userServiceMock.Setup(x => x.UpdateUserAsync(guid, userUpdateDTO)).ReturnsAsync(userDTO);
+        _userServiceMock.Setup(x => x.UpdateUserAsync(guid, userUpdateDTO)).ReturnsAsync(userDTO);
 
         //Act
-        var result = await UserEndpointsLogic.UpdateUserLogicAsync(guid, userUpdateDTO, userServiceMock.Object, validatorMock.Object, claimsPrincipal, loggerMock.Object);
+        var result = await UserEndpointsLogic.UpdateUserLogicAsync(guid, userUpdateDTO, _userServiceMock.Object, validatorMock.Object, claimsPrincipal, _loggerMock.Object);
 
         //Assert
         var okResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.Ok<UserDTO>>(result);
@@ -229,8 +213,6 @@ public class UserEndpointsLogicTests
     public async Task UpdateUserLogicAsync_AsValidUser_WhenUpdateIsSuccessful_ReturnsOkAndValidData() 
     {
         // Arrange
-        var userServiceMock = new Mock<IUserService>();
-        var loggerMock = new Mock<ILogger<Program>>();
         var validatorMock = new Mock<IValidator<UserUpdateDTO>>();
 
         var guid = Guid.NewGuid();
@@ -250,11 +232,11 @@ public class UserEndpointsLogicTests
         validatorMock.Setup(v => v.ValidateAsync(userUpdateDTO, It.IsAny<CancellationToken>()))
          .ReturnsAsync(new ValidationResult());
 
-        userServiceMock.Setup(x => x.UpdateUserAsync(guid, userUpdateDTO))
+        _userServiceMock.Setup(x => x.UpdateUserAsync(guid, userUpdateDTO))
          .ReturnsAsync(userDTO);
 
         // Act
-        var result = await UserEndpointsLogic.UpdateUserLogicAsync(guid, userUpdateDTO, userServiceMock.Object, validatorMock.Object, claimsPrincipal, loggerMock.Object);
+        var result = await UserEndpointsLogic.UpdateUserLogicAsync(guid, userUpdateDTO, _userServiceMock.Object, validatorMock.Object, claimsPrincipal, _loggerMock.Object);
 
         // Assert
         var okResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.Ok<UserDTO>>(result);
@@ -265,8 +247,6 @@ public class UserEndpointsLogicTests
     public async Task UpdateUserLogicAsync_WhenUserIsNotAuthorized_ReturnsForbidden() 
     {
         // Arrange
-        var userServiceMock = new Mock<IUserService>();
-        var loggerMock = new Mock<ILogger<Program>>();
         var validatorMock = new Mock<IValidator<UserUpdateDTO>>();
 
         var guid = Guid.NewGuid();
@@ -286,11 +266,11 @@ public class UserEndpointsLogicTests
         validatorMock.Setup(v => v.ValidateAsync(userUpdateDTO, It.IsAny<CancellationToken>()))
          .ReturnsAsync(new ValidationResult());
 
-        userServiceMock.Setup(x => x.UpdateUserAsync(guid, userUpdateDTO))
+        _userServiceMock.Setup(x => x.UpdateUserAsync(guid, userUpdateDTO))
          .ReturnsAsync(userDTO);
 
         // Act
-        var result = await UserEndpointsLogic.UpdateUserLogicAsync(guid, userUpdateDTO, userServiceMock.Object, validatorMock.Object, claimsPrincipal, loggerMock.Object);
+        var result = await UserEndpointsLogic.UpdateUserLogicAsync(guid, userUpdateDTO, _userServiceMock.Object, validatorMock.Object, claimsPrincipal, _loggerMock.Object);
 
         // Assert
         var forbidResultResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.ForbidHttpResult>(result);
@@ -300,8 +280,6 @@ public class UserEndpointsLogicTests
     public async Task UpdateUserLogicAsync_WhenValidationFails_ReturnsBadRequestAndErrors() 
     {
         // Arrange
-        var userServiceMock = new Mock<IUserService>();
-        var loggerMock = new Mock<ILogger<Program>>();
         var validatorMock = new Mock<IValidator<UserUpdateDTO>>();
 
         var guid = Guid.NewGuid();
@@ -327,24 +305,21 @@ public class UserEndpointsLogicTests
         validatorMock.Setup(v => v.ValidateAsync(userUpdateDTO, It.IsAny<CancellationToken>()))
          .ReturnsAsync(new ValidationResult(errors));
 
-        userServiceMock.Setup(x => x.UpdateUserAsync(guid, userUpdateDTO))
+        _userServiceMock.Setup(x => x.UpdateUserAsync(guid, userUpdateDTO))
          .ReturnsAsync(userDTO);
 
         // Act
-        var result = await UserEndpointsLogic.UpdateUserLogicAsync(guid, userUpdateDTO, userServiceMock.Object, validatorMock.Object, claimsPrincipal, loggerMock.Object);
+        var result = await UserEndpointsLogic.UpdateUserLogicAsync(guid, userUpdateDTO, _userServiceMock.Object, validatorMock.Object, claimsPrincipal, _loggerMock.Object);
 
         // Assert
         var badRequestResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.BadRequest<List<string>>>(result);
         Assert.Equal(expectedErrorMessages, badRequestResult.Value);
     }
 
-    // test Results.Problem (null)
     [Fact]
     public async Task UpdateUserLogicAsync_WhenResultIsNull_ShouldReturnProblemWithDetails() 
     {
         // Arrange
-        var userServiceMock = new Mock<IUserService>();
-        var loggerMock = new Mock<ILogger<Program>>();
         var validatorMock = new Mock<IValidator<UserUpdateDTO>>();
 
         var guid = Guid.NewGuid();
@@ -363,11 +338,11 @@ public class UserEndpointsLogicTests
         validatorMock.Setup(v => v.ValidateAsync(userUpdateDTO, It.IsAny<CancellationToken>()))
          .ReturnsAsync(new ValidationResult());
 
-        userServiceMock.Setup(x => x.UpdateUserAsync(guid, userUpdateDTO))
+        _userServiceMock.Setup(x => x.UpdateUserAsync(guid, userUpdateDTO))
          .ReturnsAsync((UserDTO?)null);
 
         // Act
-        var result = await UserEndpointsLogic.UpdateUserLogicAsync(guid, userUpdateDTO, userServiceMock.Object, validatorMock.Object, claimsPrincipal, loggerMock.Object);
+        var result = await UserEndpointsLogic.UpdateUserLogicAsync(guid, userUpdateDTO, _userServiceMock.Object, validatorMock.Object, claimsPrincipal, _loggerMock.Object);
 
         // Assert
         var problemresult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.ProblemHttpResult>(result);
