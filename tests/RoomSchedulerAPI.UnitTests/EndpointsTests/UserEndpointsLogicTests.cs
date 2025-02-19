@@ -296,14 +296,50 @@ public class UserEndpointsLogicTests
         var forbidResultResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.ForbidHttpResult>(result);
     }
 
+    [Fact]
+    public async Task UpdateUserLogicAsync_WhenValidationFails_ReturnsBadRequestAndErrors() 
+    {
+        // Arrange
+        var userServiceMock = new Mock<IUserService>();
+        var loggerMock = new Mock<ILogger<Program>>();
+        var validatorMock = new Mock<IValidator<UserUpdateDTO>>();
 
+        var guid = Guid.NewGuid();
+        var userId = new UserId(guid);
 
+        var claimsIdentity = new ClaimsIdentity(
+        [
+            new Claim(ClaimTypes.Role, "User"),
+            new Claim(ClaimTypes.NameIdentifier, guid.ToString()) 
+        ], "TestAuthentication");
+        var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
+
+        var links = new List<Link>();
+        var userUpdateDTO = new UserUpdateDTO("Sarah", "Connor", "12344321", "sarahexample.com");
+        var userDTO = new UserDTO(userId, "Sarah", "Connor", "12344321", "sarah@example.com", links);
+
+        var errors = new List<ValidationFailure>(
+        [
+            new ValidationFailure("Email", "Email is Invalid")
+        ]);
+
+        validatorMock.Setup(v => v.ValidateAsync(userUpdateDTO, It.IsAny<CancellationToken>()))
+         .ReturnsAsync(new ValidationResult(errors));
+
+        userServiceMock.Setup(x => x.UpdateUserAsync(guid, userUpdateDTO))
+         .ReturnsAsync(userDTO);
+
+        // Act
+        var result = await UserEndpointsLogic.UpdateUserLogicAsync(guid, userUpdateDTO, userServiceMock.Object, validatorMock.Object, claimsPrincipal, loggerMock.Object);
+
+        // Assert
+        var badRequestResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.BadRequest<List<string>>>(result);
+        var expectedErrorMessages = new List<string> { "Email is Invalid" };
+        Assert.Equal(expectedErrorMessages, badRequestResult.Value);
+    }
+       
 
     // test Results.Problem (null)
-    // test BadRequest() Validation fails
 
-    // more..??
-
-
-    #endregion UpdateUserLogicAsync
+        #endregion UpdateUserLogicAsync
 }
