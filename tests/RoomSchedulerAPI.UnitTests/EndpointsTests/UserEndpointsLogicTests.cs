@@ -322,6 +322,7 @@ public class UserEndpointsLogicTests
         [
             new ValidationFailure("Email", "Email is Invalid")
         ]);
+        var expectedErrorMessages = new List<string> { "Email is Invalid" };
 
         validatorMock.Setup(v => v.ValidateAsync(userUpdateDTO, It.IsAny<CancellationToken>()))
          .ReturnsAsync(new ValidationResult(errors));
@@ -334,12 +335,46 @@ public class UserEndpointsLogicTests
 
         // Assert
         var badRequestResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.BadRequest<List<string>>>(result);
-        var expectedErrorMessages = new List<string> { "Email is Invalid" };
         Assert.Equal(expectedErrorMessages, badRequestResult.Value);
     }
-       
 
     // test Results.Problem (null)
+    [Fact]
+    public async Task UpdateUserLogicAsync_WhenResultIsNull_ShouldReturnProblemWithDetails() 
+    {
+        // Arrange
+        var userServiceMock = new Mock<IUserService>();
+        var loggerMock = new Mock<ILogger<Program>>();
+        var validatorMock = new Mock<IValidator<UserUpdateDTO>>();
 
-        #endregion UpdateUserLogicAsync
+        var guid = Guid.NewGuid();
+        var userId = new UserId(guid);
+
+        var claimsIdentity = new ClaimsIdentity(
+        [
+            new Claim(ClaimTypes.Role, "User"),
+            new Claim(ClaimTypes.NameIdentifier, guid.ToString())
+        ], "TestAuthentication");
+        var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
+
+        var links = new List<Link>();
+        var userUpdateDTO = new UserUpdateDTO("Sarah", "Connor", "12344321", "sarahexample.com");
+
+        validatorMock.Setup(v => v.ValidateAsync(userUpdateDTO, It.IsAny<CancellationToken>()))
+         .ReturnsAsync(new ValidationResult());
+
+        userServiceMock.Setup(x => x.UpdateUserAsync(guid, userUpdateDTO))
+         .ReturnsAsync((UserDTO?)null);
+
+        // Act
+        var result = await UserEndpointsLogic.UpdateUserLogicAsync(guid, userUpdateDTO, userServiceMock.Object, validatorMock.Object, claimsPrincipal, loggerMock.Object);
+
+        // Assert
+        var problemresult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.ProblemHttpResult>(result);
+        Assert.Equal("An issue occured", problemresult.ProblemDetails.Title);
+        Assert.Equal(409, problemresult.ProblemDetails.Status);
+        Assert.Equal("User could not be updated", problemresult.ProblemDetails.Detail);
+    }
+
+    #endregion UpdateUserLogicAsync
 }
