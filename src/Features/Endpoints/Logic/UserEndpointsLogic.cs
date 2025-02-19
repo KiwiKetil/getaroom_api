@@ -29,11 +29,12 @@ public static class UserEndpointsLogic
         logger.LogDebug("Retrieving user with ID {userId}", id);
 
         var isAdmin = claims.IsInRole("Admin");
+
         if (!isAdmin)
         {
             var userIdClaim = claims.FindFirst("sub") ?? claims.FindFirst(ClaimTypes.NameIdentifier);
 
-            if (userIdClaim == null || userIdClaim.Value != id.ToString())
+            if (userIdClaim == null || userIdClaim.Value != id.ToString() || !claims.IsInRole("User"))
             {
                 return Results.Forbid();
             }
@@ -54,7 +55,7 @@ public static class UserEndpointsLogic
         {
             var userIdClaim = claims.FindFirst("sub") ?? claims.FindFirst(ClaimTypes.NameIdentifier);
 
-            if (userIdClaim == null || userIdClaim.Value != id.ToString())
+            if (userIdClaim == null || userIdClaim.Value != id.ToString() || !claims.IsInRole("User"))
             {
                 return Results.Forbid();
             }
@@ -141,7 +142,7 @@ public static class UserEndpointsLogic
         if (!isAdmin)
         {
             var userIdClaim = claims.FindFirst("name") ?? claims.FindFirst(ClaimTypes.Name);
-            if (userIdClaim == null || userIdClaim.Value != dto.Email)
+            if (userIdClaim == null || userIdClaim.Value != dto.Email || claims.IsInRole("User"))
             {
                 return Results.Forbid();
             }
