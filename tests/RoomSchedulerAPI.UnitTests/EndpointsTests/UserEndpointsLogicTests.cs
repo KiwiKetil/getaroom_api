@@ -205,8 +205,12 @@ public class UserEndpointsLogicTests
 
         //Assert
         var okResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.Ok<UserDTO>>(result);
-        Assert.NotNull(okResult);
+        Assert.NotNull(okResult.Value);
         Assert.Equal(userDTO, okResult.Value);
+        Assert.Equal(userUpdateDTO.FirstName, okResult.Value.FirstName);
+        Assert.Equal(userUpdateDTO.LastName, okResult.Value.LastName);
+        Assert.Equal(userUpdateDTO.PhoneNumber, okResult.Value.PhoneNumber);
+        Assert.Equal(userUpdateDTO.Email, okResult.Value.Email);
     }
 
     [Fact]
@@ -240,7 +244,12 @@ public class UserEndpointsLogicTests
 
         // Assert
         var okResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.Ok<UserDTO>>(result);
+        Assert.NotNull(okResult.Value);
         Assert.Equal(userDTO, okResult.Value);
+        Assert.Equal(userUpdateDTO.FirstName, okResult.Value.FirstName);
+        Assert.Equal(userUpdateDTO.LastName, okResult.Value.LastName);
+        Assert.Equal(userUpdateDTO.PhoneNumber, okResult.Value.PhoneNumber);
+        Assert.Equal(userUpdateDTO.Email, okResult.Value.Email);
     }
 
     [Fact]
@@ -317,7 +326,7 @@ public class UserEndpointsLogicTests
     }
 
     [Fact]
-    public async Task UpdateUserLogicAsync_WhenResultIsNull_ShouldReturnProblemWithDetails() 
+    public async Task UpdateUserLogicAsync_WhenResultIsNull_ReturnsProblemIncludingDetails() 
     {
         // Arrange
         var validatorMock = new Mock<IValidator<UserUpdateDTO>>();
@@ -352,4 +361,11 @@ public class UserEndpointsLogicTests
     }
 
     #endregion UpdateUserLogicAsync
+
+    #region DeleteUserLogicAsync
+
+    //[Fact]
+    //public async void 
+
+    #endregion DeleteUserLogicAsync
 }
