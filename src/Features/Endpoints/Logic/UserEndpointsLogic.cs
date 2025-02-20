@@ -84,7 +84,7 @@ public static class UserEndpointsLogic
         var userDTO = await userService.DeleteUserAsync(id);
         return userDTO != null ? Results.Ok(userDTO) : Results.Problem(
             title: "An issue occured",
-            statusCode: 409,
+            statusCode: StatusCodes.Status409Conflict,
             detail: "User could not be deleted"
         );
     }
@@ -104,8 +104,11 @@ public static class UserEndpointsLogic
 
         var userDTO = await userService.RegisterUserAsync(dto);
 
-        return userDTO != null ? Results.Ok(userDTO) : Results.Conflict(new { Message = "User already exists" });
-
+        return userDTO != null ? Results.Ok(userDTO) : Results.Problem(
+            title: "An issue occured",
+            statusCode: StatusCodes.Status409Conflict,
+            detail: "User already exists"
+        );
     }
 
     public static async Task<IResult> UserLoginLogicAsync([FromBody] LoginDTO dto, IValidator<LoginDTO> validator, IUserService userService,
