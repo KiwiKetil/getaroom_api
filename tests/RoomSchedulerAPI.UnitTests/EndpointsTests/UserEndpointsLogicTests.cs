@@ -2,7 +2,6 @@
 using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
 using RoomSchedulerAPI.Features.Endpoints.Logic;
@@ -10,7 +9,6 @@ using RoomSchedulerAPI.Features.HateOAS;
 using RoomSchedulerAPI.Features.Models.DTOs.UserDTOs;
 using RoomSchedulerAPI.Features.Models.Entities;
 using RoomSchedulerAPI.Features.Services.Interfaces;
-using RoomSchedulerAPI.Features.Validators.UserValidators;
 using System.Security.Claims;
 
 namespace RoomSchedulerAPI.UnitTests.EndpointsTests;
@@ -198,7 +196,8 @@ public class UserEndpointsLogicTests
         validatorMock.Setup(v => v.ValidateAsync(userUpdateDTO, It.IsAny<CancellationToken>()))
              .ReturnsAsync(new ValidationResult());
 
-        _userServiceMock.Setup(x => x.UpdateUserAsync(id, userUpdateDTO)).ReturnsAsync(userDTO);
+        _userServiceMock.Setup(x => x.UpdateUserAsync(id, userUpdateDTO))
+            .ReturnsAsync(userDTO);
 
         //Act
         var result = await UserEndpointsLogic.UpdateUserLogicAsync(id, userUpdateDTO, _userServiceMock.Object, validatorMock.Object, claimsPrincipal, _loggerMock.Object);
@@ -234,10 +233,10 @@ public class UserEndpointsLogicTests
         var userDTO = new UserDTO(userId, "Sarah", "Connor", "12344321", "sarah@example.com", links);
 
         validatorMock.Setup(v => v.ValidateAsync(userUpdateDTO, It.IsAny<CancellationToken>()))
-         .ReturnsAsync(new ValidationResult());
+            .ReturnsAsync(new ValidationResult());
 
         _userServiceMock.Setup(x => x.UpdateUserAsync(id, userUpdateDTO))
-         .ReturnsAsync(userDTO);
+            .ReturnsAsync(userDTO);
 
         // Act
         var result = await UserEndpointsLogic.UpdateUserLogicAsync(id, userUpdateDTO, _userServiceMock.Object, validatorMock.Object, claimsPrincipal, _loggerMock.Object);
@@ -273,10 +272,10 @@ public class UserEndpointsLogicTests
         var userDTO = new UserDTO(userId, "Sarah", "Connor", "12344321", "sarah@example.com", links);
 
         validatorMock.Setup(v => v.ValidateAsync(userUpdateDTO, It.IsAny<CancellationToken>()))
-         .ReturnsAsync(new ValidationResult());
+            .ReturnsAsync(new ValidationResult());
 
         _userServiceMock.Setup(x => x.UpdateUserAsync(id, userUpdateDTO))
-         .ReturnsAsync(userDTO);
+            .ReturnsAsync(userDTO);
 
         // Act
         var result = await UserEndpointsLogic.UpdateUserLogicAsync(id, userUpdateDTO, _userServiceMock.Object, validatorMock.Object, claimsPrincipal, _loggerMock.Object);
@@ -312,10 +311,10 @@ public class UserEndpointsLogicTests
         var expectedErrorMessages = new List<string> { "Email is Invalid" };
 
         validatorMock.Setup(v => v.ValidateAsync(userUpdateDTO, It.IsAny<CancellationToken>()))
-         .ReturnsAsync(new ValidationResult(errors));
+            .ReturnsAsync(new ValidationResult(errors));
 
         _userServiceMock.Setup(x => x.UpdateUserAsync(id, userUpdateDTO))
-         .ReturnsAsync(userDTO);
+            .ReturnsAsync(userDTO);
 
         // Act
         var result = await UserEndpointsLogic.UpdateUserLogicAsync(id, userUpdateDTO, _userServiceMock.Object, validatorMock.Object, claimsPrincipal, _loggerMock.Object);
@@ -345,10 +344,10 @@ public class UserEndpointsLogicTests
         var userUpdateDTO = new UserUpdateDTO("Sarah", "Connor", "12344321", "sarahexample.com");
 
         validatorMock.Setup(v => v.ValidateAsync(userUpdateDTO, It.IsAny<CancellationToken>()))
-         .ReturnsAsync(new ValidationResult());
+            .ReturnsAsync(new ValidationResult());
 
         _userServiceMock.Setup(x => x.UpdateUserAsync(id, userUpdateDTO))
-         .ReturnsAsync((UserDTO?)null);
+            .ReturnsAsync((UserDTO?)null);
 
         // Act
         var result = await UserEndpointsLogic.UpdateUserLogicAsync(id, userUpdateDTO, _userServiceMock.Object, validatorMock.Object, claimsPrincipal, _loggerMock.Object);
@@ -408,7 +407,7 @@ public class UserEndpointsLogicTests
     #region RegisterUserLogicAsync
 
     [Fact]
-    public async Task RegisterUserLogicAsync_WhenIsSuccess_ReturnsOkAndValidData() 
+    public async Task RegisterUserLogicAsync_WhenIsSuccess_ReturnsOkAndValidData()
     {
         // Arrange
         var userRegistrationDTO = new UserRegistrationDTO("Kristoffer", "Sveberg", "99999999", "kris@gmail.com", "secretPassword123!");
@@ -418,9 +417,10 @@ public class UserEndpointsLogicTests
 
         var validatorMock = new Mock<IValidator<UserRegistrationDTO>>();
         validatorMock.Setup(x => x.ValidateAsync(userRegistrationDTO, It.IsAny<CancellationToken>()))
-         .ReturnsAsync(new ValidationResult());
+            .ReturnsAsync(new ValidationResult());
 
-        _userServiceMock.Setup(x => x.RegisterUserAsync(userRegistrationDTO)).ReturnsAsync(userDTO);
+        _userServiceMock.Setup(x => x.RegisterUserAsync(userRegistrationDTO))
+            .ReturnsAsync(userDTO);
 
         // Act
         var result = await UserEndpointsLogic.RegisterUserLogicAsync(userRegistrationDTO, validatorMock.Object, _userServiceMock.Object, _loggerMock.Object);
@@ -431,13 +431,30 @@ public class UserEndpointsLogicTests
         Assert.Equal(userDTO.FirstName, userRegistrationDTO.FirstName);
         Assert.Equal(userDTO.LastName, userRegistrationDTO.LastName);
         Assert.Equal(userDTO.PhoneNumber, userRegistrationDTO.PhoneNumber);
-        Assert.Equal(userDTO.Email, userRegistrationDTO.Email);            
+        Assert.Equal(userDTO.Email, userRegistrationDTO.Email);
     }
 
     [Fact]
-    public async Task RegisterUserLogicAsync_WhenUserAlreadyExists_ReturnsConflictAndMessage() 
+    public async Task RegisterUserLogicAsync_WhenUserAlreadyExists_ReturnsConflictAndMessage()
     {
-        
+        // Arrange
+        var userRegistrationDTO = new UserRegistrationDTO("Kristoffer", "Sveberg", "(99999999", "kris@gmail.com", "secretPassword123!");
+
+        var validatorMock = new Mock<IValidator<UserRegistrationDTO>>();
+
+        validatorMock.Setup(x => x.ValidateAsync(userRegistrationDTO, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ValidationResult());
+
+        _userServiceMock.Setup(x => x.RegisterUserAsync(userRegistrationDTO)).ReturnsAsync((UserDTO?)null);
+
+        // Act
+        var result = await UserEndpointsLogic.RegisterUserLogicAsync(userRegistrationDTO, validatorMock.Object, _userServiceMock.Object, _loggerMock.Object);
+
+        // Assert
+        var problemresult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.ProblemHttpResult>(result);
+        Assert.Equal("An issue occured", problemresult.ProblemDetails.Title);
+        Assert.Equal(StatusCodes.Status409Conflict, problemresult.ProblemDetails.Status);
+        Assert.Equal("User already exists", problemresult.ProblemDetails.Detail);
     }
 
     #endregion RegisterUserLogicAsync
