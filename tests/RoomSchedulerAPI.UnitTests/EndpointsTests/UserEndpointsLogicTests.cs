@@ -534,7 +534,47 @@ public class UserEndpointsLogicTests
         Assert.Equal(token.Token, okResult.Value.Token);       
     }
 
-    // skriv test hvor user ikke har oppdatert passord også
+    [Fact]
+    public async Task UserLoginLogicAsync_WhenLoginSuccess_WhenUserhasNotUpdatedPassword_ReturnsOkAndValidToken()
+    {
+        // Arrange
+        var loginDTO = new LoginDTO("testuser@unittest.com", "secretPassword123!");
+        var user = new User
+        {
+            Id = UserId.NewId,
+            FirstName = "Testuser",
+            LastName = "TestuserLastName",
+            PhoneNumber = "71625353",
+            Email = "testuser@gmail.com",
+            HashedPassword = "someHashedPassword",
+            Created = DateTime.UtcNow,
+            Updated = DateTime.UtcNow
+        };
+
+        var validatorMock = new Mock<IValidator<LoginDTO>>();
+        validatorMock.Setup(x => x.ValidateAsync(loginDTO, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ValidationResult());
+
+        var authServiceMock = new Mock<IUserAuthenticationService>();
+        authServiceMock.Setup(x => x.AuthenticateUserAsync(loginDTO)).ReturnsAsync(user);
+
+        var token = new TokenResponse { Token = "tokenStringWithClaimPasswordUpdatedFalse" };
+        var tokenGeneratorMock = new Mock<ITokenGenerator>();
+        tokenGeneratorMock.Setup(x => x.GenerateTokenAsync(user, false)).ReturnsAsync(token.Token);
+
+        _userServiceMock.Setup(x => x.HasUpdatedPassword(user.Id)).ReturnsAsync(false);
+
+        // Act
+        var result = await UserEndpointsLogic.UserLoginLogicAsync(loginDTO, validatorMock.Object, _userServiceMock.Object,
+            authServiceMock.Object, tokenGeneratorMock.Object, _loggerMock.Object);
+
+        // Assert
+        var okResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.Ok<TokenResponse>>(result);
+        Assert.NotNull(okResult.Value);
+        Assert.Equal(token.Token, okResult.Value.Token);
+    }
+
+
 
     #endregion UserLoginLogicAsync
 }
