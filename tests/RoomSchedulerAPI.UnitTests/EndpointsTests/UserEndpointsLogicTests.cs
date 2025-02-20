@@ -435,7 +435,7 @@ public class UserEndpointsLogicTests
     }
 
     [Fact]
-    public async Task RegisterUserLogicAsync_WhenUserAlreadyExists_ReturnsConflictAndMessage()
+    public async Task RegisterUserLogicAsync_WhenUserAlreadyExists_ReturnsProblemAndDetails()
     {
         // Arrange
         var userRegistrationDTO = new UserRegistrationDTO("Kristoffer", "Sveberg", "(99999999", "kris@gmail.com", "secretPassword123!");
