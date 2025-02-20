@@ -1,6 +1,7 @@
 ﻿using FluentAssertions;
 using FluentValidation;
 using FluentValidation.Results;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -9,6 +10,7 @@ using RoomSchedulerAPI.Features.HateOAS;
 using RoomSchedulerAPI.Features.Models.DTOs.UserDTOs;
 using RoomSchedulerAPI.Features.Models.Entities;
 using RoomSchedulerAPI.Features.Services.Interfaces;
+using RoomSchedulerAPI.Features.Validators.UserValidators;
 using System.Security.Claims;
 
 namespace RoomSchedulerAPI.UnitTests.EndpointsTests;
@@ -354,7 +356,7 @@ public class UserEndpointsLogicTests
         // Assert
         var problemresult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.ProblemHttpResult>(result);
         Assert.Equal("An issue occured", problemresult.ProblemDetails.Title);
-        Assert.Equal(409, problemresult.ProblemDetails.Status);
+        Assert.Equal(StatusCodes.Status409Conflict, problemresult.ProblemDetails.Status);
         Assert.Equal("User could not be updated", problemresult.ProblemDetails.Detail);
     }
 
@@ -401,6 +403,42 @@ public class UserEndpointsLogicTests
         Assert.Equal("User could not be deleted", problemResult.ProblemDetails.Detail);
     }
 
-
     #endregion DeleteUserLogicAsync
+
+    #region RegisterUserLogicAsync
+
+    [Fact]
+    public async Task RegisterUserLogicAsync_WhenIsSuccess_ReturnsOkAndValidData() 
+    {
+        // Arrange
+        var userRegistrationDTO = new UserRegistrationDTO("Kristoffer", "Sveberg", "99999999", "kris@gmail.com", "secretPassword123!");
+        var userId = UserId.NewId;
+        var links = new List<Link>();
+        var userDTO = new UserDTO(userId, "Kristoffer", "Sveberg", "99999999", "kris@gmail.com", links);
+
+        var validatorMock = new Mock<IValidator<UserRegistrationDTO>>();
+        validatorMock.Setup(x => x.ValidateAsync(userRegistrationDTO, It.IsAny<CancellationToken>()))
+         .ReturnsAsync(new ValidationResult());
+
+        _userServiceMock.Setup(x => x.RegisterUserAsync(userRegistrationDTO)).ReturnsAsync(userDTO);
+
+        // Act
+        var result = await UserEndpointsLogic.RegisterUserLogicAsync(userRegistrationDTO, validatorMock.Object, _userServiceMock.Object, _loggerMock.Object);
+
+        // Assert
+        var okResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.Ok<UserDTO>>(result);
+        Assert.NotNull(okResult.Value);
+        Assert.Equal(userDTO.FirstName, userRegistrationDTO.FirstName);
+        Assert.Equal(userDTO.LastName, userRegistrationDTO.LastName);
+        Assert.Equal(userDTO.PhoneNumber, userRegistrationDTO.PhoneNumber);
+        Assert.Equal(userDTO.Email, userRegistrationDTO.Email);            
+    }
+
+    [Fact]
+    public async Task RegisterUserLogicAsync_WhenUserAlreadyExists_ReturnsConflictAndMessage() 
+    {
+        
+    }
+
+    #endregion RegisterUserLogicAsync
 }
