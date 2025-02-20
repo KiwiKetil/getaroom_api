@@ -126,7 +126,11 @@ public static class UserEndpointsLogic
         var authenticatedUser = await authService.AuthenticateUserAsync(dto);
         if (authenticatedUser == null)
         {
-            return Results.Problem("Login failed. Please check your username and/or password and try again.", statusCode: 401);
+            return Results.Problem(
+                title: "An issue occured",
+                statusCode: StatusCodes.Status401Unauthorized,
+                detail: "Login failed. Please check your username and/or password and try again."
+            );
         }
 
         bool hasUpdatedPassword = await userService.HasUpdatedPassword(authenticatedUser.Id);
