@@ -612,6 +612,8 @@ public class UserEndpointsLogicTests
         Assert.Equal("An issue occured", problemResult.ProblemDetails.Title);
         Assert.Equal(StatusCodes.Status401Unauthorized, problemResult.ProblemDetails.Status);
         Assert.Equal("Login failed. Please check your username and/or password and try again.", problemResult.ProblemDetails.Detail);
+
+        tokenGeneratorMock.Verify(x => x.GenerateTokenAsync(It.IsAny<User>(), It.IsAny<bool>()), Times.Never);
     }
 
     // test login men validationfails, returns badrequest, kanskje sette over authenticationtesten? i rekkefølgen(?)
