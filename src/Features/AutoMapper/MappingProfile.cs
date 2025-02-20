@@ -2,6 +2,7 @@
 using RoomSchedulerAPI.Features.HateOAS;
 using RoomSchedulerAPI.Features.Models.DTOs.UserDTOs;
 using RoomSchedulerAPI.Features.Models.Entities;
+using System.Globalization;
 
 namespace RoomSchedulerAPI.Features.AutoMapper;
 
@@ -25,7 +26,16 @@ public class MappingProfile : Profile
             new($"/api/v1/users/{src.Id.Value}", "delete", "DELETE")
          }));
 
-        CreateMap<UserUpdateDTO, User>();
-        CreateMap<UserRegistrationDTO, User>();
+        CreateMap<UserUpdateDTO, User>()
+            .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src =>
+        CultureInfo.CurrentCulture.TextInfo.ToTitleCase(src.FirstName.ToLowerInvariant() ?? string.Empty)))
+            .ForMember(dest => dest.LastName, opt => opt.MapFrom(src =>
+        CultureInfo.CurrentCulture.TextInfo.ToTitleCase(src.LastName.ToLowerInvariant() ?? string.Empty)));        
+
+        CreateMap<UserRegistrationDTO, User>()
+            .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src =>
+        CultureInfo.CurrentCulture.TextInfo.ToTitleCase(src.FirstName.ToLowerInvariant() ?? string.Empty)))
+            .ForMember(dest => dest.LastName, opt => opt.MapFrom(src =>
+        CultureInfo.CurrentCulture.TextInfo.ToTitleCase(src.LastName.ToLowerInvariant() ?? string.Empty)));
     }
 }
