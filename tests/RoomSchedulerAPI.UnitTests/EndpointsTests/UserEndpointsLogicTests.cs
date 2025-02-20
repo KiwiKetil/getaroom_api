@@ -1,11 +1,13 @@
 ﻿using FluentAssertions;
 using FluentValidation;
 using FluentValidation.Results;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Moq;
 using RoomSchedulerAPI.Features.Endpoints.Logic;
 using RoomSchedulerAPI.Features.HateOAS;
+using RoomSchedulerAPI.Features.Models.DTOs.Token;
 using RoomSchedulerAPI.Features.Models.DTOs.UserDTOs;
 using RoomSchedulerAPI.Features.Models.Entities;
 using RoomSchedulerAPI.Features.Services.Interfaces;
@@ -489,4 +491,50 @@ public class UserEndpointsLogicTests
     }
 
     #endregion RegisterUserLogicAsync
+
+    #region UserLoginLogicAsync
+
+    [Fact]
+    public async Task UserLoginLogicAsync_WhenLoginSuccess_WhenUserhasUpdatedPassword_ReturnsOkAndValidToken() 
+    {
+        // Arrange
+        var loginDTO = new LoginDTO("testuser@unittest.com", "secretPassword123!");
+        var user = new User
+        {
+            Id = UserId.NewId,
+            FirstName = "Testuser",
+            LastName = "TestuserLastName",
+            PhoneNumber = "71625353",
+            Email = "testuser@gmail.com",
+            HashedPassword = "someHashedPassword",
+            Created = DateTime.UtcNow,
+            Updated = DateTime.UtcNow
+        };
+
+        var validatorMock = new Mock<IValidator<LoginDTO>>();
+        validatorMock.Setup(x => x.ValidateAsync(loginDTO, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ValidationResult());
+
+        var authServiceMock = new Mock<IUserAuthenticationService>();
+        authServiceMock.Setup(x => x.AuthenticateUserAsync(loginDTO)).ReturnsAsync(user);
+
+        var token = new TokenResponse { Token = "tokenStringWithClaimPasswordUpdatedTrue" };
+        var tokenGeneratorMock = new Mock<ITokenGenerator>();
+        tokenGeneratorMock.Setup(x => x.GenerateTokenAsync(user, true)).ReturnsAsync(token.Token);
+
+        _userServiceMock.Setup(x => x.HasUpdatedPassword(user.Id)).ReturnsAsync(true);
+
+        // Act
+        var result = await UserEndpointsLogic.UserLoginLogicAsync(loginDTO, validatorMock.Object, _userServiceMock.Object, 
+            authServiceMock.Object, tokenGeneratorMock.Object, _loggerMock.Object);
+
+        // Assert
+        var okResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.Ok<TokenResponse>>(result);
+        Assert.NotNull(okResult.Value);
+        Assert.Equal(token.Token, okResult.Value.Token);       
+    }
+
+    // skriv test hvor user ikke har oppdatert passord også
+
+    #endregion UserLoginLogicAsync
 }
