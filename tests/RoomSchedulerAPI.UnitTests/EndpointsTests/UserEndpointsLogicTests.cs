@@ -574,6 +574,52 @@ public class UserEndpointsLogicTests
         Assert.Equal(token.Token, okResult.Value.Token);
     }
 
+    [Fact]
+    public async Task UserLoginLogicAsync_WhenAuthenticationFails_ReturnsProblemAndDetails() 
+    {
+        // Arrange
+        var loginDTO = new LoginDTO("testuser@unittest.com", "secretPassword123!");
+        var user = new User
+        {
+            Id = UserId.NewId,
+            FirstName = "Testuser",
+            LastName = "TestuserLastName",
+            PhoneNumber = "71625353",
+            Email = "testuser@gmail.com",
+            HashedPassword = "someHashedPassword",
+            Created = DateTime.UtcNow,
+            Updated = DateTime.UtcNow
+        };
+
+        var validatorMock = new Mock<IValidator<LoginDTO>>();
+        validatorMock.Setup(x => x.ValidateAsync(loginDTO, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ValidationResult());
+
+        var authServiceMock = new Mock<IUserAuthenticationService>();
+        authServiceMock.Setup(x => x.AuthenticateUserAsync(loginDTO)).ReturnsAsync((User?)null);
+
+        var tokenGeneratorMock = new Mock<ITokenGenerator>();
+
+        _userServiceMock.Setup(x => x.HasUpdatedPassword(user.Id)).ReturnsAsync(false);
+
+        // Act
+        var result = await UserEndpointsLogic.UserLoginLogicAsync(loginDTO, validatorMock.Object, _userServiceMock.Object,
+            authServiceMock.Object, tokenGeneratorMock.Object, _loggerMock.Object);
+
+        // Assert
+
+        var problemResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.ProblemHttpResult>(result);
+        Assert.Equal("An issue occured", problemResult.ProblemDetails.Title);
+        Assert.Equal(StatusCodes.Status401Unauthorized, problemResult.ProblemDetails.Status);
+        Assert.Equal("Login failed. Please check your username and/or password and try again.", problemResult.ProblemDetails.Detail);
+    }
+
+    // test login men validationfails, returns badrequest, kanskje sette over authenticationtesten? i rekkefølgen(?)
+    [Fact]
+    public async Task UserLoginLogicAsync_WhenValidationFails_ReturnsBadRequestAndErrors()
+    {
+        
+    }
 
 
     #endregion UserLoginLogicAsync
