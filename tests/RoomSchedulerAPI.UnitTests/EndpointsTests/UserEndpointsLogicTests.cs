@@ -626,8 +626,9 @@ public class UserEndpointsLogicTests
         [
             new ValidationFailure("Error", "testError")
         ]);
-        validatorMock.Setup(x => x.ValidateAsync(It.IsAny<LoginDTO>(), It.IsAny<CancellationToken>())).ReturnsAsync(errors);
-        //var expectedErrors = new List<string> { "testError" };
+        validatorMock.Setup(x => x.ValidateAsync(It.IsAny<LoginDTO>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(errors);
+
         var actualErrors = errors.Errors.Select(e => e.ErrorMessage).ToList();
 
         var authService = new Mock<IUserAuthenticationService>();
@@ -648,15 +649,46 @@ public class UserEndpointsLogicTests
 
     #region UpdatePasswordLogicAsync
 
-    //[Fact]
-    //public async Task UpdatePasswordLogicAsync_
+    [Fact]
+    public async Task UpdatePasswordLogicAsync_AsAuthorizedUserWithPasswordUpdated_ReturnsOKAndValidToken() 
+    {
+        // Arrange
+        var updatePasswordDTO = new UpdatePasswordDTO("testuser@email.no", "CurrentPass123!", "NewPass123!");
+
+        var validatorMock = new Mock<IValidator<UpdatePasswordDTO>>();
+        validatorMock.Setup(x => x.ValidateAsync(updatePasswordDTO, It.IsAny<CancellationToken>())).ReturnsAsync(new ValidationResult());
+
+        var claimsIdentity = new ClaimsIdentity(
+        [
+            new Claim(ClaimTypes.Role,  "User"),
+            new Claim(ClaimTypes.Name, "testuser@email.no")
+        ], "TestAuthentication");
+        var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
+
+        var tokengeneratorMock = new Mock<ITokenGenerator>();
+        tokengeneratorMock.Setup(x => x.GenerateTokenAsync(It.IsAny<User>(), true)).ReturnsAsync("tokenStringValue");
+
+        _userServiceMock.Setup(x => x.UpdatePasswordAsync(updatePasswordDTO)).ReturnsAsync(true);
+        _userServiceMock.Setup(x => x.GetUserByEmailAsync(updatePasswordDTO.Email)).ReturnsAsync(new User { Email = updatePasswordDTO.Email});
+
+        // Act
+        var result = await UserEndpointsLogic.UpdatePasswordLogicAsync(updatePasswordDTO, validatorMock.Object, _userServiceMock.Object,
+            tokengeneratorMock.Object, claimsPrincipal, _loggerMock.Object);
+
+        // Assert
+        var okResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.Ok<TokenResponse>>(result);
+    }
 
     #endregion UpdatePasswordLogicAsync
 
-        // test: AsAdmin OK
-        // test: AsAuthorizedUser OK
-        // test: 
+    // test: AsAuthorizedUser OK with passwordchanged ok and new token
+    // test: AsAuthorizedUser OK with NOTpasswordchanged ok and new token
+    // test: AsAuthorizedUser BADREQUEST pga pga currentpassword stemmer ikke
+    // test: User is not authorized FORBID
+    // test: ValidationFail)(?)
+    // test: user not found NOTFOUND (also at tokengenerator is Times.Never.)
+    // test: generatestoken x 1 excactly for OKresults.
+    // test: hmmm.. more?
 
-   
 
 }
