@@ -43,7 +43,7 @@ public static class UserEndpoints
         app.MapPost("/api/v1/login", UserEndpointsLogic.UserLoginLogicAsync)           
         .WithName("UserLogin");
 
-        // https://localhost:7089/api/v1/users/change-password
+        // https://localhost:7089/api/v1/users/update-password
         app.MapPost("/api/v1/users/update-password", UserEndpointsLogic.UpdatePasswordLogicAsync)           
         .RequireAuthorization()
         .WithName("UpdatePassword");

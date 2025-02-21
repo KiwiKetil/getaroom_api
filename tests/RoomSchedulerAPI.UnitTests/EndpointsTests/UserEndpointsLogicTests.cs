@@ -2,6 +2,7 @@
 using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Builder.Extensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -487,7 +488,7 @@ public class UserEndpointsLogicTests
 
         // Assert
         var badRequestResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.BadRequest<List<string>>>(result);
-        Assert.Equal(expectedErrors, badRequestResult.Value);      
+        Assert.Equal(expectedErrors, badRequestResult.Value);
     }
 
     #endregion RegisterUserLogicAsync
@@ -495,7 +496,7 @@ public class UserEndpointsLogicTests
     #region UserLoginLogicAsync
 
     [Fact]
-    public async Task UserLoginLogicAsync_WhenLoginSuccess_WhenUserhasUpdatedPassword_ReturnsOkAndValidToken() 
+    public async Task UserLoginLogicAsync_WhenLoginSuccess_AndUserHasUpdatedPassword_ReturnsOkWithValidToken()
     {
         // Arrange
         var loginDTO = new LoginDTO("testuser@unittest.com", "secretPassword123!");
@@ -525,17 +526,17 @@ public class UserEndpointsLogicTests
         _userServiceMock.Setup(x => x.HasUpdatedPassword(user.Id)).ReturnsAsync(true);
 
         // Act
-        var result = await UserEndpointsLogic.UserLoginLogicAsync(loginDTO, validatorMock.Object, _userServiceMock.Object, 
+        var result = await UserEndpointsLogic.UserLoginLogicAsync(loginDTO, validatorMock.Object, _userServiceMock.Object,
             authServiceMock.Object, tokenGeneratorMock.Object, _loggerMock.Object);
 
         // Assert
         var okResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.Ok<TokenResponse>>(result);
         Assert.NotNull(okResult.Value);
-        Assert.Equal(token.Token, okResult.Value.Token);       
+        Assert.Equal(token.Token, okResult.Value.Token);
     }
 
     [Fact]
-    public async Task UserLoginLogicAsync_WhenLoginSuccess_WhenUserhasNotUpdatedPassword_ReturnsOkAndValidToken()
+    public async Task UserLoginLogicAsync_WhenLoginSuccess_AndUserHasNotUpdatedPassword_ReturnsOkWithValidToken()
     {
         // Arrange
         var loginDTO = new LoginDTO("testuser@unittest.com", "secretPassword123!");
@@ -575,7 +576,7 @@ public class UserEndpointsLogicTests
     }
 
     [Fact]
-    public async Task UserLoginLogicAsync_WhenAuthenticationFails_ReturnsProblemAndDetails() 
+    public async Task UserLoginLogicAsync_WhenAuthenticationFails_ReturnsProblemAndDetails()
     {
         // Arrange
         var loginDTO = new LoginDTO("testuser@unittest.com", "secretPassword123!");
@@ -616,13 +617,78 @@ public class UserEndpointsLogicTests
         tokenGeneratorMock.Verify(x => x.GenerateTokenAsync(It.IsAny<User>(), It.IsAny<bool>()), Times.Never);
     }
 
-    // test login men validationfails, returns badrequest, kanskje sette over authenticationtesten? i rekkefølgen(?)
     [Fact]
     public async Task UserLoginLogicAsync_WhenValidationFails_ReturnsBadRequestAndErrors()
     {
-        
+        // Arrange
+        var validatorMock = new Mock<IValidator<LoginDTO>>();
+        var errors = new ValidationResult(
+        [
+            new ValidationFailure("Error", "testError")
+        ]);
+        validatorMock.Setup(x => x.ValidateAsync(It.IsAny<LoginDTO>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(errors);
+
+        var actualErrors = errors.Errors.Select(e => e.ErrorMessage).ToList();
+
+        var authService = new Mock<IUserAuthenticationService>();
+        var tokenGeneratorMock = new Mock<ITokenGenerator>();
+
+        // Act
+        var result = await UserEndpointsLogic.UserLoginLogicAsync(It.IsAny<LoginDTO>(), validatorMock.Object, _userServiceMock.Object, authService.Object,
+            tokenGeneratorMock.Object, _loggerMock.Object);
+
+        // Assert
+        var badRequestResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.BadRequest<List<string>>>(result);
+        Assert.Equal(actualErrors, badRequestResult.Value);
+        authService.Verify(x => x.AuthenticateUserAsync(It.IsAny<LoginDTO>()), Times.Never);
+        tokenGeneratorMock.Verify(x => x.GenerateTokenAsync(It.IsAny<User>(), It.IsAny<bool>()), Times.Never);
     }
 
-
     #endregion UserLoginLogicAsync
+
+    #region UpdatePasswordLogicAsync
+
+    [Fact]
+    public async Task UpdatePasswordLogicAsync_AsAuthorizedUserWithPasswordUpdated_ReturnsOKAndValidToken() 
+    {
+        // Arrange
+        var updatePasswordDTO = new UpdatePasswordDTO("testuser@email.no", "CurrentPass123!", "NewPass123!");
+
+        var validatorMock = new Mock<IValidator<UpdatePasswordDTO>>();
+        validatorMock.Setup(x => x.ValidateAsync(updatePasswordDTO, It.IsAny<CancellationToken>())).ReturnsAsync(new ValidationResult());
+
+        var claimsIdentity = new ClaimsIdentity(
+        [
+            new Claim(ClaimTypes.Role,  "User"),
+            new Claim(ClaimTypes.Name, "testuser@email.no")
+        ], "TestAuthentication");
+        var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
+
+        var tokengeneratorMock = new Mock<ITokenGenerator>();
+        tokengeneratorMock.Setup(x => x.GenerateTokenAsync(It.IsAny<User>(), true)).ReturnsAsync("tokenStringValue");
+
+        _userServiceMock.Setup(x => x.UpdatePasswordAsync(updatePasswordDTO)).ReturnsAsync(true);
+        _userServiceMock.Setup(x => x.GetUserByEmailAsync(updatePasswordDTO.Email)).ReturnsAsync(new User { Email = updatePasswordDTO.Email});
+
+        // Act
+        var result = await UserEndpointsLogic.UpdatePasswordLogicAsync(updatePasswordDTO, validatorMock.Object, _userServiceMock.Object,
+            tokengeneratorMock.Object, claimsPrincipal, _loggerMock.Object);
+
+        // Assert
+        var okResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.Ok<TokenResponse>>(result);
+    }
+
+    #endregion UpdatePasswordLogicAsync
+
+    // test: AsAuthorizedUser OK with passwordchanged ok and new token
+    // test: AsAuthorizedUser OK with NOTpasswordchanged ok and new token
+    // test: AsAuthorizedUser BADREQUEST pga pga currentpassword stemmer ikke
+    // test: User is not authorized FORBID
+    // test: ValidationFail)(?)
+    // test: user not found NOTFOUND (also at tokengenerator is Times.Never.)
+    // test: generatestoken x 1 excactly for OKresults.
+    // test: hmmm.. more?
+
+
 }
