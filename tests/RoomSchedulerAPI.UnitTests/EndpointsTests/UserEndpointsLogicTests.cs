@@ -680,16 +680,21 @@ public class UserEndpointsLogicTests
         Assert.NotNull(okResult.Value);
         Assert.Equal("tokenStringValue", okResult.Value.Token);
     }
-    
-   
+
+    // test: User is not authorized FORBID
+    [Fact]
+    public async Task
+
 
     #endregion UpdatePasswordLogicAsync
 
-    // test: AsAuthorizedUser BADREQUEST pga pga currentpassword stemmer ikke
     // test: User is not authorized FORBID
-    // test: ValidationFail)(?)
-    // test: user not found NOTFOUND (also at tokengenerator is Times.Never.)
-    // test: generatestoken x 1 excactly for OKresults.
+    // test: ValidationFail)(?) bør visst ha med så har alle mulighet for feil so kan skje i metoden under test...(?)
+    // test: AsAuthorizedUser BADREQUEST pga UpdatePasswordAsync()) returns false (selve updatepasswordasync, testes for seg selv senere, viktige her er at den returner false)
+    // test: user not found GetUserbyEmailAsync() NOTFOUND (also at tokengenerator is Times.Never.)
+
+
+    // test: generatetoken() ikke kjøres dersom fail av any kind
     // test: hmmm.. more?
 
 
