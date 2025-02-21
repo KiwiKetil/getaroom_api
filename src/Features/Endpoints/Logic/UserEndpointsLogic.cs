@@ -143,17 +143,12 @@ public static class UserEndpointsLogic
             IUserService userService, ITokenGenerator tokenGenerator, ClaimsPrincipal claims, ILogger<Program> logger)
     {
         logger.LogDebug("User updating password");
-
-        var isAdmin = claims.IsInRole("Admin");
-
-        if (!isAdmin)
+        
+        var userIdClaim = claims.FindFirst("name") ?? claims.FindFirst(ClaimTypes.Name);
+        if (userIdClaim == null || userIdClaim.Value != dto.Email || !claims.IsInRole("User"))
         {
-            var userIdClaim = claims.FindFirst("name") ?? claims.FindFirst(ClaimTypes.Name);
-            if (userIdClaim == null || userIdClaim.Value != dto.Email || claims.IsInRole("User"))
-            {
-                return Results.Forbid();
-            }
-        }
+            return Results.Forbid();
+        }        
 
         var validationResult = await validator.ValidateAsync(dto);
         if (!validationResult.IsValid)
