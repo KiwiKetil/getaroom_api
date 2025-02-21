@@ -650,7 +650,7 @@ public class UserEndpointsLogicTests
     #region UpdatePasswordLogicAsync
 
     [Fact]
-    public async Task UpdatePasswordLogicAsync_AsAuthorizedUserWithPasswordUpdated_ReturnsOKAndValidToken() 
+    public async Task UpdatePasswordLogicAsync_AsAuthorizedUser_ReturnsOKAndValidToken() 
     {
         // Arrange
         var updatePasswordDTO = new UpdatePasswordDTO("testuser@email.no", "CurrentPass123!", "NewPass123!");
@@ -680,11 +680,11 @@ public class UserEndpointsLogicTests
         Assert.NotNull(okResult.Value);
         Assert.Equal("tokenStringValue", okResult.Value.Token);
     }
+    
+   
 
     #endregion UpdatePasswordLogicAsync
 
-    // test: AsAuthorizedUser OK with passwordchanged ok and new token
-    // test: AsAuthorizedUser OK with NOTpasswordchanged ok and new token
     // test: AsAuthorizedUser BADREQUEST pga pga currentpassword stemmer ikke
     // test: User is not authorized FORBID
     // test: ValidationFail)(?)
