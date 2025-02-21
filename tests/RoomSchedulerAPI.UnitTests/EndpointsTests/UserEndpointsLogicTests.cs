@@ -677,6 +677,8 @@ public class UserEndpointsLogicTests
 
         // Assert
         var okResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.Ok<TokenResponse>>(result);
+        Assert.NotNull(okResult.Value);
+        Assert.Equal("tokenStringValue", okResult.Value.Token);
     }
 
     #endregion UpdatePasswordLogicAsync
