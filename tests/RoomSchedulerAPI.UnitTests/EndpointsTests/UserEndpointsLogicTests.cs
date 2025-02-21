@@ -650,7 +650,7 @@ public class UserEndpointsLogicTests
     #region UpdatePasswordLogicAsync
 
     [Fact]
-    public async Task UpdatePasswordLogicAsync_AsAuthorizedUserWithPasswordUpdated_ReturnsOKAndValidToken() 
+    public async Task UpdatePasswordLogicAsync_AsAuthorizedUser_ReturnsOKAndValidToken() 
     {
         // Arrange
         var updatePasswordDTO = new UpdatePasswordDTO("testuser@email.no", "CurrentPass123!", "NewPass123!");
@@ -677,17 +677,24 @@ public class UserEndpointsLogicTests
 
         // Assert
         var okResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.Ok<TokenResponse>>(result);
+        Assert.NotNull(okResult.Value);
+        Assert.Equal("tokenStringValue", okResult.Value.Token);
     }
+
+    // test: User is not authorized FORBID
+    [Fact]
+    public async Task
+
 
     #endregion UpdatePasswordLogicAsync
 
-    // test: AsAuthorizedUser OK with passwordchanged ok and new token
-    // test: AsAuthorizedUser OK with NOTpasswordchanged ok and new token
-    // test: AsAuthorizedUser BADREQUEST pga pga currentpassword stemmer ikke
     // test: User is not authorized FORBID
-    // test: ValidationFail)(?)
-    // test: user not found NOTFOUND (also at tokengenerator is Times.Never.)
-    // test: generatestoken x 1 excactly for OKresults.
+    // test: ValidationFail)(?) bør visst ha med så har alle mulighet for feil so kan skje i metoden under test...(?)
+    // test: AsAuthorizedUser BADREQUEST pga UpdatePasswordAsync()) returns false (selve updatepasswordasync, testes for seg selv senere, viktige her er at den returner false)
+    // test: user not found GetUserbyEmailAsync() NOTFOUND (also at tokengenerator is Times.Never.)
+
+
+    // test: generatetoken() ikke kjøres dersom fail av any kind
     // test: hmmm.. more?
 
 
