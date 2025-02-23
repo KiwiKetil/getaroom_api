@@ -777,13 +777,41 @@ public class UserEndpointsLogicTests
     [Fact]
     public async Task UpdatePasswordLogicAsync_WhenUserIdClaimIsNull_ReturnsForbidden()
     {
+        // Arrange
+        var updatePasswordDTO = new UpdatePasswordDTO("email@email.com", "currentPassword", "NewPassword123!");
+        var validatorMock = new Mock<IValidator<UpdatePasswordDTO>>();
+        var tokenGeneratorMock = new Mock<ITokenGenerator>();
+        var claimsPrincipal = new ClaimsPrincipal();
 
+        // Act
+        var result = await UserEndpointsLogic.UpdatePasswordLogicAsync(updatePasswordDTO, validatorMock.Object, _userServiceMock.Object, 
+            tokenGeneratorMock.Object, claimsPrincipal, _loggerMock.Object);
+
+        //Assert
+        var forbidResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.ForbidHttpResult>(result);
     }
 
     [Fact]
     public async Task UpdatePasswordLogicAsync_WhenUserIdDoesNotMatchTargetId_ReturnsForbidden()
     {
+        // Arrange
+        var updatePasswordDTO = new UpdatePasswordDTO("someemail@abc.no", "currPass", "Newpass123!");
+        var validatorMock = new Mock<IValidator<UpdatePasswordDTO>>(); // mock el instans sieden ikke brukes uansett????
+        var tokenGeneratorMock = new Mock<ITokenGenerator>(); // mock el instans siden ikke brukes uansett????
 
+        var claimsIdentity = new ClaimsIdentity(
+        [
+            new Claim(ClaimTypes.Role,  "User"),
+            new Claim(ClaimTypes.Name, "testuser@email.no")
+        ], "TestAuthentication");
+        var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
+
+        // Act
+        var result = await UserEndpointsLogic.UpdatePasswordLogicAsync(updatePasswordDTO, validatorMock.Object, _userServiceMock.Object,
+            tokenGeneratorMock.Object, claimsPrincipal, _loggerMock.Object);
+
+        //Assert
+        var forbidResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.ForbidHttpResult>(result);
     }
     
     [Fact]
