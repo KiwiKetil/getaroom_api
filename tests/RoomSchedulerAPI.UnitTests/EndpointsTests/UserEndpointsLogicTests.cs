@@ -6,11 +6,13 @@ using Microsoft.AspNetCore.Builder.Extensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Moq;
+using Mysqlx;
 using RoomSchedulerAPI.Features.Endpoints.Logic;
 using RoomSchedulerAPI.Features.HateOAS;
 using RoomSchedulerAPI.Features.Models.DTOs.Token;
 using RoomSchedulerAPI.Features.Models.DTOs.UserDTOs;
 using RoomSchedulerAPI.Features.Models.Entities;
+using RoomSchedulerAPI.Features.Services;
 using RoomSchedulerAPI.Features.Services.Interfaces;
 using System.Security.Claims;
 
@@ -203,7 +205,8 @@ public class UserEndpointsLogicTests
 
         var claimsIdentity = new ClaimsIdentity(
         [
-            new Claim(ClaimTypes.NameIdentifier, Guid.NewGuid().ToString())
+            new Claim(ClaimTypes.NameIdentifier, Guid.NewGuid().ToString()),
+            new Claim(ClaimTypes.Role, "SomeRole")
         ], "TestAuthentication");
         var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
 
@@ -364,7 +367,8 @@ public class UserEndpointsLogicTests
 
         var claimsIdentity = new ClaimsIdentity(
         [
-            new Claim(ClaimTypes.NameIdentifier, Guid.Parse("d77ac10b-58cc-4372-a567-0e02b2c3d488").ToString())
+            new Claim(ClaimTypes.NameIdentifier, Guid.Parse("d77ac10b-58cc-4372-a567-0e02b2c3d488").ToString()),
+            new Claim(ClaimTypes.Role, "SomeRole")
         ], "TestAuthentication");
         var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
 
@@ -743,7 +747,7 @@ public class UserEndpointsLogicTests
     #region UpdatePasswordLogicAsync
 
     [Fact]
-    public async Task UpdatePasswordLogicAsync_AsAuthorizedUser_ReturnsOKAndValidToken() 
+    public async Task UpdatePasswordLogicAsync_AsValidUser_ReturnsOKAndValidToken() 
     {
         // Arrange
         var updatePasswordDTO = new UpdatePasswordDTO("testuser@email.no", "CurrentPass123!", "NewPass123!");
@@ -792,17 +796,17 @@ public class UserEndpointsLogicTests
     }
 
     [Fact]
-    public async Task UpdatePasswordLogicAsync_WhenUserIdDoesNotMatchTargetId_ReturnsForbidden()
+    public async Task UpdatePasswordLogicAsync_WhenNameClaimDoesNotMatchTarget_ReturnsForbidden()
     {
         // Arrange
         var updatePasswordDTO = new UpdatePasswordDTO("someemail@abc.no", "currPass", "Newpass123!");
-        var validatorMock = new Mock<IValidator<UpdatePasswordDTO>>(); // mock el instans sieden ikke brukes uansett????
-        var tokenGeneratorMock = new Mock<ITokenGenerator>(); // mock el instans siden ikke brukes uansett????
+        var validatorMock = new Mock<IValidator<UpdatePasswordDTO>>(); 
+        var tokenGeneratorMock = new Mock<ITokenGenerator>(); 
 
         var claimsIdentity = new ClaimsIdentity(
         [
             new Claim(ClaimTypes.Role,  "User"),
-            new Claim(ClaimTypes.Name, "testuser@email.no")
+            new Claim(ClaimTypes.Name, "notmatching@email.no")
         ], "TestAuthentication");
         var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
 
@@ -818,24 +822,59 @@ public class UserEndpointsLogicTests
     public async Task UpdatePasswordLogicAsync_WhenUserRoleIsMissingFromClaims_ReturnsForbidden()
     {
         // Arrange
-
-
+        var updatePasswordDTO = new UpdatePasswordDTO("epost@epost.no", "GammeltPassord123!", "NyttPasssord123!");
+        var validatorMock = new Mock<IValidator<UpdatePasswordDTO>>();
+        var tokenGeneratorMock = new Mock<ITokenGenerator>();
+        var claimsIdentity = new ClaimsIdentity(
+        [
+            new Claim(ClaimTypes.Name, "epost@epost.no"),
+            new Claim(ClaimTypes.Role, "SomeRole")
+        ]);
+        var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
 
         // Act
-
-
+        var result = await UserEndpointsLogic.UpdatePasswordLogicAsync(updatePasswordDTO, validatorMock.Object, _userServiceMock.Object, 
+            tokenGeneratorMock.Object, claimsPrincipal, _loggerMock.Object);
 
         // Assert
+        Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.ForbidHttpResult>(result);
     }
 
-   
+    [Fact]
+    public async Task UpdatePasswordLogicAsync_WhenValidationFails_ReturnsBadRequest()
+    {
+        // Arrange
+        var updatePasswordDTO = new UpdatePasswordDTO("epost@epost.no", "GammeltPassord123!", "NyttPasssord123!");
 
-  
+        var validatorMock = new Mock<IValidator<UpdatePasswordDTO>>();
+        var errors = new ValidationResult(
+        [
+            new ValidationFailure(nameof(UpdatePasswordDTO.Email), "An Error")
+        ]);
+        var expectedErrors = errors.Errors.Select(x => x.ErrorMessage).ToList();
+        validatorMock.Setup(x => x.ValidateAsync(updatePasswordDTO, It.IsAny<CancellationToken>())).ReturnsAsync((errors));
+
+        var tokenGeneratorMock = new Mock<ITokenGenerator>();
+        var claimsIdentity = new ClaimsIdentity(
+        [
+            new Claim(ClaimTypes.Name, "epost@epost.no"),
+            new Claim(ClaimTypes.Role, "User")
+        ]);
+        var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
+
+        // Act
+        var result = await UserEndpointsLogic.UpdatePasswordLogicAsync(updatePasswordDTO, validatorMock.Object, _userServiceMock.Object,
+            tokenGeneratorMock.Object, claimsPrincipal, _loggerMock.Object);
+
+        // Assert
+        var badRequestResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.BadRequest<List<string>>>(result);
+        Assert.NotNull(badRequestResult.Value);
+        Assert.NotEmpty(badRequestResult.Value);
+        Assert.Equal(expectedErrors, badRequestResult.Value);
+    }
 
     #endregion UpdatePasswordLogicAsync
 
-    // test: User is not authorized FORBID
-    // test: ValidationFail)(?) bør visst ha med så har alle mulighet for feil so kan skje i metoden under test...(?)
     // test: AsAuthorizedUser BADREQUEST pga UpdatePasswordAsync()) returns false (selve updatepasswordasync, testes for seg selv senere, viktige her er at den returner false)
     // test: user not found GetUserbyEmailAsync() NOTFOUND (also at tokengenerator is Times.Never.)
 
