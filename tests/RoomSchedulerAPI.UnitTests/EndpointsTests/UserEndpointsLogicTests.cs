@@ -6,11 +6,13 @@ using Microsoft.AspNetCore.Builder.Extensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Moq;
+using Mysqlx;
 using RoomSchedulerAPI.Features.Endpoints.Logic;
 using RoomSchedulerAPI.Features.HateOAS;
 using RoomSchedulerAPI.Features.Models.DTOs.Token;
 using RoomSchedulerAPI.Features.Models.DTOs.UserDTOs;
 using RoomSchedulerAPI.Features.Models.Entities;
+using RoomSchedulerAPI.Features.Services;
 using RoomSchedulerAPI.Features.Services.Interfaces;
 using System.Security.Claims;
 
@@ -133,6 +135,7 @@ public class UserEndpointsLogicTests
     {
         // Arrange
         var id = Guid.NewGuid();
+        
         var claimsIdentity = new ClaimsIdentity(
         [
             new Claim(ClaimTypes.Role, "Admin")
@@ -152,17 +155,15 @@ public class UserEndpointsLogicTests
     }
 
     [Fact]
-    public async Task GetUserByIdLogicAsync_WhenUserIsNotAuthorized_ReturnsForbidden()
+    public async Task GetUserByIdLogicAsync_WhenUserIdDoesNotMatchTargetId_ReturnsForbidden()
     {
         // Arrange        
         var id = Guid.NewGuid();
-        var userId = new UserId(id);
-        var links = new List<Link>();
 
         var claimsIdentity = new ClaimsIdentity(
         [
             new Claim(ClaimTypes.Role, "User"),
-            new Claim(ClaimTypes.NameIdentifier, Guid.NewGuid().ToString()) // user Idclaim wont match target id => Forbidden()
+            new Claim(ClaimTypes.NameIdentifier, Guid.NewGuid().ToString()) 
         ], "TestAuthentication");
         var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
 
@@ -172,7 +173,50 @@ public class UserEndpointsLogicTests
         var result = await UserEndpointsLogic.GetUserByIdLogicAsync(id, _userServiceMock.Object, claimsPrincipal, _loggerMock.Object);
 
         // Assert
-        var forbidResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.ForbidHttpResult>(result);
+        Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.ForbidHttpResult>(result);
+    }
+
+    [Fact]
+    public async Task GetUserByIdLogicAsync_WhenNameIdentifierClaimIsNull_ReturnsForbidden()
+    {
+        // Arrange        
+        var id = Guid.NewGuid();
+
+        var claimsIdentity = new ClaimsIdentity(
+        [
+            new Claim(ClaimTypes.Role, "User"),
+        ], "TestAuthentication");
+        var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
+
+        _userServiceMock.Setup(x => x.GetUserByIdAsync(id)).ReturnsAsync((UserDTO?)null);
+
+        // Act
+        var result = await UserEndpointsLogic.GetUserByIdLogicAsync(id, _userServiceMock.Object, claimsPrincipal, _loggerMock.Object);
+
+        // Assert
+        Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.ForbidHttpResult>(result);
+    }
+
+    [Fact]
+    public async Task GetUserByIdLogicAsync_WhenUserRoleIsMissingFromClaims_ReturnsForbidden()
+    {
+        // Arrange        
+        var id = Guid.NewGuid();
+
+        var claimsIdentity = new ClaimsIdentity(
+        [
+            new Claim(ClaimTypes.NameIdentifier, Guid.NewGuid().ToString()),
+            new Claim(ClaimTypes.Role, "SomeRole")
+        ], "TestAuthentication");
+        var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
+
+        _userServiceMock.Setup(x => x.GetUserByIdAsync(id)).ReturnsAsync((UserDTO?)null);
+
+        // Act
+        var result = await UserEndpointsLogic.GetUserByIdLogicAsync(id, _userServiceMock.Object, claimsPrincipal, _loggerMock.Object);
+
+        // Assert
+        Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.ForbidHttpResult>(result);
     }
 
     #endregion GetUserById
@@ -255,7 +299,7 @@ public class UserEndpointsLogicTests
     }
 
     [Fact]
-    public async Task UpdateUserLogicAsync_WhenUserIsNotAuthorized_ReturnsForbidden()
+    public async Task UpdateUserLogicAsync_WhenUserIdDoesNotMatchTargetId_ReturnsForbidden()
     {
         // Arrange
         var validatorMock = new Mock<IValidator<UserUpdateDTO>>();
@@ -266,7 +310,7 @@ public class UserEndpointsLogicTests
         var claimsIdentity = new ClaimsIdentity(
         [
             new Claim(ClaimTypes.Role, "User"),
-            new Claim(ClaimTypes.NameIdentifier, Guid.NewGuid().ToString()) // user Idclaim wont match target id => Forbidden()
+            new Claim(ClaimTypes.NameIdentifier, Guid.NewGuid().ToString()) 
         ], "TestAuthentication");
         var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
 
@@ -284,7 +328,60 @@ public class UserEndpointsLogicTests
         var result = await UserEndpointsLogic.UpdateUserLogicAsync(id, userUpdateDTO, _userServiceMock.Object, validatorMock.Object, claimsPrincipal, _loggerMock.Object);
 
         // Assert
-        var forbidResultResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.ForbidHttpResult>(result);
+        Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.ForbidHttpResult>(result);
+    }
+
+    [Fact]
+    public async Task UpdateUserLogicAsync_WhenNameIdentifierClaimIsNull_ReturnsForbidden()
+    {
+        // Arrange
+        var validatorMock = new Mock<IValidator<UserUpdateDTO>>();
+
+        var id = Guid.NewGuid();
+
+        var claimsIdentity = new ClaimsIdentity(
+        [
+            new Claim(ClaimTypes.Role, "User"),
+        ], "TestAuthentication");
+        var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
+
+        var userUpdateDTO = new UserUpdateDTO("Sarah", "Connor", "12344321", "sarah@example.com");
+
+        validatorMock.Setup(v => v.ValidateAsync(userUpdateDTO, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ValidationResult());
+
+        // Act
+        var result = await UserEndpointsLogic.UpdateUserLogicAsync(id, userUpdateDTO, _userServiceMock.Object, validatorMock.Object, claimsPrincipal, _loggerMock.Object);
+
+        // Assert
+        Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.ForbidHttpResult>(result);
+    }
+
+    [Fact]
+    public async Task UpdateUserLogicAsync_WhenUserRoleIsMissingFromClaims_ReturnsForbidden()
+    {
+        // Arrange
+        var validatorMock = new Mock<IValidator<UserUpdateDTO>>();
+
+        var id = Guid.Parse("d77ac10b-58cc-4372-a567-0e02b2c3d488");
+
+        var claimsIdentity = new ClaimsIdentity(
+        [
+            new Claim(ClaimTypes.NameIdentifier, Guid.Parse("d77ac10b-58cc-4372-a567-0e02b2c3d488").ToString()),
+            new Claim(ClaimTypes.Role, "SomeRole")
+        ], "TestAuthentication");
+        var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
+
+        var userUpdateDTO = new UserUpdateDTO("Sarah", "Connor", "12344321", "sarah@example.com");
+
+        validatorMock.Setup(v => v.ValidateAsync(userUpdateDTO, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ValidationResult());
+
+        // Act
+        var result = await UserEndpointsLogic.UpdateUserLogicAsync(id, userUpdateDTO, _userServiceMock.Object, validatorMock.Object, claimsPrincipal, _loggerMock.Object);
+
+        // Assert
+        Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.ForbidHttpResult>(result);
     }
 
     [Fact]
@@ -650,7 +747,7 @@ public class UserEndpointsLogicTests
     #region UpdatePasswordLogicAsync
 
     [Fact]
-    public async Task UpdatePasswordLogicAsync_AsAuthorizedUser_ReturnsOKAndValidToken() 
+    public async Task UpdatePasswordLogicAsync_AsValidUser_ReturnsOKAndValidToken() 
     {
         // Arrange
         var updatePasswordDTO = new UpdatePasswordDTO("testuser@email.no", "CurrentPass123!", "NewPass123!");
@@ -681,15 +778,103 @@ public class UserEndpointsLogicTests
         Assert.Equal("tokenStringValue", okResult.Value.Token);
     }
 
-    // test: User is not authorized FORBID
     [Fact]
-    public async Task
+    public async Task UpdatePasswordLogicAsync_WhenUserIdClaimIsNull_ReturnsForbidden()
+    {
+        // Arrange
+        var updatePasswordDTO = new UpdatePasswordDTO("email@email.com", "currentPassword", "NewPassword123!");
+        var validatorMock = new Mock<IValidator<UpdatePasswordDTO>>();
+        var tokenGeneratorMock = new Mock<ITokenGenerator>();
+        var claimsPrincipal = new ClaimsPrincipal();
 
+        // Act
+        var result = await UserEndpointsLogic.UpdatePasswordLogicAsync(updatePasswordDTO, validatorMock.Object, _userServiceMock.Object, 
+            tokenGeneratorMock.Object, claimsPrincipal, _loggerMock.Object);
+
+        //Assert
+        Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.ForbidHttpResult>(result);
+    }
+
+    [Fact]
+    public async Task UpdatePasswordLogicAsync_WhenNameClaimDoesNotMatchTarget_ReturnsForbidden()
+    {
+        // Arrange
+        var updatePasswordDTO = new UpdatePasswordDTO("someemail@abc.no", "currPass", "Newpass123!");
+        var validatorMock = new Mock<IValidator<UpdatePasswordDTO>>(); 
+        var tokenGeneratorMock = new Mock<ITokenGenerator>(); 
+
+        var claimsIdentity = new ClaimsIdentity(
+        [
+            new Claim(ClaimTypes.Role,  "User"),
+            new Claim(ClaimTypes.Name, "notmatching@email.no")
+        ], "TestAuthentication");
+        var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
+
+        // Act
+        var result = await UserEndpointsLogic.UpdatePasswordLogicAsync(updatePasswordDTO, validatorMock.Object, _userServiceMock.Object,
+            tokenGeneratorMock.Object, claimsPrincipal, _loggerMock.Object);
+
+        //Assert
+        Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.ForbidHttpResult>(result);
+    }
+    
+    [Fact]
+    public async Task UpdatePasswordLogicAsync_WhenUserRoleIsMissingFromClaims_ReturnsForbidden()
+    {
+        // Arrange
+        var updatePasswordDTO = new UpdatePasswordDTO("epost@epost.no", "GammeltPassord123!", "NyttPasssord123!");
+        var validatorMock = new Mock<IValidator<UpdatePasswordDTO>>();
+        var tokenGeneratorMock = new Mock<ITokenGenerator>();
+        var claimsIdentity = new ClaimsIdentity(
+        [
+            new Claim(ClaimTypes.Name, "epost@epost.no"),
+            new Claim(ClaimTypes.Role, "SomeRole")
+        ]);
+        var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
+
+        // Act
+        var result = await UserEndpointsLogic.UpdatePasswordLogicAsync(updatePasswordDTO, validatorMock.Object, _userServiceMock.Object, 
+            tokenGeneratorMock.Object, claimsPrincipal, _loggerMock.Object);
+
+        // Assert
+        Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.ForbidHttpResult>(result);
+    }
+
+    [Fact]
+    public async Task UpdatePasswordLogicAsync_WhenValidationFails_ReturnsBadRequest()
+    {
+        // Arrange
+        var updatePasswordDTO = new UpdatePasswordDTO("epost@epost.no", "GammeltPassord123!", "NyttPasssord123!");
+
+        var validatorMock = new Mock<IValidator<UpdatePasswordDTO>>();
+        var errors = new ValidationResult(
+        [
+            new ValidationFailure(nameof(UpdatePasswordDTO.Email), "An Error")
+        ]);
+        var expectedErrors = errors.Errors.Select(x => x.ErrorMessage).ToList();
+        validatorMock.Setup(x => x.ValidateAsync(updatePasswordDTO, It.IsAny<CancellationToken>())).ReturnsAsync((errors));
+
+        var tokenGeneratorMock = new Mock<ITokenGenerator>();
+        var claimsIdentity = new ClaimsIdentity(
+        [
+            new Claim(ClaimTypes.Name, "epost@epost.no"),
+            new Claim(ClaimTypes.Role, "User")
+        ]);
+        var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
+
+        // Act
+        var result = await UserEndpointsLogic.UpdatePasswordLogicAsync(updatePasswordDTO, validatorMock.Object, _userServiceMock.Object,
+            tokenGeneratorMock.Object, claimsPrincipal, _loggerMock.Object);
+
+        // Assert
+        var badRequestResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.BadRequest<List<string>>>(result);
+        Assert.NotNull(badRequestResult.Value);
+        Assert.NotEmpty(badRequestResult.Value);
+        Assert.Equal(expectedErrors, badRequestResult.Value);
+    }
 
     #endregion UpdatePasswordLogicAsync
 
-    // test: User is not authorized FORBID
-    // test: ValidationFail)(?) bør visst ha med så har alle mulighet for feil so kan skje i metoden under test...(?)
     // test: AsAuthorizedUser BADREQUEST pga UpdatePasswordAsync()) returns false (selve updatepasswordasync, testes for seg selv senere, viktige her er at den returner false)
     // test: user not found GetUserbyEmailAsync() NOTFOUND (also at tokengenerator is Times.Never.)
 
