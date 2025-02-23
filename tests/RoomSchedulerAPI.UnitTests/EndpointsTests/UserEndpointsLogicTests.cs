@@ -171,7 +171,7 @@ public class UserEndpointsLogicTests
         var result = await UserEndpointsLogic.GetUserByIdLogicAsync(id, _userServiceMock.Object, claimsPrincipal, _loggerMock.Object);
 
         // Assert
-        var forbidResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.ForbidHttpResult>(result);
+        Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.ForbidHttpResult>(result);
     }
 
     [Fact]
@@ -192,7 +192,7 @@ public class UserEndpointsLogicTests
         var result = await UserEndpointsLogic.GetUserByIdLogicAsync(id, _userServiceMock.Object, claimsPrincipal, _loggerMock.Object);
 
         // Assert
-        var forbidResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.ForbidHttpResult>(result);
+        Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.ForbidHttpResult>(result);
     }
 
     [Fact]
@@ -213,7 +213,7 @@ public class UserEndpointsLogicTests
         var result = await UserEndpointsLogic.GetUserByIdLogicAsync(id, _userServiceMock.Object, claimsPrincipal, _loggerMock.Object);
 
         // Assert
-        var forbidResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.ForbidHttpResult>(result);
+        Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.ForbidHttpResult>(result);
     }
 
     #endregion GetUserById
@@ -325,7 +325,7 @@ public class UserEndpointsLogicTests
         var result = await UserEndpointsLogic.UpdateUserLogicAsync(id, userUpdateDTO, _userServiceMock.Object, validatorMock.Object, claimsPrincipal, _loggerMock.Object);
 
         // Assert
-        var forbidResultResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.ForbidHttpResult>(result);
+        Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.ForbidHttpResult>(result);
     }
 
     [Fact]
@@ -351,7 +351,7 @@ public class UserEndpointsLogicTests
         var result = await UserEndpointsLogic.UpdateUserLogicAsync(id, userUpdateDTO, _userServiceMock.Object, validatorMock.Object, claimsPrincipal, _loggerMock.Object);
 
         // Assert
-        var forbidResultResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.ForbidHttpResult>(result);
+        Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.ForbidHttpResult>(result);
     }
 
     [Fact]
@@ -377,7 +377,7 @@ public class UserEndpointsLogicTests
         var result = await UserEndpointsLogic.UpdateUserLogicAsync(id, userUpdateDTO, _userServiceMock.Object, validatorMock.Object, claimsPrincipal, _loggerMock.Object);
 
         // Assert
-        var forbidResultResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.ForbidHttpResult>(result);
+        Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.ForbidHttpResult>(result);
     }
 
     [Fact]
@@ -788,7 +788,7 @@ public class UserEndpointsLogicTests
             tokenGeneratorMock.Object, claimsPrincipal, _loggerMock.Object);
 
         //Assert
-        var forbidResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.ForbidHttpResult>(result);
+        Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.ForbidHttpResult>(result);
     }
 
     [Fact]
@@ -811,13 +811,21 @@ public class UserEndpointsLogicTests
             tokenGeneratorMock.Object, claimsPrincipal, _loggerMock.Object);
 
         //Assert
-        var forbidResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.ForbidHttpResult>(result);
+        Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.ForbidHttpResult>(result);
     }
     
     [Fact]
     public async Task UpdatePasswordLogicAsync_WhenUserRoleIsMissingFromClaims_ReturnsForbidden()
     {
-        
+        // Arrange
+
+
+
+        // Act
+
+
+
+        // Assert
     }
 
    
