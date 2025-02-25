@@ -11,7 +11,10 @@ namespace RoomSchedulerAPI.Features.Endpoints.Logic;
 
 public static class UserEndpointsLogic
 {
-    public static async Task<IResult> GetUsersLogicAsync(IUserService userService, [AsParameters] UserQuery query, ILogger<Program> logger)
+    public static async Task<IResult> GetUsersLogicAsync(        
+        [AsParameters] UserQuery query,
+        IUserService userService,
+        ILogger<Program> logger)
     {
         logger.LogDebug("Retrieving users");
 
@@ -26,7 +29,11 @@ public static class UserEndpointsLogic
         return Results.Ok(usersAndCount);
     }
 
-    public static async Task<IResult> GetUserByIdLogicAsync([FromRoute] Guid id, IUserService userService, ClaimsPrincipal claims, ILogger<Program> logger)
+    public static async Task<IResult> GetUserByIdLogicAsync(
+        [FromRoute] Guid id,
+        IUserService userService,
+        ClaimsPrincipal claims,
+        ILogger<Program> logger)
     {
         logger.LogDebug("Retrieving user with ID {userId}", id);
 
@@ -46,8 +53,13 @@ public static class UserEndpointsLogic
         return userDTO != null ? Results.Ok(userDTO) : Results.NotFound("User was not found");
     }
 
-    public static async Task<IResult> UpdateUserLogicAsync([FromRoute] Guid id, [FromBody] UserUpdateDTO dto, IUserService userService,
-            IValidator<UserUpdateDTO> validator, ClaimsPrincipal claims, ILogger<Program> logger)
+    public static async Task<IResult> UpdateUserLogicAsync(
+        [FromRoute] Guid id,
+        [FromBody] UserUpdateDTO dto,
+        IUserService userService,
+        IValidator<UserUpdateDTO> validator,
+        ClaimsPrincipal claims,
+        ILogger<Program> logger)
     {
         logger.LogDebug("Updating user with ID {userId}", id);
 
@@ -77,7 +89,10 @@ public static class UserEndpointsLogic
         );
     }
 
-    public static async Task<IResult> DeleteUserLogicAsync([FromRoute] Guid id, IUserService userService, ILogger<Program> logger)
+    public static async Task<IResult> DeleteUserLogicAsync(
+        [FromRoute] Guid id,
+        IUserService userService,
+        ILogger<Program> logger)
     {
         logger.LogDebug("Deleting user with ID {userId}", id);
 
@@ -89,8 +104,11 @@ public static class UserEndpointsLogic
         );
     }
 
-    public static async Task<IResult> RegisterUserLogicAsync([FromBody] UserRegistrationDTO dto, IValidator<UserRegistrationDTO> validator,
-        IUserService userService, ILogger<Program> logger)
+    public static async Task<IResult> RegisterUserLogicAsync(
+        [FromBody] UserRegistrationDTO dto,
+        IValidator<UserRegistrationDTO> validator,
+        IUserService userService,
+        ILogger<Program> logger)
     {
         logger.LogDebug("Registering new user");
 
@@ -110,8 +128,15 @@ public static class UserEndpointsLogic
         );
     }
 
-    public static async Task<IResult> UserLoginLogicAsync([FromBody] LoginDTO dto, IValidator<LoginDTO> validator, IUserService userService, IUserRepository userRepository, IUserRoleRepository userRoleRepository,
-        IUserAuthenticationService authService, ITokenGenerator tokenGenerator, ILogger<Program> logger)
+    public static async Task<IResult> UserLoginLogicAsync(
+        [FromBody] LoginDTO dto,
+        IValidator<LoginDTO> validator, 
+        IUserService userService, 
+        IUserRepository userRepository,
+        IUserRoleRepository userRoleRepository, 
+        IUserAuthenticationService authService, 
+        ITokenGenerator tokenGenerator,
+        ILogger<Program> logger)
     {
         logger.LogDebug("User logging in");
 
@@ -125,7 +150,7 @@ public static class UserEndpointsLogic
         var user = await userRepository.GetUserByEmailAsync(dto.Email);
         if (user == null)
         {
-            return Results.Problem("User not found");
+            return Results.NotFound("User not found");
         }
 
         var authenticatedUser = authService.AuthenticateUser(dto, user);
@@ -146,8 +171,15 @@ public static class UserEndpointsLogic
         return Results.Ok(new TokenResponse { Token = token });
     }
 
-    public static async Task<IResult> UpdatePasswordLogicAsync([FromBody] UpdatePasswordDTO dto, IValidator<UpdatePasswordDTO> validator,
-            IUserService userService, IUserRoleRepository userRoleRepository, IUserAuthenticationService authService, ITokenGenerator tokenGenerator, ClaimsPrincipal claims, ILogger<Program> logger)
+    public static async Task<IResult> UpdatePasswordLogicAsync(
+        [FromBody] UpdatePasswordDTO dto,
+        IValidator<UpdatePasswordDTO> validator,
+        IUserService userService,
+        IUserRoleRepository userRoleRepository,
+        IUserAuthenticationService authService,
+        ITokenGenerator tokenGenerator,
+        ClaimsPrincipal claims,
+        ILogger<Program> logger)
     {
         logger.LogDebug("User updating password");
 

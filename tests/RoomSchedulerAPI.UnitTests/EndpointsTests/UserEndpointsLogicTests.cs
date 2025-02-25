@@ -47,7 +47,7 @@ public class UserEndpointsLogicTests
         _userServiceMock.Setup(x => x.GetUsersAsync(It.IsAny<UserQuery>())).ReturnsAsync(new UsersAndCountDTO(totalCount, userDTOs));
 
         // Act
-        var result = await UserEndpointsLogic.GetUsersLogicAsync(_userServiceMock.Object, query, _loggerMock.Object);
+        var result = await UserEndpointsLogic.GetUsersLogicAsync(query, _userServiceMock.Object, _loggerMock.Object);
 
         // Assert    
         var okResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.Ok<UsersAndCountDTO>>(result);
@@ -67,7 +67,7 @@ public class UserEndpointsLogicTests
         _userServiceMock.Setup(x => x.GetUsersAsync(query)).ReturnsAsync(usersAndCountDTO);
 
         // Act
-        var result = await UserEndpointsLogic.GetUsersLogicAsync(_userServiceMock.Object, query, _loggerMock.Object);
+        var result = await UserEndpointsLogic.GetUsersLogicAsync(query, _userServiceMock.Object, _loggerMock.Object);
 
         //Assert
         var notFoundResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.NotFound<string>>(result);
@@ -612,6 +612,7 @@ public class UserEndpointsLogicTests
             Created = DateTime.UtcNow,
             Updated = DateTime.UtcNow
         };
+
         List<UserRole> userRoles = [];
 
         var validatorMock = new Mock<IValidator<LoginDTO>>();
@@ -630,17 +631,99 @@ public class UserEndpointsLogicTests
         _userRoleRepositoryMock.Setup(x => x.GetUserRoles(user.Id)).ReturnsAsync(userRoles);
 
         // Act
-        var result = await UserEndpointsLogic.UserLoginLogicAsync(loginDTO, validatorMock.Object, _userServiceMock.Object, _userRepositoryMock.Object, _userRoleRepositoryMock.Object,
-            authServiceMock.Object, tokenGeneratorMock.Object, _loggerMock.Object);
+        var result = await UserEndpointsLogic.UserLoginLogicAsync(
+            loginDTO,
+            validatorMock.Object,
+            _userServiceMock.Object,
+            _userRepositoryMock.Object,
+            _userRoleRepositoryMock.Object,
+            authServiceMock.Object,
+            tokenGeneratorMock.Object,
+            _loggerMock.Object);
 
         // Assert
         var okResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.Ok<TokenResponse>>(result);
         Assert.NotNull(okResult.Value);
         Assert.Equal(token.Token, okResult.Value.Token);
     }
-    /*
+    
     [Fact]
     public async Task UserLoginLogicAsync_WhenLoginSuccess_AndUserHasNotUpdatedPassword_ReturnsOkWithValidToken()
+    {
+        // Arrange
+        var loginDTO = new LoginDTO { Email = "testuser@unittest.com", Password = "secretPassword123!" };
+        var user = new User
+        {
+            Id = UserId.NewId,
+            FirstName = "Testuser",
+            LastName = "TestuserLastName",
+            PhoneNumber = "71625353",
+            Email = "testuser@gmail.com",
+            HashedPassword = "someHashedPassword",
+            Created = DateTime.UtcNow,
+            Updated = DateTime.UtcNow
+        };
+
+        List<UserRole> userRoles = [];
+
+        var validatorMock = new Mock<IValidator<LoginDTO>>();
+        validatorMock.Setup(x => x.ValidateAsync(loginDTO, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ValidationResult());
+
+        var authServiceMock = new Mock<IUserAuthenticationService>();
+        authServiceMock.Setup(x => x.AuthenticateUser(loginDTO, user)).Returns(true);
+
+        var token = new TokenResponse { Token = "tokenStringWithClaimPasswordUpdatedFalse" };
+        var tokenGeneratorMock = new Mock<ITokenGenerator>();
+        tokenGeneratorMock.Setup(x => x.GenerateToken(user, false,userRoles)).Returns(token.Token);
+
+        _userServiceMock.Setup(x => x.HasUpdatedPassword(user.Id)).ReturnsAsync(false);
+        _userRepositoryMock.Setup(x => x.GetUserByEmailAsync(loginDTO.Email)).ReturnsAsync(user);
+        _userRoleRepositoryMock.Setup(x => x.GetUserRoles(user.Id)).ReturnsAsync(userRoles);
+
+        // Act
+        var result = await UserEndpointsLogic.UserLoginLogicAsync(
+            loginDTO,
+            validatorMock.Object,
+            _userServiceMock.Object,
+            _userRepositoryMock.Object,
+            _userRoleRepositoryMock.Object,
+            authServiceMock.Object,
+            tokenGeneratorMock.Object,
+            _loggerMock.Object);
+
+        // Assert
+        var okResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.Ok<TokenResponse>>(result);
+        Assert.NotNull(okResult.Value);
+        Assert.Equal(token.Token, okResult.Value.Token);
+    }
+
+    [Fact]
+    public async Task UserLoginLogicAsync_WhenuserIsNotFound_ReturnsNotFoundAndMessage() 
+    {
+        // Arrange
+        var loginDTO = new LoginDTO { Email = "random@email.com", Password = "randomPassword123!" };
+        var validatorMock = new Mock<IValidator<LoginDTO>>();
+        var authServiceMock = new Mock<IUserAuthenticationService>();
+        var tokenGeneratorMock = new Mock<ITokenGenerator>();
+        var expectedString = "User not found";
+
+        _userRepositoryMock.Setup(x => x.GetUserByEmailAsync(loginDTO.Email)).ReturnsAsync((User?)null);
+        validatorMock.Setup(x => x.ValidateAsync(loginDTO, It.IsAny<CancellationToken>())).ReturnsAsync(new ValidationResult());
+
+        // Act
+        var result = await UserEndpointsLogic.UserLoginLogicAsync(loginDTO, validatorMock.Object, _userServiceMock.Object, _userRepositoryMock.Object,
+            _userRoleRepositoryMock.Object, authServiceMock.Object, tokenGeneratorMock.Object, _loggerMock.Object);
+
+        // Assert
+        var notFoundResponse = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.NotFound<string>>(result);
+        Assert.Equal(expectedString, notFoundResponse.Value);
+
+        tokenGeneratorMock.Verify(x => x.GenerateToken(It.IsAny<User>(), It.IsAny<bool>(), It.IsAny<IEnumerable<UserRole>>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task UserLoginLogicAsync_WhenAuthenticationFails_ReturnsProblemAndDetails()
     {
         // Arrange
         var loginDTO = new LoginDTO { Email = "testuser@unittest.com", Password = "secretPassword123!" };
@@ -661,56 +744,23 @@ public class UserEndpointsLogicTests
             .ReturnsAsync(new ValidationResult());
 
         var authServiceMock = new Mock<IUserAuthenticationService>();
-        authServiceMock.Setup(x => x.AuthenticateUser(loginDTO, user)).Returns(true);
+        authServiceMock.Setup(x => x.AuthenticateUser(loginDTO, user)).Returns(false);
 
-        var token = new TokenResponse { Token = "tokenStringWithClaimPasswordUpdatedFalse" };
         var tokenGeneratorMock = new Mock<ITokenGenerator>();
-        tokenGeneratorMock.Setup(x => x.GenerateTokenAsync(user, false)).ReturnsAsync(token.Token);
 
         _userServiceMock.Setup(x => x.HasUpdatedPassword(user.Id)).ReturnsAsync(false);
         _userRepositoryMock.Setup(x => x.GetUserByEmailAsync(loginDTO.Email)).ReturnsAsync(user);
 
         // Act
-        var result = await UserEndpointsLogic.UserLoginLogicAsync(loginDTO, validatorMock.Object, _userServiceMock.Object, _userRepositoryMock.Object,
-            authServiceMock.Object, tokenGeneratorMock.Object, _loggerMock.Object);
-
-        // Assert
-        var okResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.Ok<TokenResponse>>(result);
-        Assert.NotNull(okResult.Value);
-        Assert.Equal(token.Token, okResult.Value.Token);
-    }
-    
-    [Fact]
-    public async Task UserLoginLogicAsync_WhenAuthenticationFails_ReturnsProblemAndDetails()
-    {
-        // Arrange
-        var loginDTO = new LoginDTO("testuser@unittest.com", "secretPassword123!");
-        var user = new User
-        {
-            Id = UserId.NewId,
-            FirstName = "Testuser",
-            LastName = "TestuserLastName",
-            PhoneNumber = "71625353",
-            Email = "testuser@gmail.com",
-            HashedPassword = "someHashedPassword",
-            Created = DateTime.UtcNow,
-            Updated = DateTime.UtcNow
-        };
-
-        var validatorMock = new Mock<IValidator<LoginDTO>>();
-        validatorMock.Setup(x => x.ValidateAsync(loginDTO, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new ValidationResult());
-
-        var authServiceMock = new Mock<IUserAuthenticationService>();
-        authServiceMock.Setup(x => x.AuthenticateUserAsync(loginDTO)).ReturnsAsync((User?)null);
-
-        var tokenGeneratorMock = new Mock<ITokenGenerator>();
-
-        _userServiceMock.Setup(x => x.HasUpdatedPassword(user.Id)).ReturnsAsync(false);
-
-        // Act
-        var result = await UserEndpointsLogic.UserLoginLogicAsync(loginDTO, validatorMock.Object, _userServiceMock.Object,
-            authServiceMock.Object, tokenGeneratorMock.Object, _loggerMock.Object);
+        var result = await UserEndpointsLogic.UserLoginLogicAsync(
+            loginDTO,
+            validatorMock.Object,
+            _userServiceMock.Object,
+            _userRepositoryMock.Object,
+            _userRoleRepositoryMock.Object,
+            authServiceMock.Object,
+            tokenGeneratorMock.Object,
+            _loggerMock.Object);
 
         // Assert
 
@@ -719,9 +769,9 @@ public class UserEndpointsLogicTests
         Assert.Equal(StatusCodes.Status401Unauthorized, problemResult.ProblemDetails.Status);
         Assert.Equal("Login failed. Please check your username and/or password and try again.", problemResult.ProblemDetails.Detail);
 
-        tokenGeneratorMock.Verify(x => x.GenerateTokenAsync(It.IsAny<User>(), It.IsAny<bool>()), Times.Never);
+        tokenGeneratorMock.Verify(x => x.GenerateToken(It.IsAny<User>(), It.IsAny<bool>(), It.IsAny<IEnumerable<UserRole>>()), Times.Never);
     }
-
+    
     [Fact]
     public async Task UserLoginLogicAsync_WhenValidationFails_ReturnsBadRequestAndErrors()
     {
@@ -740,8 +790,15 @@ public class UserEndpointsLogicTests
         var tokenGeneratorMock = new Mock<ITokenGenerator>();
 
         // Act
-        var result = await UserEndpointsLogic.UserLoginLogicAsync(It.IsAny<LoginDTO>(), validatorMock.Object, _userServiceMock.Object, authService.Object,
-            tokenGeneratorMock.Object, _loggerMock.Object);
+        var result = await UserEndpointsLogic.UserLoginLogicAsync(
+            It.IsAny<LoginDTO>(),
+            validatorMock.Object, 
+            _userServiceMock.Object,
+            _userRepositoryMock.Object, 
+            _userRoleRepositoryMock.Object,
+            authService.Object,
+            tokenGeneratorMock.Object,
+            _loggerMock.Object);
 
         // Assert
         var badRequestResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.BadRequest<List<string>>>(result);
@@ -751,8 +808,7 @@ public class UserEndpointsLogicTests
     }
 
     #endregion UserLoginLogicAsync
-
-    */
+    
     /*
     #region UpdatePasswordLogicAsync
 
