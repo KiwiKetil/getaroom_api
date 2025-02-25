@@ -873,6 +873,12 @@ public class UserEndpointsLogicTests
         Assert.Equal(expectedErrors, badRequestResult.Value);
     }
 
+    [Fact]
+    public async Task UpdatePasswordLogic_WhenPasswordCouldNotBeUpdated_ReturnsBadRequestWith() 
+    { 
+    
+    }
+
     #endregion UpdatePasswordLogicAsync
 
     // test: AsAuthorizedUser BADREQUEST pga UpdatePasswordAsync()) returns false (selve updatepasswordasync, testes for seg selv senere, viktige her er at den returner false)

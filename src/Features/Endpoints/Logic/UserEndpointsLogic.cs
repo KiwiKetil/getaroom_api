@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using RoomSchedulerAPI.Features.Models.DTOs.Token;
 using RoomSchedulerAPI.Features.Models.DTOs.UserDTOs;
+using RoomSchedulerAPI.Features.Repositories.Interfaces;
 using RoomSchedulerAPI.Features.Services.Interfaces;
 using System.Security.Claims;
 
@@ -111,7 +112,7 @@ public static class UserEndpointsLogic
         );
     }
 
-    public static async Task<IResult> UserLoginLogicAsync([FromBody] LoginDTO dto, IValidator<LoginDTO> validator, IUserService userService,
+    public static async Task<IResult> UserLoginLogicAsync([FromBody] LoginDTO dto, IValidator<LoginDTO> validator, IUserService userService, IUserRepository userRepository,
         IUserAuthenticationService authService, ITokenGenerator tokenGenerator, ILogger<Program> logger)
     {
         logger.LogDebug("User logging in");
@@ -123,8 +124,14 @@ public static class UserEndpointsLogic
             return Results.BadRequest(errors);
         }
 
-        var authenticatedUser = await authService.AuthenticateUserAsync(dto);
-        if (authenticatedUser == null)
+        var user = await userRepository.GetUserByEmailAsync(dto.Email);
+        if (user == null)
+        {
+            return Results.Problem("User not found");
+        }
+
+        var authenticatedUser = authService.AuthenticateUser(dto, user);
+        if (!authenticatedUser)
         {
             return Results.Problem(
                 title: "An issue occured",
@@ -133,14 +140,14 @@ public static class UserEndpointsLogic
             );
         }
 
-        bool hasUpdatedPassword = await userService.HasUpdatedPassword(authenticatedUser.Id);
-        var token = await tokenGenerator.GenerateTokenAsync(authenticatedUser, hasUpdatedPassword);
+        bool hasUpdatedPassword = await userService.HasUpdatedPassword(user.Id);
+        var token = await tokenGenerator.GenerateTokenAsync(user, hasUpdatedPassword);
 
         return Results.Ok(new TokenResponse { Token = token });
     }
 
     public static async Task<IResult> UpdatePasswordLogicAsync([FromBody] UpdatePasswordDTO dto, IValidator<UpdatePasswordDTO> validator,
-            IUserService userService, ITokenGenerator tokenGenerator, ClaimsPrincipal claims, ILogger<Program> logger)
+            IUserService userService, IUserAuthenticationService authService, ITokenGenerator tokenGenerator, ClaimsPrincipal claims, ILogger<Program> logger)
     {
         logger.LogDebug("User updating password");
         
@@ -157,18 +164,20 @@ public static class UserEndpointsLogic
             return Results.BadRequest(errors);
         }
 
-        var passwordChanged = await userService.UpdatePasswordAsync(dto);
-        if (!passwordChanged)
-        {
-            return Results.BadRequest(new { Message = "Password could not be updated. Please check your username or password and try again." });
-        }
-
         var user = await userService.GetUserByEmailAsync(dto.Email);
         if (user is null)
         {
             logger.LogError("User not found by email {Email}", dto.Email);
             return Results.NotFound("User not found.");
         }
+
+        var authenticatedUser = authService.AuthenticateUser(dto, user);
+
+        var passwordChanged = await userService.UpdatePasswordAsync(dto, user);
+        if (!passwordChanged)
+        {
+            return Results.BadRequest(new { Message = "Password could not be updated. Please check your username or password and try again." });
+        }     
 
         var newToken = await tokenGenerator.GenerateTokenAsync(user, true);
 
