@@ -13,7 +13,7 @@ public class ChangePasswordDTOValidator : AbstractValidator<UpdatePasswordDTO>
             .NotEmpty()
             .EmailAddress();
 
-        RuleFor(x => x.CurrentPassword)
+        RuleFor(x => x.Password)
             .NotEmpty()
             .Matches(PasswordPattern).WithMessage("Current Password must be 8-24 characters, include at least 1 number, 1 uppercase," +
                                                   " 1 lowercase, and 1 special character ('! ? * # _ -')");
