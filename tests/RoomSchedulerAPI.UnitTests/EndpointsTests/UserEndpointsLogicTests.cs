@@ -391,7 +391,7 @@ public class UserEndpointsLogicTests
     }
 
     [Fact]
-    public async Task UpdateUserLogicAsync_WhenUserClaimIdDoesNotMatchTargetId_ReturnsForbidden()
+    public async Task UpdateUserLogicAsync_WhenUserNameIdentifierClaimDoesNotMatchTarget_ReturnsForbidden()
     {
         // Arrange
         var validatorMock = new Mock<IValidator<UserUpdateDTO>>();
@@ -949,24 +949,35 @@ public class UserEndpointsLogicTests
         Assert.NotNull(okResult.Value);
         Assert.Equal("tokenStringValue", okResult.Value.Token);
     }
-    /*
+    
     [Fact]
-    public async Task UpdatePasswordLogicAsync_WhenUserIdClaimIsNull_ReturnsForbidden()
+    public async Task UpdatePasswordLogicAsync_WhenUserNameClaimIsNull_ReturnsForbidden()
     {
         // Arrange
-        var updatePasswordDTO = new UpdatePasswordDTO("email@email.com", "currentPassword", "NewPassword123!");
+        var updatePasswordDTO = new UpdatePasswordDTO { Email = "email@email.com", Password = "currentPassword", NewPassword = "NewPassword123!" };
         var validatorMock = new Mock<IValidator<UpdatePasswordDTO>>();
+        validatorMock.Setup(x => x.ValidateAsync(updatePasswordDTO, It.IsAny<CancellationToken>())).ReturnsAsync(new ValidationResult());
+
         var tokenGeneratorMock = new Mock<ITokenGenerator>();
         var claimsPrincipal = new ClaimsPrincipal();
 
+        var authServiceMock = new Mock<IUserAuthenticationService>();
+
         // Act
-        var result = await UserEndpointsLogic.UpdatePasswordLogicAsync(updatePasswordDTO, validatorMock.Object, _userServiceMock.Object, 
-            tokenGeneratorMock.Object, claimsPrincipal, _loggerMock.Object);
+        var result = await UserEndpointsLogic.UpdatePasswordLogicAsync(
+            updatePasswordDTO, 
+            validatorMock.Object,
+            _userServiceMock.Object, 
+            _userRoleRepositoryMock.Object,
+            authServiceMock.Object,
+            tokenGeneratorMock.Object,
+            claimsPrincipal,
+            _loggerMock.Object);
 
         //Assert
         Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.ForbidHttpResult>(result);
     }
-
+    /*
     [Fact]
     public async Task UpdatePasswordLogicAsync_WhenNameClaimDoesNotMatchTarget_ReturnsForbidden()
     {
