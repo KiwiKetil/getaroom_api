@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using RoomSchedulerAPI.Features.Models.DTOs.Token;
 using RoomSchedulerAPI.Features.Models.DTOs.UserDTOs;
+using RoomSchedulerAPI.Features.Repositories;
 using RoomSchedulerAPI.Features.Repositories.Interfaces;
 using RoomSchedulerAPI.Features.Services.Interfaces;
 using System.Security.Claims;
@@ -109,7 +110,7 @@ public static class UserEndpointsLogic
         );
     }
 
-    public static async Task<IResult> UserLoginLogicAsync([FromBody] LoginDTO dto, IValidator<LoginDTO> validator, IUserService userService, IUserRepository userRepository,
+    public static async Task<IResult> UserLoginLogicAsync([FromBody] LoginDTO dto, IValidator<LoginDTO> validator, IUserService userService, IUserRepository userRepository, IUserRoleRepository userRoleRepository,
         IUserAuthenticationService authService, ITokenGenerator tokenGenerator, ILogger<Program> logger)
     {
         logger.LogDebug("User logging in");
@@ -138,13 +139,15 @@ public static class UserEndpointsLogic
         }
 
         bool hasUpdatedPassword = await userService.HasUpdatedPassword(user.Id);
-        var token = await tokenGenerator.GenerateTokenAsync(user, hasUpdatedPassword);
+        var userRoles = await userRoleRepository.GetUserRoles(user.Id);
+
+        var token = tokenGenerator.GenerateToken(user, hasUpdatedPassword, userRoles);
 
         return Results.Ok(new TokenResponse { Token = token });
     }
 
     public static async Task<IResult> UpdatePasswordLogicAsync([FromBody] UpdatePasswordDTO dto, IValidator<UpdatePasswordDTO> validator,
-            IUserService userService, IUserAuthenticationService authService, ITokenGenerator tokenGenerator, ClaimsPrincipal claims, ILogger<Program> logger)
+            IUserService userService, IUserRoleRepository userRoleRepository, IUserAuthenticationService authService, ITokenGenerator tokenGenerator, ClaimsPrincipal claims, ILogger<Program> logger)
     {
         logger.LogDebug("User updating password");
 
@@ -174,9 +177,9 @@ public static class UserEndpointsLogic
         if (!passwordChanged)
         {
             return Results.BadRequest(new { Message = "Password could not be updated. Please check your username or password and try again." });
-        }     
-
-        var newToken = await tokenGenerator.GenerateTokenAsync(user, true);
+        }
+        var userRoles = await userRoleRepository.GetUserRoles(user.Id);
+        var newToken = tokenGenerator.GenerateToken(user, true, userRoles);
 
         return Results.Ok(new TokenResponse { Token = newToken });
     }

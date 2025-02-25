@@ -8,13 +8,12 @@ using System.Text;
 
 namespace RoomSchedulerAPI.Features.Services;
 
-public class TokenGenerator(IUserRoleRepository userRoleRepository, IConfiguration config, ILogger<TokenGenerator> logger) : ITokenGenerator
+public class TokenGenerator(IConfiguration config, ILogger<TokenGenerator> logger) : ITokenGenerator
 {
-    private readonly IUserRoleRepository _userRoleRepository = userRoleRepository;
     private readonly IConfiguration _config = config;
     private readonly ILogger _logger = logger;
 
-    public async Task<string> GenerateTokenAsync(User authenticateduser, bool hasUpdatedPassword)
+    public string GenerateToken(User authenticateduser, bool hasUpdatedPassword, IEnumerable<UserRole> userRoles)
     {
         if (authenticateduser == null)
         {
@@ -26,7 +25,6 @@ public class TokenGenerator(IUserRoleRepository userRoleRepository, IConfigurati
         var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]!));
         var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
-        var userRoles = await _userRoleRepository.GetUserRoles(authenticateduser.Id);
         var userId = authenticateduser.Id;
         var userName = authenticateduser.Email;
 
