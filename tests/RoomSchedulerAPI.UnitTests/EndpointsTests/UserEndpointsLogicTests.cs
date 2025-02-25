@@ -47,7 +47,10 @@ public class UserEndpointsLogicTests
         _userServiceMock.Setup(x => x.GetUsersAsync(It.IsAny<UserQuery>())).ReturnsAsync(new UsersAndCountDTO(totalCount, userDTOs));
 
         // Act
-        var result = await UserEndpointsLogic.GetUsersLogicAsync(query, _userServiceMock.Object, _loggerMock.Object);
+        var result = await UserEndpointsLogic.GetUsersLogicAsync(
+            query,
+            _userServiceMock.Object,
+            _loggerMock.Object);
 
         // Assert    
         var okResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.Ok<UsersAndCountDTO>>(result);
@@ -67,7 +70,10 @@ public class UserEndpointsLogicTests
         _userServiceMock.Setup(x => x.GetUsersAsync(query)).ReturnsAsync(usersAndCountDTO);
 
         // Act
-        var result = await UserEndpointsLogic.GetUsersLogicAsync(query, _userServiceMock.Object, _loggerMock.Object);
+        var result = await UserEndpointsLogic.GetUsersLogicAsync(
+            query,
+            _userServiceMock.Object,
+            _loggerMock.Object);
 
         //Assert
         var notFoundResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.NotFound<string>>(result);
@@ -97,7 +103,11 @@ public class UserEndpointsLogicTests
         _userServiceMock.Setup(x => x.GetUserByIdAsync(id)).ReturnsAsync(userDTO);
 
         // Act
-        var result = await UserEndpointsLogic.GetUserByIdLogicAsync(id, _userServiceMock.Object, claimsPrincipal, _loggerMock.Object);
+        var result = await UserEndpointsLogic.GetUserByIdLogicAsync(
+            id,
+            _userServiceMock.Object,
+            claimsPrincipal,
+            _loggerMock.Object);
 
         // Assert
         var okResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.Ok<UserDTO>>(result);
@@ -125,7 +135,11 @@ public class UserEndpointsLogicTests
         _userServiceMock.Setup(x => x.GetUserByIdAsync(id)).ReturnsAsync(userDTO);
 
         // Act
-        var result = await UserEndpointsLogic.GetUserByIdLogicAsync(id, _userServiceMock.Object, claimsPrincipal, _loggerMock.Object);
+        var result = await UserEndpointsLogic.GetUserByIdLogicAsync(
+            id,
+            _userServiceMock.Object,
+            claimsPrincipal,
+            _loggerMock.Object);
 
         // Assert
         var okResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.Ok<UserDTO>>(result);
@@ -150,7 +164,11 @@ public class UserEndpointsLogicTests
         _userServiceMock.Setup(x => x.GetUserByIdAsync(id)).ReturnsAsync((UserDTO?)null);
 
         // Act
-        var result = await UserEndpointsLogic.GetUserByIdLogicAsync(id, _userServiceMock.Object, claimsPrincipal, _loggerMock.Object);
+        var result = await UserEndpointsLogic.GetUserByIdLogicAsync(
+            id,
+            _userServiceMock.Object,
+            claimsPrincipal,
+            _loggerMock.Object);
 
         // Assert
         var NotFoundResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.NotFound<string>>(result);
@@ -174,7 +192,11 @@ public class UserEndpointsLogicTests
         _userServiceMock.Setup(x => x.GetUserByIdAsync(id)).ReturnsAsync((UserDTO?)null);
 
         // Act
-        var result = await UserEndpointsLogic.GetUserByIdLogicAsync(id, _userServiceMock.Object, claimsPrincipal, _loggerMock.Object);
+        var result = await UserEndpointsLogic.GetUserByIdLogicAsync(
+            id, 
+            _userServiceMock.Object,
+            claimsPrincipal,
+            _loggerMock.Object);
 
         // Assert
         Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.ForbidHttpResult>(result);
@@ -195,7 +217,11 @@ public class UserEndpointsLogicTests
         _userServiceMock.Setup(x => x.GetUserByIdAsync(id)).ReturnsAsync((UserDTO?)null);
 
         // Act
-        var result = await UserEndpointsLogic.GetUserByIdLogicAsync(id, _userServiceMock.Object, claimsPrincipal, _loggerMock.Object);
+        var result = await UserEndpointsLogic.GetUserByIdLogicAsync(
+            id,
+            _userServiceMock.Object, 
+            claimsPrincipal,
+            _loggerMock.Object);
 
         // Assert
         Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.ForbidHttpResult>(result);
@@ -217,7 +243,11 @@ public class UserEndpointsLogicTests
         _userServiceMock.Setup(x => x.GetUserByIdAsync(id)).ReturnsAsync((UserDTO?)null);
 
         // Act
-        var result = await UserEndpointsLogic.GetUserByIdLogicAsync(id, _userServiceMock.Object, claimsPrincipal, _loggerMock.Object);
+        var result = await UserEndpointsLogic.GetUserByIdLogicAsync(
+            id,
+            _userServiceMock.Object,
+            claimsPrincipal,
+            _loggerMock.Object);
 
         // Assert
         Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.ForbidHttpResult>(result);
@@ -251,7 +281,13 @@ public class UserEndpointsLogicTests
             .ReturnsAsync(userDTO);
 
         //Act
-        var result = await UserEndpointsLogic.UpdateUserLogicAsync(id, userUpdateDTO, _userServiceMock.Object, validatorMock.Object, claimsPrincipal, _loggerMock.Object);
+        var result = await UserEndpointsLogic.UpdateUserLogicAsync(
+            id,
+            userUpdateDTO,
+            _userServiceMock.Object,
+            validatorMock.Object,
+            claimsPrincipal,
+            _loggerMock.Object);
 
         //Assert
         var okResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.Ok<UserDTO>>(result);
@@ -290,7 +326,13 @@ public class UserEndpointsLogicTests
             .ReturnsAsync(userDTO);
 
         // Act
-        var result = await UserEndpointsLogic.UpdateUserLogicAsync(id, userUpdateDTO, _userServiceMock.Object, validatorMock.Object, claimsPrincipal, _loggerMock.Object);
+        var result = await UserEndpointsLogic.UpdateUserLogicAsync(
+            id,
+            userUpdateDTO,
+            _userServiceMock.Object,
+            validatorMock.Object,
+            claimsPrincipal,
+            _loggerMock.Object);
 
         // Assert
         var okResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.Ok<UserDTO>>(result);
@@ -329,7 +371,13 @@ public class UserEndpointsLogicTests
             .ReturnsAsync(userDTO);
 
         // Act
-        var result = await UserEndpointsLogic.UpdateUserLogicAsync(id, userUpdateDTO, _userServiceMock.Object, validatorMock.Object, claimsPrincipal, _loggerMock.Object);
+        var result = await UserEndpointsLogic.UpdateUserLogicAsync(
+            id,
+            userUpdateDTO,
+            _userServiceMock.Object,
+            validatorMock.Object,
+            claimsPrincipal,
+            _loggerMock.Object);
 
         // Assert
         Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.ForbidHttpResult>(result);
@@ -355,7 +403,13 @@ public class UserEndpointsLogicTests
             .ReturnsAsync(new ValidationResult());
 
         // Act
-        var result = await UserEndpointsLogic.UpdateUserLogicAsync(id, userUpdateDTO, _userServiceMock.Object, validatorMock.Object, claimsPrincipal, _loggerMock.Object);
+        var result = await UserEndpointsLogic.UpdateUserLogicAsync(
+            id, 
+            userUpdateDTO,
+            _userServiceMock.Object,
+            validatorMock.Object,
+            claimsPrincipal,
+            _loggerMock.Object);
 
         // Assert
         Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.ForbidHttpResult>(result);
@@ -382,7 +436,13 @@ public class UserEndpointsLogicTests
             .ReturnsAsync(new ValidationResult());
 
         // Act
-        var result = await UserEndpointsLogic.UpdateUserLogicAsync(id, userUpdateDTO, _userServiceMock.Object, validatorMock.Object, claimsPrincipal, _loggerMock.Object);
+        var result = await UserEndpointsLogic.UpdateUserLogicAsync(
+            id,
+            userUpdateDTO,
+            _userServiceMock.Object,
+            validatorMock.Object,
+            claimsPrincipal,
+            _loggerMock.Object);
 
         // Assert
         Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.ForbidHttpResult>(result);
@@ -421,7 +481,13 @@ public class UserEndpointsLogicTests
             .ReturnsAsync(userDTO);
 
         // Act
-        var result = await UserEndpointsLogic.UpdateUserLogicAsync(id, userUpdateDTO, _userServiceMock.Object, validatorMock.Object, claimsPrincipal, _loggerMock.Object);
+        var result = await UserEndpointsLogic.UpdateUserLogicAsync(
+            id,
+            userUpdateDTO,
+            _userServiceMock.Object, 
+            validatorMock.Object,
+            claimsPrincipal,
+            _loggerMock.Object);
 
         // Assert
         var badRequestResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.BadRequest<List<string>>>(result);
@@ -454,7 +520,13 @@ public class UserEndpointsLogicTests
             .ReturnsAsync((UserDTO?)null);
 
         // Act
-        var result = await UserEndpointsLogic.UpdateUserLogicAsync(id, userUpdateDTO, _userServiceMock.Object, validatorMock.Object, claimsPrincipal, _loggerMock.Object);
+        var result = await UserEndpointsLogic.UpdateUserLogicAsync(
+            id,
+            userUpdateDTO,
+            _userServiceMock.Object,
+            validatorMock.Object,
+            claimsPrincipal,
+            _loggerMock.Object);
 
         // Assert
         var problemresult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.ProblemHttpResult>(result);
@@ -479,7 +551,10 @@ public class UserEndpointsLogicTests
         _userServiceMock.Setup(x => x.DeleteUserAsync(id)).ReturnsAsync(userDTO);
 
         // Act
-        var result = await UserEndpointsLogic.DeleteUserLogicAsync(id, _userServiceMock.Object, _loggerMock.Object);
+        var result = await UserEndpointsLogic.DeleteUserLogicAsync(
+            id,
+            _userServiceMock.Object,
+            _loggerMock.Object);
 
         // Assert
         var okResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.Ok<UserDTO>>(result);
@@ -497,7 +572,10 @@ public class UserEndpointsLogicTests
         _userServiceMock.Setup(x => x.DeleteUserAsync(id)).ReturnsAsync((UserDTO?)null);
 
         // Act
-        var result = await UserEndpointsLogic.DeleteUserLogicAsync(id, _userServiceMock.Object, _loggerMock.Object);
+        var result = await UserEndpointsLogic.DeleteUserLogicAsync(
+            id,
+            _userServiceMock.Object,
+            _loggerMock.Object);
 
         // Assert
         var problemResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.ProblemHttpResult>(result);
@@ -527,7 +605,11 @@ public class UserEndpointsLogicTests
             .ReturnsAsync(userDTO);
 
         // Act
-        var result = await UserEndpointsLogic.RegisterUserLogicAsync(userRegistrationDTO, validatorMock.Object, _userServiceMock.Object, _loggerMock.Object);
+        var result = await UserEndpointsLogic.RegisterUserLogicAsync(
+            userRegistrationDTO,
+            validatorMock.Object,
+            _userServiceMock.Object,
+            _loggerMock.Object);
 
         // Assert
         var okResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.Ok<UserDTO>>(result);
@@ -552,7 +634,11 @@ public class UserEndpointsLogicTests
         _userServiceMock.Setup(x => x.RegisterUserAsync(userRegistrationDTO)).ReturnsAsync((UserDTO?)null);
 
         // Act
-        var result = await UserEndpointsLogic.RegisterUserLogicAsync(userRegistrationDTO, validatorMock.Object, _userServiceMock.Object, _loggerMock.Object);
+        var result = await UserEndpointsLogic.RegisterUserLogicAsync(
+            userRegistrationDTO,
+            validatorMock.Object,
+            _userServiceMock.Object,
+            _loggerMock.Object);
 
         // Assert
         var problemresult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.ProblemHttpResult>(result);
@@ -585,7 +671,11 @@ public class UserEndpointsLogicTests
             .ReturnsAsync(userDTO);
 
         // Act
-        var result = await UserEndpointsLogic.RegisterUserLogicAsync(userRegistrationDTO, validatorMock.Object, _userServiceMock.Object, _loggerMock.Object);
+        var result = await UserEndpointsLogic.RegisterUserLogicAsync(
+            userRegistrationDTO,
+            validatorMock.Object, 
+            _userServiceMock.Object,
+            _loggerMock.Object);
 
         // Assert
         var badRequestResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.BadRequest<List<string>>>(result);
@@ -712,8 +802,15 @@ public class UserEndpointsLogicTests
         validatorMock.Setup(x => x.ValidateAsync(loginDTO, It.IsAny<CancellationToken>())).ReturnsAsync(new ValidationResult());
 
         // Act
-        var result = await UserEndpointsLogic.UserLoginLogicAsync(loginDTO, validatorMock.Object, _userServiceMock.Object, _userRepositoryMock.Object,
-            _userRoleRepositoryMock.Object, authServiceMock.Object, tokenGeneratorMock.Object, _loggerMock.Object);
+        var result = await UserEndpointsLogic.UserLoginLogicAsync(
+            loginDTO,
+            validatorMock.Object, 
+            _userServiceMock.Object,
+            _userRepositoryMock.Object,
+            _userRoleRepositoryMock.Object,
+            authServiceMock.Object, 
+            tokenGeneratorMock.Object,
+            _loggerMock.Object);
 
         // Assert
         var notFoundResponse = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.NotFound<string>>(result);
