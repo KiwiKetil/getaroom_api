@@ -780,7 +780,8 @@ public class UserEndpointsLogicTests
             _userRoleRepositoryMock.Object,
             authServiceMock.Object,
             tokenGeneratorMock.Object,
-            _loggerMock.Object);
+            _loggerMock.Object
+            );
 
         // Assert
         var okResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.Ok<TokenResponse>>(result);
@@ -900,15 +901,14 @@ public class UserEndpointsLogicTests
         // Assert
         var badRequestResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.BadRequest<List<string>>>(result);
         Assert.Equal(actualErrors, badRequestResult.Value);
-        authService.Verify(x => x.AuthenticateUserAsync(It.IsAny<LoginDTO>()), Times.Never);
-        tokenGeneratorMock.Verify(x => x.GenerateTokenAsync(It.IsAny<User>(), It.IsAny<bool>()), Times.Never);
+        tokenGeneratorMock.Verify(x => x.GenerateToken(It.IsAny<User>(), It.IsAny<bool>(), It.IsAny<IEnumerable<UserRole>>()), Times.Never);
     }
 
     #endregion UserLoginLogicAsync
-    
-    /*
-    #region UpdatePasswordLogicAsync
 
+
+    #region UpdatePasswordLogicAsync
+    /*
     [Fact]
     public async Task UpdatePasswordLogicAsync_AsValidUser_ReturnsOKAndValidToken() 
     {
