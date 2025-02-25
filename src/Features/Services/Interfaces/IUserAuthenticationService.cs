@@ -5,5 +5,5 @@ namespace RoomSchedulerAPI.Features.Services.Interfaces;
 
 public interface IUserAuthenticationService
 {
-    Task<User?> AuthenticateUserAsync(LoginDTO dto);
+    bool AuthenticateUser(IAuthorizableDTO dto, User user);
 }

@@ -1,7 +1,10 @@
-﻿namespace RoomSchedulerAPI.Features.Models.DTOs.UserDTOs;
+﻿using RoomSchedulerAPI.Features.Services.Interfaces;
 
-public record LoginDTO
-(
-    string Email,
-    string Password
-);
+namespace RoomSchedulerAPI.Features.Models.DTOs.UserDTOs;
+
+public record LoginDTO : IAuthorizableDTO
+{
+    public required string Email { get; init; }
+    public required string Password { get; init; }
+}
+

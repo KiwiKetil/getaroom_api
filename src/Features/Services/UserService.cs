@@ -69,23 +69,9 @@ public class UserService(IUserRepository userRepository, IPasswordHistoryReposit
         return userDTO;
     }
 
-    public async Task<bool> UpdatePasswordAsync(UpdatePasswordDTO dto) 
+    public async Task<bool> UpdatePasswordAsync(UpdatePasswordDTO dto, User user) 
     {
         _logger.LogDebug("Updating password for user {Email}", dto.Email);
-
-        var user = await _userRepository.GetUserByEmailAsync(dto.Email);
-        if (user == null)
-        {
-            _logger.LogDebug("User not found");
-            return false;
-        }
-
-        var verified = BCrypt.Net.BCrypt.Verify(dto.CurrentPassword, user.HashedPassword);
-        if (!verified)
-        {
-            _logger.LogDebug("Invalid current password");
-            return false;
-        }
 
         string newHashedPassword = BCrypt.Net.BCrypt.HashPassword(dto.NewPassword);
 
