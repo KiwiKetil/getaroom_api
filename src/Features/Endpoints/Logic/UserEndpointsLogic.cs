@@ -204,6 +204,14 @@ public static class UserEndpointsLogic
         }
 
         var authenticatedUser = authService.AuthenticateUser(dto, user);
+        if (!authenticatedUser)
+        {
+            return Results.Problem(
+                title: "Authentication Failed",
+                statusCode: StatusCodes.Status401Unauthorized,
+                detail: "User authentication failed. Please check your credentials and try again."
+            );
+        }
 
         var passwordChanged = await userService.UpdatePasswordAsync(dto, user);
         if (!passwordChanged)

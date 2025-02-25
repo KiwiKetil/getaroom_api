@@ -906,9 +906,8 @@ public class UserEndpointsLogicTests
 
     #endregion UserLoginLogicAsync
 
-
     #region UpdatePasswordLogicAsync
-    /*
+    
     [Fact]
     public async Task UpdatePasswordLogicAsync_AsValidUser_ReturnsOKAndValidToken() 
     {
@@ -925,22 +924,32 @@ public class UserEndpointsLogicTests
         ], "TestAuthentication");
         var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
 
-        var tokengeneratorMock = new Mock<ITokenGenerator>();
-        tokengeneratorMock.Setup(x => x.GenerateToken(It.IsAny<User>(), true)).ReturnsAsync("tokenStringValue");
+        var authServiceMock = new Mock<IUserAuthenticationService>();
+        authServiceMock.Setup(x => x.AuthenticateUser(updatePasswordDTO, It.IsAny<User>())).Returns(true); ;
 
-        _userServiceMock.Setup(x => x.UpdatePasswordAsync(updatePasswordDTO)).ReturnsAsync(true);
+        var tokengeneratorMock = new Mock<ITokenGenerator>();
+        tokengeneratorMock.Setup(x => x.GenerateToken(It.IsAny<User>(), true, It.IsAny<IEnumerable<UserRole>>())).Returns("tokenStringValue");
+
+        _userServiceMock.Setup(x => x.UpdatePasswordAsync(updatePasswordDTO, It.IsAny<User>())).ReturnsAsync(true);
         _userServiceMock.Setup(x => x.GetUserByEmailAsync(updatePasswordDTO.Email)).ReturnsAsync(new User { Email = updatePasswordDTO.Email});
 
         // Act
-        var result = await UserEndpointsLogic.UpdatePasswordLogicAsync(updatePasswordDTO, validatorMock.Object, _userServiceMock.Object,
-            tokengeneratorMock.Object, claimsPrincipal, _loggerMock.Object);
+        var result = await UserEndpointsLogic.UpdatePasswordLogicAsync(
+            updatePasswordDTO,
+            validatorMock.Object,
+            _userServiceMock.Object,
+            _userRoleRepositoryMock.Object,
+            authServiceMock.Object,
+            tokengeneratorMock.Object,
+            claimsPrincipal,
+            _loggerMock.Object);
 
         // Assert
         var okResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.Ok<TokenResponse>>(result);
         Assert.NotNull(okResult.Value);
         Assert.Equal("tokenStringValue", okResult.Value.Token);
     }
-    
+    /*
     [Fact]
     public async Task UpdatePasswordLogicAsync_WhenUserIdClaimIsNull_ReturnsForbidden()
     {
@@ -1043,6 +1052,11 @@ public class UserEndpointsLogicTests
     }
 
     // when user is null, notfound test
+    //// test:  return Results.Problem(
+    //title: "Authentication Failed",
+    //            statusCode: StatusCodes.Status401Unauthorized,
+    //            detail: "User authentication failed. Please check your credentials and try again."
+    //        );
     */
     #endregion UpdatePasswordLogicAsync
 
