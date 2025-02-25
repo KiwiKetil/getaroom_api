@@ -50,8 +50,14 @@ public static class UserEndpointsLogic
     {
         logger.LogDebug("Updating user with ID {userId}", id);
 
-        var isAdmin = claims.IsInRole("Admin");
+        var validationResult = await validator.ValidateAsync(dto);
+        if (!validationResult.IsValid)
+        {
+            var errors = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
+            return Results.BadRequest(errors);
+        }
 
+        var isAdmin = claims.IsInRole("Admin");
         if (!isAdmin)
         {
             var userIdClaim = claims.FindFirst("sub") ?? claims.FindFirst(ClaimTypes.NameIdentifier);
@@ -60,14 +66,6 @@ public static class UserEndpointsLogic
             {
                 return Results.Forbid();
             }
-        }
-
-        var validationResult = await validator.ValidateAsync(dto);
-
-        if (!validationResult.IsValid)
-        {
-            var errors = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
-            return Results.BadRequest(errors);
         }
 
         var userDTO = await userService.UpdateUserAsync(id, dto);
@@ -96,7 +94,6 @@ public static class UserEndpointsLogic
         logger.LogDebug("Registering new user");
 
         var validationResult = await validator.ValidateAsync(dto);
-
         if (!validationResult.IsValid)
         {
             var errors = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
@@ -150,12 +147,6 @@ public static class UserEndpointsLogic
             IUserService userService, IUserAuthenticationService authService, ITokenGenerator tokenGenerator, ClaimsPrincipal claims, ILogger<Program> logger)
     {
         logger.LogDebug("User updating password");
-        
-        var userIdClaim = claims.FindFirst("name") ?? claims.FindFirst(ClaimTypes.Name);
-        if (userIdClaim == null || userIdClaim.Value != dto.Email || !claims.IsInRole("User"))
-        {
-            return Results.Forbid();
-        }        
 
         var validationResult = await validator.ValidateAsync(dto);
         if (!validationResult.IsValid)
@@ -163,6 +154,12 @@ public static class UserEndpointsLogic
             var errors = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
             return Results.BadRequest(errors);
         }
+
+        var userIdClaim = claims.FindFirst("name") ?? claims.FindFirst(ClaimTypes.Name);
+        if (userIdClaim == null || userIdClaim.Value != dto.Email || !claims.IsInRole("User"))
+        {
+            return Results.Forbid();
+        }               
 
         var user = await userService.GetUserByEmailAsync(dto.Email);
         if (user is null)
