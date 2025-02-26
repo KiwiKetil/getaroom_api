@@ -977,14 +977,18 @@ public class UserEndpointsLogicTests
         //Assert
         Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.ForbidHttpResult>(result);
     }
-    /*
+    
     [Fact]
     public async Task UpdatePasswordLogicAsync_WhenNameClaimDoesNotMatchTarget_ReturnsForbidden()
     {
         // Arrange
-        var updatePasswordDTO = new UpdatePasswordDTO("someemail@abc.no", "currPass", "Newpass123!");
-        var validatorMock = new Mock<IValidator<UpdatePasswordDTO>>(); 
-        var tokenGeneratorMock = new Mock<ITokenGenerator>(); 
+        var updatePasswordDTO = new UpdatePasswordDTO { Email = "someemail@abc.no", Password = "currPass", NewPassword = "Newpass123!" };
+        var validatorMock = new Mock<IValidator<UpdatePasswordDTO>>();
+
+        validatorMock.Setup(x => x.ValidateAsync(updatePasswordDTO, It.IsAny<CancellationToken>())).ReturnsAsync(new ValidationResult());
+        var tokenGeneratorMock = new Mock<ITokenGenerator>();
+
+        var authServiceMock = new Mock<IUserAuthenticationService>();
 
         var claimsIdentity = new ClaimsIdentity(
         [
@@ -994,19 +998,31 @@ public class UserEndpointsLogicTests
         var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
 
         // Act
-        var result = await UserEndpointsLogic.UpdatePasswordLogicAsync(updatePasswordDTO, validatorMock.Object, _userServiceMock.Object,
-            tokenGeneratorMock.Object, claimsPrincipal, _loggerMock.Object);
+        var result = await UserEndpointsLogic.UpdatePasswordLogicAsync(
+            updatePasswordDTO, 
+            validatorMock.Object, 
+            _userServiceMock.Object,
+            _userRoleRepositoryMock.Object,
+            authServiceMock.Object,
+            tokenGeneratorMock.Object,
+            claimsPrincipal,
+            _loggerMock.Object);
 
         //Assert
         Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.ForbidHttpResult>(result);
     }
-    
+
     [Fact]
     public async Task UpdatePasswordLogicAsync_WhenUserRoleIsMissingFromClaims_ReturnsForbidden()
     {
         // Arrange
-        var updatePasswordDTO = new UpdatePasswordDTO("epost@epost.no", "GammeltPassord123!", "NyttPasssord123!");
+        var updatePasswordDTO = new UpdatePasswordDTO { Email = "epost@epost.no", Password = "GammeltPassord123!", NewPassword = "NyttPasssord123!" };
+
         var validatorMock = new Mock<IValidator<UpdatePasswordDTO>>();
+        validatorMock.Setup(x => x.ValidateAsync(updatePasswordDTO, It.IsAny<CancellationToken>())).ReturnsAsync(new ValidationResult());
+
+        var authServiceMock = new Mock<IUserAuthenticationService>();
+
         var tokenGeneratorMock = new Mock<ITokenGenerator>();
         var claimsIdentity = new ClaimsIdentity(
         [
@@ -1016,13 +1032,20 @@ public class UserEndpointsLogicTests
         var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
 
         // Act
-        var result = await UserEndpointsLogic.UpdatePasswordLogicAsync(updatePasswordDTO, validatorMock.Object, _userServiceMock.Object, 
-            tokenGeneratorMock.Object, claimsPrincipal, _loggerMock.Object);
+        var result = await UserEndpointsLogic.UpdatePasswordLogicAsync(
+            updatePasswordDTO,
+            validatorMock.Object,
+            _userServiceMock.Object,
+            _userRoleRepositoryMock.Object,
+            authServiceMock.Object,
+            tokenGeneratorMock.Object,
+            claimsPrincipal,
+            _loggerMock.Object);
 
         // Assert
         Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.ForbidHttpResult>(result);
     }
-
+    /*
     [Fact]
     public async Task UpdatePasswordLogicAsync_WhenValidationFails_ReturnsBadRequest()
     {
@@ -1069,6 +1092,8 @@ public class UserEndpointsLogicTests
     //            detail: "User authentication failed. Please check your credentials and try again."
     //        );
     */
+
+    // dobbeltsjekk at alle tester er med for UpdatePasswordLogic!
     #endregion UpdatePasswordLogicAsync
 
     // test: AsAuthorizedUser BADREQUEST pga UpdatePasswordAsync()) returns false (selve updatepasswordasync, testes for seg selv senere, viktige her er at den returner false)
