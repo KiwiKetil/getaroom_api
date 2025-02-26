@@ -6,7 +6,8 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using RoomSchedulerAPI.Features.Endpoints.Logic;
 using RoomSchedulerAPI.Features.HateOAS;
-using RoomSchedulerAPI.Features.Models.DTOs.Token;
+using RoomSchedulerAPI.Features.Models.DTOs.ResultsDTOs;
+using RoomSchedulerAPI.Features.Models.DTOs.TokenDTOs;
 using RoomSchedulerAPI.Features.Models.DTOs.UserDTOs;
 using RoomSchedulerAPI.Features.Models.Entities;
 using RoomSchedulerAPI.Features.Repositories.Interfaces;
@@ -56,7 +57,7 @@ public class UserEndpointsLogicTests
     }
 
     [Fact]
-    public async Task GetUsersLogicAsync_WhenNoUsersExist_ReturnsNotFoundWithEmptyData()
+    public async Task GetUsersLogicAsync_WhenNoUsersExist_ReturnsNotFoundWithMessage()
     {
         // Arrange
         var query = new UserQuery(null, null, null, null);
@@ -71,9 +72,9 @@ public class UserEndpointsLogicTests
             _loggerMock.Object);
 
         //Assert
-        var notFoundResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.NotFound<string>>(result);
+        var notFoundResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.NotFound<ResponseDTO>>(result);
         Assert.NotNull(notFoundResult.Value);
-        Assert.Equal("No users found", notFoundResult.Value);
+        Assert.Equal("No users found", notFoundResult.Value.Message);
     }
 
     #endregion GetUsers
@@ -144,7 +145,7 @@ public class UserEndpointsLogicTests
     }
 
     [Fact]
-    public async Task GetUserByIdLogicAsync_AsAdmin_WhenUserDoesNotExist_ReturnsNotFound()
+    public async Task GetUserByIdLogicAsync_AsAdmin_WhenUserDoesNotExist_ReturnsNotFoundAndMessage()
     {
         // Arrange
         var id = Guid.NewGuid();
@@ -166,9 +167,9 @@ public class UserEndpointsLogicTests
             _loggerMock.Object);
 
         // Assert
-        var NotFoundResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.NotFound<string>>(result);
-        Assert.NotNull(NotFoundResult);
-        Assert.Equal("User was not found", NotFoundResult.Value);
+        var NotFoundResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.NotFound<ResponseDTO>>(result);
+        Assert.NotNull(NotFoundResult.Value);
+        Assert.Equal("User was not found", NotFoundResult.Value.Message);
     }
 
     [Fact]
@@ -490,7 +491,7 @@ public class UserEndpointsLogicTests
     }
 
     [Fact]
-    public async Task UpdateUserLogicAsync_WhenResultIsNull_ReturnsProblemAndDetails()
+    public async Task UpdateUserLogicAsync_WhenResultIsNull_ReturnsConflictAndMessage()
     {
         // Arrange
         var validatorMock = new Mock<IValidator<UserUpdateDTO>>();
@@ -524,10 +525,9 @@ public class UserEndpointsLogicTests
             _loggerMock.Object);
 
         // Assert
-        var problemresult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.ProblemHttpResult>(result);
-        Assert.Equal("An issue occured", problemresult.ProblemDetails.Title);
-        Assert.Equal(StatusCodes.Status409Conflict, problemresult.ProblemDetails.Status);
-        Assert.Equal("User could not be updated", problemresult.ProblemDetails.Detail);
+        var conflictResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.Conflict<ResponseDTO>>(result);
+        Assert.NotNull(conflictResult.Value);
+        Assert.Equal("User could not be updated", conflictResult.Value.Message);
     }
 
     #endregion UpdateUserLogicAsync
@@ -558,7 +558,7 @@ public class UserEndpointsLogicTests
     }
 
     [Fact]
-    public async Task DeleteUserAsync_WhenNotSuccessful_ReturnsProblemAndDetails()
+    public async Task DeleteUserAsync_WhenNotSuccessful_ReturnsConflictAndMessage()
     {
         // Arrange
         var id = Guid.NewGuid();
@@ -573,10 +573,9 @@ public class UserEndpointsLogicTests
             _loggerMock.Object);
 
         // Assert
-        var problemResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.ProblemHttpResult>(result);
-        Assert.Equal("An issue occured", problemResult.ProblemDetails.Title);
-        Assert.Equal(409, problemResult.ProblemDetails.Status);
-        Assert.Equal("User could not be deleted", problemResult.ProblemDetails.Detail);
+        var conflictResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.Conflict<ResponseDTO>>(result);
+        Assert.NotNull(conflictResult.Value);
+        Assert.Equal("User could not be deleted", conflictResult.Value.Message);
     }
 
     #endregion DeleteUserLogicAsync
@@ -651,13 +650,12 @@ public class UserEndpointsLogicTests
     }
 
     [Fact]
-    public async Task RegisterUserLogicAsync_WhenUserAlreadyExists_ReturnsProblemAndDetails()
+    public async Task RegisterUserLogicAsync_WhenUserAlreadyExists_ReturnsConflictAndMessage()
     {
         // Arrange
         var userRegistrationDTO = new UserRegistrationDTO("Kristoffer", "Sveberg", "(99999999", "kris@gmail.com", "secretPassword123!");
 
         var validatorMock = new Mock<IValidator<UserRegistrationDTO>>();
-
         validatorMock.Setup(x => x.ValidateAsync(userRegistrationDTO, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());
 
@@ -671,10 +669,9 @@ public class UserEndpointsLogicTests
             _loggerMock.Object);
 
         // Assert
-        var problemresult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.ProblemHttpResult>(result);
-        Assert.Equal("An issue occured", problemresult.ProblemDetails.Title);
-        Assert.Equal(StatusCodes.Status409Conflict, problemresult.ProblemDetails.Status);
-        Assert.Equal("User already exists", problemresult.ProblemDetails.Detail);
+        var conflictResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.Conflict<ResponseDTO>>(result);
+        Assert.NotNull(conflictResult.Value);
+        Assert.Equal("User already exists", conflictResult.Value.Message);
     }
 
     #endregion RegisterUserLogicAsync
@@ -843,13 +840,14 @@ public class UserEndpointsLogicTests
             _loggerMock.Object);
 
         // Assert
-        var notFoundResponse = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.NotFound<string>>(result);
-        Assert.Equal(expectedString, notFoundResponse.Value);
+        var notFoundResponse = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.NotFound<ResponseDTO>>(result);
+        Assert.NotNull(notFoundResponse.Value);
+        Assert.Equal(expectedString, notFoundResponse.Value.Message);
         tokenGeneratorMock.Verify(x => x.GenerateToken(It.IsAny<User>(), It.IsAny<bool>(), It.IsAny<IEnumerable<UserRole>>()), Times.Never);
     }
 
     [Fact]
-    public async Task UserLoginLogicAsync_WhenAuthenticationFails_ReturnsProblemAndDetails()
+    public async Task UserLoginLogicAsync_WhenPasswordVerificationFails_ReturnsUnauthorized()
     {
         // Arrange
         var loginDTO = new LoginDTO { Email = "testuser@unittest.com", Password = "secretPassword123!" };
@@ -889,11 +887,7 @@ public class UserEndpointsLogicTests
             _loggerMock.Object);
 
         // Assert
-
-        var problemResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.ProblemHttpResult>(result);
-        Assert.Equal("An issue occured", problemResult.ProblemDetails.Title);
-        Assert.Equal(StatusCodes.Status401Unauthorized, problemResult.ProblemDetails.Status);
-        Assert.Equal("Login failed. Please check your username and/or password and try again.", problemResult.ProblemDetails.Detail);
+        var unauthorizedResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.UnauthorizedHttpResult>(result);
         tokenGeneratorMock.Verify(x => x.GenerateToken(It.IsAny<User>(), It.IsAny<bool>(), It.IsAny<IEnumerable<UserRole>>()), Times.Never);
     }
 
@@ -1122,18 +1116,94 @@ public class UserEndpointsLogicTests
             _loggerMock.Object);
 
         // Assert
-        var notFoundResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.NotFound<string>>(result);
-        Assert.Equal(expectedMessage, notFoundResult.Value);
-
+        var notFoundResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.NotFound<ResponseDTO>>(result);
+        Assert.NotNull(notFoundResult.Value);
+        Assert.Equal(expectedMessage, notFoundResult.Value.Message);
         tokenGeneratorMock.Verify(x => x.GenerateToken(It.IsAny<User>(), It.IsAny<bool>(), It.IsAny<IEnumerable<UserRole>>()), Times.Never);
     }
 
-    //[Fact]
-    //public async Task UpdatePasswordLogicAsync_WhenUserFailsAuthentication_ReturnsUnauthorizedWithDetails() 
-    //{
+    [Fact]
+    public async Task UpdatePasswordLogicAsync_WhenPasswordVerificationFails_ReturnsUnauthorized()
+    {
+        // Arrange
+        var updatePasswordDTO = new UpdatePasswordDTO { Email = "epost@epost.no", Password = "GammeltPassord123!", NewPassword = "NyttPasssord123!" };
+        var verifiedUser = new User { Id = UserId.NewId};
 
-    //}
+        var validatorMock = new Mock<IValidator<UpdatePasswordDTO>>();
+        validatorMock.Setup(x => x.ValidateAsync(updatePasswordDTO, It.IsAny<CancellationToken>())).ReturnsAsync(new ValidationResult());
 
+        var passwordVerificationServiceMock = new Mock<IPasswordVerificationService>();
+        passwordVerificationServiceMock.Setup(x => x.VerifyPassword(updatePasswordDTO, It.IsAny<User>())).Returns(false);
+
+        var tokenGeneratorMock = new Mock<ITokenGenerator>();
+
+        var claimsIdentity = new ClaimsIdentity(
+        [
+            new Claim(ClaimTypes.Name, "epost@epost.no"),
+            new Claim(ClaimTypes.Role, "User")
+        ]);
+        var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
+
+        _userServiceMock.Setup(x => x.GetUserByEmailAsync(updatePasswordDTO.Email)).ReturnsAsync(verifiedUser);
+
+        // Act
+        var result = await UserEndpointsLogic.UpdatePasswordLogicAsync(
+            updatePasswordDTO,
+            validatorMock.Object,
+            _userServiceMock.Object,
+            _userRoleRepositoryMock.Object,
+            passwordVerificationServiceMock.Object,
+            tokenGeneratorMock.Object,
+            claimsPrincipal,
+            _loggerMock.Object);
+
+        // Assert
+        var unauthorizedResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.UnauthorizedHttpResult>(result);
+        tokenGeneratorMock.Verify(x => x.GenerateToken(It.IsAny<User>(), It.IsAny<bool>(), It.IsAny<IEnumerable<UserRole>>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task UpdatePasswordLogicAsync_WhenUpdatingPasswordFails_ReturnsBadRequestAndMessage()
+    {
+        // Arrange
+        var updatePasswordDTO = new UpdatePasswordDTO { Email = "epost@epost.no", Password = "GammeltPassord123!", NewPassword = "NyttPasssord123!" };
+        var verifiedUser = new User { Id = UserId.NewId };
+
+        var validatorMock = new Mock<IValidator<UpdatePasswordDTO>>();
+        validatorMock.Setup(x => x.ValidateAsync(updatePasswordDTO, It.IsAny<CancellationToken>())).ReturnsAsync(new ValidationResult());
+
+        var passwordVerificationServiceMock = new Mock<IPasswordVerificationService>();
+        passwordVerificationServiceMock.Setup(x => x.VerifyPassword(updatePasswordDTO, It.IsAny<User>())).Returns(true);
+
+        var tokenGeneratorMock = new Mock<ITokenGenerator>();
+
+        var claimsIdentity = new ClaimsIdentity(
+        [
+            new Claim(ClaimTypes.Name, "epost@epost.no"),
+            new Claim(ClaimTypes.Role, "User")
+        ]);
+        var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
+
+        _userServiceMock.Setup(x => x.GetUserByEmailAsync(updatePasswordDTO.Email)).ReturnsAsync(verifiedUser);
+        _userServiceMock.Setup(x => x.UpdatePasswordAsync(updatePasswordDTO, It.IsAny<User>())).ReturnsAsync(false);
+
+        // Act
+        var result = await UserEndpointsLogic.UpdatePasswordLogicAsync(
+            updatePasswordDTO,
+            validatorMock.Object,
+            _userServiceMock.Object,
+            _userRoleRepositoryMock.Object,
+            passwordVerificationServiceMock.Object,
+            tokenGeneratorMock.Object,
+            claimsPrincipal,
+            _loggerMock.Object);
+
+        // Assert
+        var badRequestResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.BadRequest<ResponseDTO>>(result);
+        Assert.NotNull(badRequestResult.Value);
+        Assert.Equal("Password could not be updated. Please check your username or password and try again.", badRequestResult.Value.Message);
+        tokenGeneratorMock.Verify(x => x.GenerateToken(It.IsAny<User>(), It.IsAny<bool>(), It.IsAny<IEnumerable<UserRole>>()), Times.Never);
+    }
 
     #endregion UpdatePasswordLogicAsync
 
