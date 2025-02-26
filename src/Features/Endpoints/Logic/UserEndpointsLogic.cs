@@ -206,11 +206,7 @@ public static class UserEndpointsLogic
         var verifiedUser = passwordVerificationService.VerifyPassword(dto, user);
         if (!verifiedUser)
         {
-            return Results.Problem(
-                title: "Authentication Failed",
-                statusCode: StatusCodes.Status401Unauthorized,
-                detail: "User verification failed. Please check your credentials and try again."
-            );
+            return Results.Unauthorized();
         }
 
         var passwordChanged = await userService.UpdatePasswordAsync(dto, user);

@@ -849,7 +849,7 @@ public class UserEndpointsLogicTests
     }
 
     [Fact]
-    public async Task UserLoginLogicAsync_WhenAuthenticationFails_ReturnsProblemAndDetails()
+    public async Task UserLoginLogicAsync_WhenPasswordVerificationFails_ReturnsProblemAndDetails()
     {
         // Arrange
         var loginDTO = new LoginDTO { Email = "testuser@unittest.com", Password = "secretPassword123!" };
@@ -1128,12 +1128,52 @@ public class UserEndpointsLogicTests
         tokenGeneratorMock.Verify(x => x.GenerateToken(It.IsAny<User>(), It.IsAny<bool>(), It.IsAny<IEnumerable<UserRole>>()), Times.Never);
     }
 
-    //[Fact]
-    //public async Task UpdatePasswordLogicAsync_WhenUserFailsAuthentication_ReturnsUnauthorizedWithDetails() 
-    //{
+    [Fact]
+    public async Task UpdatePasswordLogicAsync_WhenPasswordVerificationFails_ReturnsUnauthorizedWithDetails()
+    {
+        // Arrange
+        var updatePasswordDTO = new UpdatePasswordDTO { Email = "epost@epost.no", Password = "GammeltPassord123!", NewPassword = "NyttPasssord123!" };
+        var verifiedUser = new User { Id = UserId.NewId};
 
-    //}
+        var validatorMock = new Mock<IValidator<UpdatePasswordDTO>>();
+        validatorMock.Setup(x => x.ValidateAsync(updatePasswordDTO, It.IsAny<CancellationToken>())).ReturnsAsync(new ValidationResult());
 
+        var passwordVerificationServiceMock = new Mock<IPasswordVerificationService>();
+        passwordVerificationServiceMock.Setup(x => x.VerifyPassword(updatePasswordDTO, It.IsAny<User>())).Returns(false);
+
+        var tokenGeneratorMock = new Mock<ITokenGenerator>();
+
+        var claimsIdentity = new ClaimsIdentity(
+        [
+            new Claim(ClaimTypes.Name, "epost@epost.no"),
+            new Claim(ClaimTypes.Role, "User")
+        ]);
+        var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
+
+        _userServiceMock.Setup(x => x.GetUserByEmailAsync(updatePasswordDTO.Email)).ReturnsAsync(verifiedUser);
+
+        // Act
+        var result = await UserEndpointsLogic.UpdatePasswordLogicAsync(
+            updatePasswordDTO,
+            validatorMock.Object,
+            _userServiceMock.Object,
+            _userRoleRepositoryMock.Object,
+            passwordVerificationServiceMock.Object,
+            tokenGeneratorMock.Object,
+            claimsPrincipal,
+            _loggerMock.Object);
+
+        // Assert
+        var unauthorizedResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.UnauthorizedHttpResult>(result);
+        tokenGeneratorMock.Verify(x => x.GenerateToken(It.IsAny<User>(), It.IsAny<bool>(), It.IsAny<IEnumerable<UserRole>>()), Times.Never);
+    }
+
+    [Fact]
+
+    public async Task UpdatePasswordLogicAsync_WhenUpdatingPasswordFails_ReturnsBadRequestAndMessage()
+    {
+    
+    }
 
     #endregion UpdatePasswordLogicAsync
 
