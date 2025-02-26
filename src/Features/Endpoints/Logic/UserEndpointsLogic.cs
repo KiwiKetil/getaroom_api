@@ -21,7 +21,7 @@ public static class UserEndpointsLogic
         var usersAndCountDTO = await userService.GetUsersAsync(query);
         if (!usersAndCountDTO.Data.Any())
         {
-            return Results.NotFound(new ResponseDTO(Message: "No users found"));
+            return Results.NotFound(new ErrorResponse(Message: "No users found"));
         }
 
         logger.LogDebug("Count is: {totalCount}", usersAndCountDTO.TotalCount);
@@ -51,7 +51,7 @@ public static class UserEndpointsLogic
 
         var userDTO = await userService.GetUserByIdAsync(id);
         return userDTO != null ? Results.Ok(userDTO) 
-            : Results.NotFound(new ResponseDTO(Message: "User was not found"));
+            : Results.NotFound(new ErrorResponse(Message: "User was not found"));
     }
 
     public static async Task<IResult> UpdateUserLogicAsync(
@@ -84,7 +84,7 @@ public static class UserEndpointsLogic
 
         var userDTO = await userService.UpdateUserAsync(id, dto);
         return userDTO != null ? Results.Ok(userDTO)
-            : Results.Conflict(new ResponseDTO(Message: "User could not be updated"));
+            : Results.Conflict(new ErrorResponse(Message: "User could not be updated"));
     }
 
     public static async Task<IResult> DeleteUserLogicAsync(
@@ -96,7 +96,7 @@ public static class UserEndpointsLogic
 
         var userDTO = await userService.DeleteUserAsync(id);
         return userDTO != null ? Results.Ok(userDTO)
-            : Results.Conflict(new ResponseDTO(Message: "User could not be deleted"));       
+            : Results.Conflict(new ErrorResponse(Message: "User could not be deleted"));       
     }
 
     public static async Task<IResult> RegisterUserLogicAsync(
@@ -117,7 +117,7 @@ public static class UserEndpointsLogic
         var userDTO = await userService.RegisterUserAsync(dto);
 
         return userDTO != null ? Results.Ok(userDTO) 
-            : Results.Conflict(new ResponseDTO(Message: "User already exists"));       
+            : Results.Conflict(new ErrorResponse(Message: "User already exists"));       
     }
 
     public static async Task<IResult> UserLoginLogicAsync(
@@ -142,7 +142,7 @@ public static class UserEndpointsLogic
         var user = await userRepository.GetUserByEmailAsync(dto.Email);
         if (user == null)
         {
-            return Results.NotFound(new ResponseDTO(Message: "User not found"));
+            return Results.NotFound(new ErrorResponse(Message: "User not found"));
         }
 
         var verifiedUser = passwordVerificationService.VerifyPassword(dto, user);
@@ -188,7 +188,7 @@ public static class UserEndpointsLogic
         if (user is null)
         {
             logger.LogError("User not found by email {Email}", dto.Email);
-            return Results.NotFound(new ResponseDTO(Message: "User not found"));
+            return Results.NotFound(new ErrorResponse(Message: "User not found"));
         }
 
         var verifiedUser = passwordVerificationService.VerifyPassword(dto, user);
@@ -200,7 +200,7 @@ public static class UserEndpointsLogic
         var passwordChanged = await userService.UpdatePasswordAsync(dto, user);
         if (!passwordChanged)
         {
-            return Results.BadRequest(new ResponseDTO(Message: "Password could not be updated. Please check your username or password and try again."));
+            return Results.BadRequest(new ErrorResponse(Message: "Password could not be updated. Please check your username or password and try again."));
         }
         var userRoles = await userRoleRepository.GetUserRoles(user.Id);
         var newToken = tokenGenerator.GenerateToken(user, true, userRoles);

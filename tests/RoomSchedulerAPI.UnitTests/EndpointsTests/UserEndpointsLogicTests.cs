@@ -1,7 +1,6 @@
 ﻿using FluentAssertions;
 using FluentValidation;
 using FluentValidation.Results;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Moq;
 using RoomSchedulerAPI.Features.Endpoints.Logic;
@@ -72,7 +71,7 @@ public class UserEndpointsLogicTests
             _loggerMock.Object);
 
         //Assert
-        var notFoundResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.NotFound<ResponseDTO>>(result);
+        var notFoundResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.NotFound<ErrorResponse>>(result);
         Assert.NotNull(notFoundResult.Value);
         Assert.Equal("No users found", notFoundResult.Value.Message);
     }
@@ -167,7 +166,7 @@ public class UserEndpointsLogicTests
             _loggerMock.Object);
 
         // Assert
-        var NotFoundResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.NotFound<ResponseDTO>>(result);
+        var NotFoundResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.NotFound<ErrorResponse>>(result);
         Assert.NotNull(NotFoundResult.Value);
         Assert.Equal("User was not found", NotFoundResult.Value.Message);
     }
@@ -525,7 +524,7 @@ public class UserEndpointsLogicTests
             _loggerMock.Object);
 
         // Assert
-        var conflictResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.Conflict<ResponseDTO>>(result);
+        var conflictResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.Conflict<ErrorResponse>>(result);
         Assert.NotNull(conflictResult.Value);
         Assert.Equal("User could not be updated", conflictResult.Value.Message);
     }
@@ -573,7 +572,7 @@ public class UserEndpointsLogicTests
             _loggerMock.Object);
 
         // Assert
-        var conflictResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.Conflict<ResponseDTO>>(result);
+        var conflictResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.Conflict<ErrorResponse>>(result);
         Assert.NotNull(conflictResult.Value);
         Assert.Equal("User could not be deleted", conflictResult.Value.Message);
     }
@@ -669,7 +668,7 @@ public class UserEndpointsLogicTests
             _loggerMock.Object);
 
         // Assert
-        var conflictResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.Conflict<ResponseDTO>>(result);
+        var conflictResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.Conflict<ErrorResponse>>(result);
         Assert.NotNull(conflictResult.Value);
         Assert.Equal("User already exists", conflictResult.Value.Message);
     }
@@ -840,7 +839,7 @@ public class UserEndpointsLogicTests
             _loggerMock.Object);
 
         // Assert
-        var notFoundResponse = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.NotFound<ResponseDTO>>(result);
+        var notFoundResponse = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.NotFound<ErrorResponse>>(result);
         Assert.NotNull(notFoundResponse.Value);
         Assert.Equal(expectedString, notFoundResponse.Value.Message);
         tokenGeneratorMock.Verify(x => x.GenerateToken(It.IsAny<User>(), It.IsAny<bool>(), It.IsAny<IEnumerable<UserRole>>()), Times.Never);
@@ -1116,7 +1115,7 @@ public class UserEndpointsLogicTests
             _loggerMock.Object);
 
         // Assert
-        var notFoundResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.NotFound<ResponseDTO>>(result);
+        var notFoundResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.NotFound<ErrorResponse>>(result);
         Assert.NotNull(notFoundResult.Value);
         Assert.Equal(expectedMessage, notFoundResult.Value.Message);
         tokenGeneratorMock.Verify(x => x.GenerateToken(It.IsAny<User>(), It.IsAny<bool>(), It.IsAny<IEnumerable<UserRole>>()), Times.Never);
@@ -1127,7 +1126,7 @@ public class UserEndpointsLogicTests
     {
         // Arrange
         var updatePasswordDTO = new UpdatePasswordDTO { Email = "epost@epost.no", Password = "GammeltPassord123!", NewPassword = "NyttPasssord123!" };
-        var verifiedUser = new User { Id = UserId.NewId};
+        var verifiedUser = new User { Id = UserId.NewId };
 
         var validatorMock = new Mock<IValidator<UpdatePasswordDTO>>();
         validatorMock.Setup(x => x.ValidateAsync(updatePasswordDTO, It.IsAny<CancellationToken>())).ReturnsAsync(new ValidationResult());
@@ -1199,7 +1198,7 @@ public class UserEndpointsLogicTests
             _loggerMock.Object);
 
         // Assert
-        var badRequestResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.BadRequest<ResponseDTO>>(result);
+        var badRequestResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.BadRequest<ErrorResponse>>(result);
         Assert.NotNull(badRequestResult.Value);
         Assert.Equal("Password could not be updated. Please check your username or password and try again.", badRequestResult.Value.Message);
         tokenGeneratorMock.Verify(x => x.GenerateToken(It.IsAny<User>(), It.IsAny<bool>(), It.IsAny<IEnumerable<UserRole>>()), Times.Never);

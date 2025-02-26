@@ -1,6 +1,6 @@
 ﻿namespace RoomSchedulerAPI.Features.Models.DTOs.ResultsDTOs;
 
-public record ResponseDTO
+public record ErrorResponse
 (
     string? Message
 );
