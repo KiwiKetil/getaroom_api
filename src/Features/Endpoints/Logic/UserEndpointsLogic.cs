@@ -134,7 +134,7 @@ public static class UserEndpointsLogic
         IUserService userService, 
         IUserRepository userRepository,
         IUserRoleRepository userRoleRepository, 
-        IPasswordVerificationService authService, 
+        IPasswordVerificationService passwordVerificationService, 
         ITokenGenerator tokenGenerator,
         ILogger<Program> logger)
     {
@@ -153,8 +153,8 @@ public static class UserEndpointsLogic
             return Results.NotFound("User not found");
         }
 
-        var authenticatedUser = authService.VerifyPassword(dto, user);
-        if (!authenticatedUser)
+        var verifiedUser = passwordVerificationService.VerifyPassword(dto, user);
+        if (!verifiedUser)
         {
             return Results.Problem(
                 title: "An issue occured",
@@ -176,7 +176,7 @@ public static class UserEndpointsLogic
         IValidator<UpdatePasswordDTO> validator,
         IUserService userService,
         IUserRoleRepository userRoleRepository,
-        IPasswordVerificationService authService,
+        IPasswordVerificationService passwordVerificationService,
         ITokenGenerator tokenGenerator,
         ClaimsPrincipal claims,
         ILogger<Program> logger)
@@ -203,13 +203,13 @@ public static class UserEndpointsLogic
             return Results.NotFound("User not found");
         }
 
-        var authenticatedUser = authService.VerifyPassword(dto, user);
-        if (!authenticatedUser)
+        var verifiedUser = passwordVerificationService.VerifyPassword(dto, user);
+        if (!verifiedUser)
         {
             return Results.Problem(
                 title: "Authentication Failed",
                 statusCode: StatusCodes.Status401Unauthorized,
-                detail: "User authentication failed. Please check your credentials and try again."
+                detail: "User verification failed. Please check your credentials and try again."
             );
         }
 
