@@ -75,7 +75,7 @@ public static class WebAppExtensions
         services.AddScoped<IPasswordHistoryRepository, PasswordHistoryRepository>();
 
         // AuthenticationService
-        services.AddScoped<IUserAuthenticationService, AuthenticationService>();
+        services.AddScoped<IPasswordVerificationService, PasswordVerificationService>();
 
         // TokenGenerator
         services.AddScoped<ITokenGenerator, TokenGenerator>();

@@ -134,7 +134,7 @@ public static class UserEndpointsLogic
         IUserService userService, 
         IUserRepository userRepository,
         IUserRoleRepository userRoleRepository, 
-        IUserAuthenticationService authService, 
+        IPasswordVerificationService authService, 
         ITokenGenerator tokenGenerator,
         ILogger<Program> logger)
     {
@@ -153,7 +153,7 @@ public static class UserEndpointsLogic
             return Results.NotFound("User not found");
         }
 
-        var authenticatedUser = authService.AuthenticateUser(dto, user);
+        var authenticatedUser = authService.VerifyPassword(dto, user);
         if (!authenticatedUser)
         {
             return Results.Problem(
@@ -176,7 +176,7 @@ public static class UserEndpointsLogic
         IValidator<UpdatePasswordDTO> validator,
         IUserService userService,
         IUserRoleRepository userRoleRepository,
-        IUserAuthenticationService authService,
+        IPasswordVerificationService authService,
         ITokenGenerator tokenGenerator,
         ClaimsPrincipal claims,
         ILogger<Program> logger)
@@ -203,7 +203,7 @@ public static class UserEndpointsLogic
             return Results.NotFound("User not found");
         }
 
-        var authenticatedUser = authService.AuthenticateUser(dto, user);
+        var authenticatedUser = authService.VerifyPassword(dto, user);
         if (!authenticatedUser)
         {
             return Results.Problem(
