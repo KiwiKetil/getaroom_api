@@ -2,7 +2,7 @@
 
 namespace RoomSchedulerAPI.Features.Models.DTOs.UserDTOs;
 
-public record LoginDTO : IAuthorizableDTO
+public record LoginDTO : IUserCredentialsDTO
 {
     public required string Email { get; init; }
     public required string Password { get; init; }
