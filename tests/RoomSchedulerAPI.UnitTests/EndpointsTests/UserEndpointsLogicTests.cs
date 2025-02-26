@@ -889,11 +889,7 @@ public class UserEndpointsLogicTests
             _loggerMock.Object);
 
         // Assert
-
-        var problemResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.ProblemHttpResult>(result);
-        Assert.Equal("An issue occured", problemResult.ProblemDetails.Title);
-        Assert.Equal(StatusCodes.Status401Unauthorized, problemResult.ProblemDetails.Status);
-        Assert.Equal("Login failed. Please check your username and/or password and try again.", problemResult.ProblemDetails.Detail);
+        var unauthorizedResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.UnauthorizedHttpResult>(result);
         tokenGeneratorMock.Verify(x => x.GenerateToken(It.IsAny<User>(), It.IsAny<bool>(), It.IsAny<IEnumerable<UserRole>>()), Times.Never);
     }
 
@@ -1172,6 +1168,7 @@ public class UserEndpointsLogicTests
 
     public async Task UpdatePasswordLogicAsync_WhenUpdatingPasswordFails_ReturnsBadRequestAndMessage()
     {
+
     
     }
 

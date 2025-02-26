@@ -156,11 +156,7 @@ public static class UserEndpointsLogic
         var verifiedUser = passwordVerificationService.VerifyPassword(dto, user);
         if (!verifiedUser)
         {
-            return Results.Problem(
-                title: "An issue occured",
-                statusCode: StatusCodes.Status401Unauthorized,
-                detail: "Login failed. Please check your username and/or password and try again."
-            );
+            return Results.Unauthorized();
         }
 
         bool hasUpdatedPassword = await userService.HasUpdatedPassword(user.Id);
