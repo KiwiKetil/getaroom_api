@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using RoomSchedulerAPI.Features.Endpoints.Logic;
 using RoomSchedulerAPI.Features.HateOAS;
-using RoomSchedulerAPI.Features.Models.DTOs.ResultsDTOs;
+using RoomSchedulerAPI.Features.Models.DTOs.ResponseDTOs;
 using RoomSchedulerAPI.Features.Models.DTOs.TokenDTOs;
 using RoomSchedulerAPI.Features.Models.DTOs.UserDTOs;
 using RoomSchedulerAPI.Features.Models.Entities;

@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
-using RoomSchedulerAPI.Features.Models.DTOs.ResultsDTOs;
+using RoomSchedulerAPI.Features.Models.DTOs.ResponseDTOs;
 using RoomSchedulerAPI.Features.Models.DTOs.TokenDTOs;
 using RoomSchedulerAPI.Features.Models.DTOs.UserDTOs;
 using RoomSchedulerAPI.Features.Repositories.Interfaces;
@@ -50,7 +50,7 @@ public static class UserEndpointsLogic
         }
 
         var userDTO = await userService.GetUserByIdAsync(id);
-        return userDTO != null ? Results.Ok(userDTO) 
+        return userDTO != null ? Results.Ok(userDTO)
             : Results.NotFound(new ErrorResponse(Message: "User was not found"));
     }
 
@@ -96,7 +96,7 @@ public static class UserEndpointsLogic
 
         var userDTO = await userService.DeleteUserAsync(id);
         return userDTO != null ? Results.Ok(userDTO)
-            : Results.Conflict(new ErrorResponse(Message: "User could not be deleted"));       
+            : Results.Conflict(new ErrorResponse(Message: "User could not be deleted"));
     }
 
     public static async Task<IResult> RegisterUserLogicAsync(
@@ -116,8 +116,8 @@ public static class UserEndpointsLogic
 
         var userDTO = await userService.RegisterUserAsync(dto);
 
-        return userDTO != null ? Results.Ok(userDTO) 
-            : Results.Conflict(new ErrorResponse(Message: "User already exists"));       
+        return userDTO != null ? Results.Ok(userDTO)
+            : Results.Conflict(new ErrorResponse(Message: "User already exists"));
     }
 
     public static async Task<IResult> UserLoginLogicAsync(
