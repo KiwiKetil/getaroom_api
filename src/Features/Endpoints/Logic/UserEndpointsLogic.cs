@@ -200,7 +200,7 @@ public static class UserEndpointsLogic
         if (user is null)
         {
             logger.LogError("User not found by email {Email}", dto.Email);
-            return Results.NotFound("User not found.");
+            return Results.NotFound("User not found");
         }
 
         var authenticatedUser = authService.AuthenticateUser(dto, user);
