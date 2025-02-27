@@ -7,13 +7,14 @@ using RoomSchedulerAPI.Features.Services;
 namespace RoomSchedulerAPI.UnitTests.ServicesTests;
 public class PasswordVerificationServiceTests
 {
+    private readonly PasswordVerificationService _service;
     private readonly Mock<ILogger<PasswordVerificationService>> _loggerMock = new();
-    private readonly PasswordVerificationService _service; 
 
     public PasswordVerificationServiceTests()
     {
         _service = new PasswordVerificationService(_loggerMock.Object); 
     }
+
     [Fact]
     public void VerifyPassword_WhenLogin_WhenVerifid_ReturnsTrue()
     {

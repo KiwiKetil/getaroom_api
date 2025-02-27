@@ -13,20 +13,20 @@ public class TokenGenerator(IConfiguration config, ILogger<TokenGenerator> logge
     private readonly IConfiguration _config = config;
     private readonly ILogger _logger = logger;
 
-    public string GenerateToken(User authenticateduser, bool hasUpdatedPassword, IEnumerable<UserRole> userRoles)
+    public string GenerateToken(User authenticatedUser, bool hasUpdatedPassword, IEnumerable<UserRole> userRoles)
     {
-        if (authenticateduser == null)
+        if (authenticatedUser == null)
         {
             throw new ArgumentException("An authenticated user is needed to create a token");
         }
 
-        _logger.LogDebug("Generating token for user ID: {UserId}", authenticateduser.Id);
+        _logger.LogDebug("Generating token for user ID: {UserId}", authenticatedUser.Id);
 
         var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]!));
         var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
-        var userId = authenticateduser.Id;
-        var userName = authenticateduser.Email;
+        var userId = authenticatedUser.Id;
+        var userName = authenticatedUser.Email;
 
         List<Claim> claims = [];
         claims.Add(new Claim(JwtRegisteredClaimNames.Sub, userId.Value.ToString()));
