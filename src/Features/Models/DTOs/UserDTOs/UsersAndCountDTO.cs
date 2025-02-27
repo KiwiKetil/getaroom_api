@@ -3,6 +3,6 @@
 public record UsersAndCountDTO
 (
     int TotalCount, 
-    IEnumerable<UserDTO> Data
+    IEnumerable<UserDTO> UserDTOs
 );
 

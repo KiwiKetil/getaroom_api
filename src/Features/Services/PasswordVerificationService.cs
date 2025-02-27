@@ -7,7 +7,7 @@ public class PasswordVerificationService(ILogger<PasswordVerificationService> lo
 {
     private readonly ILogger<PasswordVerificationService> _logger = logger;
 
-    public bool VerifyPassword(IUserCredentialsDTO dto, User user)
+    public bool VerifyPassword(IVerifyUserCredentials dto, User user)
     {
         var verified = BCrypt.Net.BCrypt.Verify(dto.Password, user.HashedPassword);
         if (!verified)

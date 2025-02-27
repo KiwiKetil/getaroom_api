@@ -2,6 +2,6 @@
 
 public record ErrorResponse
 (
-    string? Message,
+    string? Message = "", 
     List<string>? Errors = null
 );
