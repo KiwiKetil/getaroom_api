@@ -1,5 +1,5 @@
 const apiBaseUrl = 'https://localhost:7089';
-const userRole = "admin"; // get from token(?)
+const userRole = "admin"; // get from token
 const currentHtmlPage = document.body.id;
 let currentPage = 1;
 const pageSize = 10;
@@ -47,17 +47,17 @@ async function fetchUsers(resetPage = false, filters = {}) {
             url += `&${encodeURIComponent(key)}=${encodeURIComponent(filters[key])}`;
         }
     });
-
-     /* let token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmNDdhYzEwYi01OGNjLTQzNzItYTU2Ny0wZTAyYjJjM2Q0NzEiLCJuYW1lIjoic2FyYWhAZXhhbXBsZS5jb20iLCJwYXNzd29yZFVwZGF0ZWQiOiJ0cnVlIiwiaHR0cDovL3NjaGVtYXMubWljcm9zb2Z0LmNvbS93cy8yMDA4LzA2L2lkZW50aXR5L2NsYWltcy9yb2xlIjpbIkFkbWluIiwiVXNlciJdLCJleHAiOjE3Mzk4MTE1MTAsImlzcyI6InJvb21TY2hlZHVsZXJfQVBJIiwiYXVkIjoicm9vbVNjaGVkdWxlcl9BUEkifQ.YGSG50QSjjwsWRXMKBgatWrUhjBFzQS2XNh4B0elKR8";
+    // for testing this token lifetime is extended
+      let token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmNDdhYzEwYi01OGNjLTQzNzItYTU2Ny0wZTAyYjJjM2Q0NzEiLCJuYW1lIjoic2FyYWhAZXhhbXBsZS5jb20iLCJwYXNzd29yZFVwZGF0ZWQiOiJ0cnVlIiwiaHR0cDovL3NjaGVtYXMubWljcm9zb2Z0LmNvbS93cy8yMDA4LzA2L2lkZW50aXR5L2NsYWltcy9yb2xlIjpbIkFkbWluIiwiVXNlciJdLCJleHAiOjE4MDM3MjA4NjYsImlzcyI6InJvb21TY2hlZHVsZXJfQVBJIiwiYXVkIjoicm9vbVNjaGVkdWxlcl9BUEkifQ.H3Kuw8PnqLF33lRdOddI5LW8veWq_fONrt2JFlB_z8Y";
     // Build the fetch options object with headers
     const fetchOptions = {
         headers: {
             'Authorization': `Bearer ${token}`
         }
-    };  */
+    };  
 
     try {
-        const response = await fetch(url, /* fetchOptions */ );
+        const response = await fetch(url,  fetchOptions  );
         if (response.status === 404) {
             currentPage = Math.max(1, currentPage - 1);
             document.getElementById('nextPageButton').disabled = true;
@@ -71,7 +71,7 @@ async function fetchUsers(resetPage = false, filters = {}) {
             throw new Error(`Network response was not ok: ${response.statusText}`);
         }
         const jsonResponse = await response.json();
-        const users = jsonResponse.data || [];
+        const users = jsonResponse.userDTOs || [];
         const totalCount = jsonResponse.totalCount || 0;
         const totalPages = Math.ceil(totalCount / pageSize);
 
