@@ -18,7 +18,7 @@ public static class UserEndpointsLogic
         logger.LogDebug("Retrieving users");
 
         var usersAndCountDTO = await userService.GetUsersAsync(query);
-        if (!usersAndCountDTO.Data.Any())
+        if (!usersAndCountDTO.UserDTOs.Any())
         {
             return Results.NotFound(new ErrorResponse(Message: "No users found"));
         }

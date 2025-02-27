@@ -50,8 +50,8 @@ public class UserEndpointsLogicTests
         var okResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.Ok<UsersAndCountDTO>>(result);
         Assert.NotNull(okResult.Value);
         Assert.Equal(totalCount, okResult.Value.TotalCount);
-        Assert.Equal(userDTOs, okResult.Value.Data);
-        okResult.Value.Data.Should().BeEquivalentTo(userDTOs, options => options.WithStrictOrdering());
+        Assert.Equal(userDTOs, okResult.Value.UserDTOs);
+        okResult.Value.UserDTOs.Should().BeEquivalentTo(userDTOs, options => options.WithStrictOrdering());
     }
 
     [Fact]

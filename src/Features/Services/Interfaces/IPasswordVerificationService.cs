@@ -4,5 +4,5 @@ namespace RoomSchedulerAPI.Features.Services.Interfaces;
 
 public interface IPasswordVerificationService
 {
-    bool VerifyPassword(IUserCredentialsDTO dto, User user);
+    bool VerifyPassword(IVerifyUserCredentials dto, User user);
 }
