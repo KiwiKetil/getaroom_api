@@ -1,3 +1,5 @@
+![image](https://github.com/user-attachments/assets/950f7979-d675-41cd-894a-4c5c12621369)
+
 ### To Test This API
 
 #### 1. Execute Database Scripts
@@ -33,7 +35,6 @@ Set the following environment variables using the values you specified in `room_
 2. Run the following commands:
 
    - dotnet user-secrets init
-   - dotnet user-secrets set "Jwt:Key" "YourLocalSecretKeyOfAtLeast256Bits"
-  
-     ![image](https://github.com/user-attachments/assets/950f7979-d675-41cd-894a-4c5c12621369)
+   - dotnet user-secrets set "Jwt:Key" "YourLocalSecretKeyOfAtLeast256Bits" 
+
 
