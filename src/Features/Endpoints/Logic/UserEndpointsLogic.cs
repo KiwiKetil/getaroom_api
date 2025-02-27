@@ -1,7 +1,6 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using RoomSchedulerAPI.Features.Models.DTOs.ResponseDTOs;
-using RoomSchedulerAPI.Features.Models.DTOs.TokenDTOs;
 using RoomSchedulerAPI.Features.Models.DTOs.UserDTOs;
 using RoomSchedulerAPI.Features.Repositories.Interfaces;
 using RoomSchedulerAPI.Features.Services.Interfaces;
@@ -68,7 +67,7 @@ public static class UserEndpointsLogic
         if (!validationResult.IsValid)
         {
             var errors = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
-            return Results.BadRequest( new ErrorResponse ( Errors: errors ));
+            return Results.BadRequest(new ErrorResponse(Errors: errors));
         }
 
         var isAdmin = claims.IsInRole("Admin");
@@ -111,7 +110,7 @@ public static class UserEndpointsLogic
         if (!validationResult.IsValid)
         {
             var errors = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
-            return Results.BadRequest(new ErrorResponse (Errors: errors));
+            return Results.BadRequest(new ErrorResponse(Errors: errors));
         }
 
         var userDTO = await userService.RegisterUserAsync(dto);
@@ -136,7 +135,7 @@ public static class UserEndpointsLogic
         if (!validationResult.IsValid)
         {
             var errors = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
-            return Results.BadRequest(new ErrorResponse( Errors: errors ));
+            return Results.BadRequest(new ErrorResponse(Errors: errors));
         }
 
         var user = await userRepository.GetUserByEmailAsync(dto.Email);
@@ -156,7 +155,7 @@ public static class UserEndpointsLogic
 
         var token = tokenGenerator.GenerateToken(user, hasUpdatedPassword, userRoles);
 
-        return Results.Ok(new TokenResponse { Token = token });
+        return Results.Ok(new TokenResponse(Token: token));
     }
 
     public static async Task<IResult> UpdatePasswordLogicAsync(
@@ -205,6 +204,6 @@ public static class UserEndpointsLogic
         var userRoles = await userRoleRepository.GetUserRoles(user.Id);
         var newToken = tokenGenerator.GenerateToken(user, true, userRoles);
 
-        return Results.Ok(new TokenResponse { Token = newToken });
+        return Results.Ok(new TokenResponse(Token: newToken));
     }
 }

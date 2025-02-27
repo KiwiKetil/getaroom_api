@@ -6,7 +6,6 @@ using Moq;
 using RoomSchedulerAPI.Features.Endpoints.Logic;
 using RoomSchedulerAPI.Features.HateOAS;
 using RoomSchedulerAPI.Features.Models.DTOs.ResponseDTOs;
-using RoomSchedulerAPI.Features.Models.DTOs.TokenDTOs;
 using RoomSchedulerAPI.Features.Models.DTOs.UserDTOs;
 using RoomSchedulerAPI.Features.Models.Entities;
 using RoomSchedulerAPI.Features.Repositories.Interfaces;
@@ -705,7 +704,7 @@ public class UserEndpointsLogicTests
         var passwordVerificationServiceMock = new Mock<IPasswordVerificationService>();
         passwordVerificationServiceMock.Setup(x => x.VerifyPassword(loginDTO, user)).Returns(true);
 
-        var token = new TokenResponse { Token = "tokenStringWithClaimPasswordUpdatedTrue" };
+        var token = new TokenResponse(Token: "tokenStringWithClaimPasswordUpdatedTrue");
         var tokenGeneratorMock = new Mock<ITokenGenerator>();
         tokenGeneratorMock.Setup(x => x.GenerateToken(user, true, userRoles)).Returns(token.Token);
 
@@ -756,7 +755,7 @@ public class UserEndpointsLogicTests
         var passwordVerificationServiceMock = new Mock<IPasswordVerificationService>();
         passwordVerificationServiceMock.Setup(x => x.VerifyPassword(loginDTO, user)).Returns(true);
 
-        var token = new TokenResponse { Token = "tokenStringWithClaimPasswordUpdatedFalse" };
+        var token = new TokenResponse(Token: "tokenStringWithClaimPasswordUpdatedFalse");
         var tokenGeneratorMock = new Mock<ITokenGenerator>();
         tokenGeneratorMock.Setup(x => x.GenerateToken(user, false, userRoles)).Returns(token.Token);
 

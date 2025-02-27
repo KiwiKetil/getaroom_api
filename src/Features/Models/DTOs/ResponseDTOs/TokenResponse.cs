@@ -1,6 +1,6 @@
-﻿namespace RoomSchedulerAPI.Features.Models.DTOs.TokenDTOs;
+﻿namespace RoomSchedulerAPI.Features.Models.DTOs.ResponseDTOs;
 
-public class TokenResponse
-{
-    public string? Token { get; set; }
-}
+public record TokenResponse
+(
+    string Token = ""
+);
