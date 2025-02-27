@@ -381,8 +381,9 @@ public class UserEndpointsLogicTests
             _loggerMock.Object);
 
         // Assert
-        var badRequestResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.BadRequest<List<string>>>(result);
-        Assert.Equal(expectedErrorMessages, badRequestResult.Value);
+        var badRequestResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.BadRequest<ErrorResponse>>(result);
+        Assert.NotNull(badRequestResult.Value);
+        Assert.Equal(expectedErrorMessages, badRequestResult.Value.Errors);
     }
 
     [Fact]
@@ -644,8 +645,9 @@ public class UserEndpointsLogicTests
             _loggerMock.Object);
 
         // Assert
-        var badRequestResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.BadRequest<List<string>>>(result);
-        Assert.Equal(expectedErrors, badRequestResult.Value);
+        var badRequestResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.BadRequest<ErrorResponse>>(result);
+        Assert.NotNull(badRequestResult.Value);
+        Assert.Equal(expectedErrors, badRequestResult.Value.Errors);
     }
 
     [Fact]
@@ -809,8 +811,9 @@ public class UserEndpointsLogicTests
             _loggerMock.Object);
 
         // Assert
-        var badRequestResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.BadRequest<List<string>>>(result);
-        Assert.Equal(actualErrors, badRequestResult.Value);
+        var badRequestResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.BadRequest<ErrorResponse>>(result);
+        Assert.NotNull(badRequestResult.Value);
+        Assert.Equal(actualErrors, badRequestResult.Value.Errors);
         tokenGeneratorMock.Verify(x => x.GenerateToken(It.IsAny<User>(), It.IsAny<bool>(), It.IsAny<IEnumerable<UserRole>>()), Times.Never);
     }
 
@@ -972,10 +975,9 @@ public class UserEndpointsLogicTests
             _loggerMock.Object);
 
         // Assert
-        var badRequestResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.BadRequest<List<string>>>(result);
+        var badRequestResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.BadRequest<ErrorResponse>>(result);
         Assert.NotNull(badRequestResult.Value);
-        Assert.NotEmpty(badRequestResult.Value);
-        Assert.Equal(expectedErrors, badRequestResult.Value);
+        Assert.Equal(expectedErrors, badRequestResult.Value.Errors);
         tokenGeneratorMock.Verify(x => x.GenerateToken(It.IsAny<User>(), It.IsAny<bool>(), It.IsAny<IEnumerable<UserRole>>()), Times.Never);
     }
 

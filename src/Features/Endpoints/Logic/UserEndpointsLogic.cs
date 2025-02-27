@@ -68,7 +68,7 @@ public static class UserEndpointsLogic
         if (!validationResult.IsValid)
         {
             var errors = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
-            return Results.BadRequest(errors);
+            return Results.BadRequest( new ErrorResponse ( Errors: errors ));
         }
 
         var isAdmin = claims.IsInRole("Admin");
@@ -111,7 +111,7 @@ public static class UserEndpointsLogic
         if (!validationResult.IsValid)
         {
             var errors = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
-            return Results.BadRequest(errors);
+            return Results.BadRequest(new ErrorResponse (Errors: errors));
         }
 
         var userDTO = await userService.RegisterUserAsync(dto);
@@ -136,7 +136,7 @@ public static class UserEndpointsLogic
         if (!validationResult.IsValid)
         {
             var errors = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
-            return Results.BadRequest(errors);
+            return Results.BadRequest(new ErrorResponse( Errors: errors ));
         }
 
         var user = await userRepository.GetUserByEmailAsync(dto.Email);
@@ -175,7 +175,7 @@ public static class UserEndpointsLogic
         if (!validationResult.IsValid)
         {
             var errors = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
-            return Results.BadRequest(errors);
+            return Results.BadRequest(new ErrorResponse(Errors: errors));
         }
 
         var userIdClaim = claims.FindFirst("name") ?? claims.FindFirst(ClaimTypes.Name);
