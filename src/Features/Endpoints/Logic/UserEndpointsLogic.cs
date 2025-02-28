@@ -123,10 +123,6 @@ public static class UserEndpointsLogic
         [FromBody] LoginDTO dto,
         IValidator<LoginDTO> validator,
         IUserService userService,
-        IUserRepository userRepository,
-        IUserRoleRepository userRoleRepository,
-        IPasswordVerificationService passwordVerificationService,
-        ITokenGenerator tokenGenerator,
         ILogger<Program> logger)
     {
         logger.LogDebug("User logging in");
@@ -138,24 +134,9 @@ public static class UserEndpointsLogic
             return Results.BadRequest(new ErrorResponse(Errors: errors));
         }
 
-        var user = await userRepository.GetUserByEmailAsync(dto.Email);
-        if (user == null)
-        {
-            return Results.NotFound(new ErrorResponse(Message: "User not found"));
-        }
-
-        var verifiedUser = passwordVerificationService.VerifyPassword(dto, user);
-        if (!verifiedUser)
-        {
-            return Results.Unauthorized();
-        }
-
-        bool hasUpdatedPassword = await userService.HasUpdatedPassword(user.Id);
-        var userRoles = await userRoleRepository.GetUserRoles(user.Id);
-
-        var token = tokenGenerator.GenerateToken(user, hasUpdatedPassword, userRoles);
-
-        return Results.Ok(new TokenResponse(Token: token));
+        var token = await userService.UserLoginAsync(dto);
+        return token != null ? Results.Ok(new TokenResponse(Token: token))
+            : Results.Unauthorized();
     }
 
     public static async Task<IResult> UpdatePasswordLogicAsync(

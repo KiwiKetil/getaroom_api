@@ -10,6 +10,7 @@ public interface IUserService
     Task<UserDTO?> UpdateUserAsync(Guid id, UserUpdateDTO dto);
     Task<UserDTO?> DeleteUserAsync(Guid id);
     Task<UserDTO?> RegisterUserAsync(UserRegistrationDTO dto);
+    Task<string?> UserLoginAsync(LoginDTO dto);
     Task<bool> UpdatePasswordAsync(UpdatePasswordDTO dto, User user); 
     Task<bool> HasUpdatedPassword(UserId id);
     Task<User?> GetUserByEmailAsync(string email);

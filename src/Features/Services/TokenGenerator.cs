@@ -20,6 +20,8 @@ public class TokenGenerator(IConfiguration config, ILogger<TokenGenerator> logge
             throw new ArgumentException("An authenticated user is needed to create a token");
         }
 
+        userRoles ??= [];
+
         _logger.LogDebug("Generating token for user ID: {UserId}", authenticatedUser.Id);
 
         var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]!));
