@@ -34,17 +34,17 @@ public static class UserEndpointsLogic
     {
         logger.LogDebug("Retrieving user with ID {userId}", id);
 
-        var isAdmin = claims.IsInRole("Admin");
+        //var isAdmin = claims.IsInRole("Admin");
 
-        if (!isAdmin)
-        {
-            var userIdClaim = claims.FindFirst("sub") ?? claims.FindFirst(ClaimTypes.NameIdentifier);
+        //if (!isAdmin)
+        //{
+        //    var userIdClaim = claims.FindFirst("sub") ?? claims.FindFirst(ClaimTypes.NameIdentifier);
 
-            if (userIdClaim == null || userIdClaim.Value != id.ToString() || !claims.IsInRole("User"))
-            {
-                return Results.Forbid();
-            }
-        }
+        //    if (userIdClaim == null || userIdClaim.Value != id.ToString() || !claims.IsInRole("User"))
+        //    {
+        //        return Results.Forbid();
+        //    }
+        //}
 
         var userDTO = await userService.GetUserByIdAsync(id);
         return userDTO != null 
@@ -125,8 +125,8 @@ public static class UserEndpointsLogic
     {
         logger.LogDebug("User updating password");
 
-        var userIdClaim = claims.FindFirst("name") ?? claims.FindFirst(ClaimTypes.Name);
-        if (userIdClaim == null || userIdClaim.Value != dto.Email || !claims.IsInRole("User"))
+        var userNameClaim = claims.FindFirst("name") ?? claims.FindFirst(ClaimTypes.Name);
+        if (userNameClaim == null || userNameClaim.Value != dto.Email || !claims.IsInRole("User"))
         {
             return Results.Forbid();
         }
