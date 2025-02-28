@@ -17,7 +17,7 @@ using System.Text;
 
 namespace RoomSchedulerAPI.Core.Extensions;
 
-public static class WebAppExtensions
+public static class ServiceCollectionExtensions
 {
     public static IServiceCollection RegisterServices(this IServiceCollection services, IConfiguration configuration)
     {
@@ -48,7 +48,6 @@ public static class WebAppExtensions
         {
             throw new InvalidOperationException("Connection string is not configured.");
         }
-
         services.AddScoped<IDbConnectionFactory>(_ => new MySqlConnectionFactory(connectionString!));
 
         // Fluent Validation

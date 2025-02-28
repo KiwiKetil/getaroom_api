@@ -1,15 +1,21 @@
 ﻿using AutoMapper;
+using RoomSchedulerAPI.Features.Models.DTOs.ResponseDTOs;
 using RoomSchedulerAPI.Features.Models.DTOs.UserDTOs;
 using RoomSchedulerAPI.Features.Models.Entities;
+using RoomSchedulerAPI.Features.Repositories;
 using RoomSchedulerAPI.Features.Repositories.Interfaces;
 using RoomSchedulerAPI.Features.Services.Interfaces;
 
 namespace RoomSchedulerAPI.Features.Services;
 
-public class UserService(IUserRepository userRepository, IPasswordHistoryRepository passwordHistoryRepository, IMapper mapper, ILogger<UserService> logger) : IUserService
+public class UserService(IUserRepository userRepository, IUserRoleRepository userRoleRepository, IPasswordVerificationService passwordVerificationService,
+    IPasswordHistoryRepository passwordHistoryRepository, ITokenGenerator tokenGenerator, IMapper mapper, ILogger<UserService> logger) : IUserService
 {
     private readonly IUserRepository _userRepository = userRepository;
+    private readonly IUserRoleRepository _userRoleRepository = userRoleRepository;
+    private readonly IPasswordVerificationService _passwordVerificationService = passwordVerificationService;
     private readonly IPasswordHistoryRepository _passwordHistoryRepository = passwordHistoryRepository;
+    private readonly ITokenGenerator _tokenGenerator = tokenGenerator;
     private readonly ILogger<UserService> _logger = logger;
     private readonly IMapper _mapper = mapper;
 
@@ -52,6 +58,8 @@ public class UserService(IUserRepository userRepository, IPasswordHistoryReposit
 
     public async Task<UserDTO?> RegisterUserAsync(UserRegistrationDTO dto)
     {
+        _logger.LogDebug("Registering user");
+
         var existingUser = await _userRepository.GetUserByEmailAsync(dto.Email);
 
         if (existingUser != null)
@@ -69,9 +77,51 @@ public class UserService(IUserRepository userRepository, IPasswordHistoryReposit
         return userDTO;
     }
 
-    public async Task<bool> UpdatePasswordAsync(UpdatePasswordDTO dto, User user) 
+    public async Task<string?> UserLoginAsync(LoginDTO dto)
+    {
+        _logger.LogDebug("User logging in");
+
+        var user = await _userRepository.GetUserByEmailAsync(dto.Email);
+        if (user == null)
+        {
+            _logger.LogDebug("User not found");
+            return null;
+        }
+
+        var verifiedUser = _passwordVerificationService.VerifyPassword(dto, user);
+        if (!verifiedUser)
+        {
+            _logger.LogDebug("Could not verify password");
+            return null;
+        }
+
+        bool hasUpdatedPassword = await HasUpdatedPassword(user.Id);
+        var userRoles = await _userRoleRepository.GetUserRoles(user.Id);
+
+        var token = _tokenGenerator.GenerateToken(user, hasUpdatedPassword, userRoles);
+        return token;
+    }
+
+    public async Task<string?> UpdatePasswordAsync(UpdatePasswordDTO dto) 
     {
         _logger.LogDebug("Updating password for user {Email}", dto.Email);
+
+        var user = await GetUserByEmailAsync(dto.Email);
+        if (user is null)
+        {
+            _logger.LogError("User not found by email {Email}", dto.Email);
+            return null; 
+        }
+
+        var verifiedUser = _passwordVerificationService.VerifyPassword(dto, user);
+        if (!verifiedUser)
+        {
+            _logger.LogError("Verification faield");
+            return null; 
+        }
+      
+        var userRoles = await _userRoleRepository.GetUserRoles(user.Id);
+        var token = _tokenGenerator.GenerateToken(user, true, userRoles);
 
         string newHashedPassword = BCrypt.Net.BCrypt.HashPassword(dto.NewPassword);
 
@@ -79,13 +129,13 @@ public class UserService(IUserRepository userRepository, IPasswordHistoryReposit
         if (!updateSuccess)
         {
             _logger.LogError("Failed to update password for user {Email}", dto.Email);
-            return false;
+            return null;
         }
 
         await _passwordHistoryRepository.InsertPasswordUpdateRecordAsync(user.Id.Value);
 
         _logger.LogInformation("Password updated successfully for user {Email}", dto.Email);
-        return true;
+        return token;
     }
 
     public async Task<bool> HasUpdatedPassword(UserId id)
@@ -104,5 +154,5 @@ public class UserService(IUserRepository userRepository, IPasswordHistoryReposit
         var user = await _userRepository.GetUserByEmailAsync(email);
 
         return user;
-    }
+    } 
 }
