@@ -81,6 +81,10 @@ public class TokenGeneratorTests
         var idClaim = jwtToken.Subject;
         var nameClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Name);
         var rolesClaim = jwtToken.Claims.Where(c => c.Type == ClaimTypes.Role).Select(r => r.Value).ToList();
+        var rolesOutput = string.Join(", ", rolesClaim);
+
+        // Write to the console
+        Console.WriteLine($"Roles: {rolesOutput}");
         var passwordUpdatedClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == "passwordUpdated");
 
         Assert.IsType<string>(result);
@@ -93,7 +97,5 @@ public class TokenGeneratorTests
         Assert.NotNull(passwordUpdatedClaim);
         Assert.True(bool.Parse(passwordUpdatedClaim.Value));
     }
-
-    // test when ...
 }
 
