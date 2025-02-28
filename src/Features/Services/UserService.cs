@@ -102,9 +102,26 @@ public class UserService(IUserRepository userRepository, IUserRoleRepository use
         return token;
     }
 
-    public async Task<bool> UpdatePasswordAsync(UpdatePasswordDTO dto, User user) 
+    public async Task<string?> UpdatePasswordAsync(UpdatePasswordDTO dto) 
     {
         _logger.LogDebug("Updating password for user {Email}", dto.Email);
+
+        var user = await GetUserByEmailAsync(dto.Email);
+        if (user is null)
+        {
+            _logger.LogError("User not found by email {Email}", dto.Email);
+            return null; 
+        }
+
+        var verifiedUser = _passwordVerificationService.VerifyPassword(dto, user);
+        if (!verifiedUser)
+        {
+            _logger.LogError("Verification faield");
+            return null; 
+        }
+      
+        var userRoles = await _userRoleRepository.GetUserRoles(user.Id);
+        var token = _tokenGenerator.GenerateToken(user, true, userRoles);
 
         string newHashedPassword = BCrypt.Net.BCrypt.HashPassword(dto.NewPassword);
 
@@ -112,13 +129,13 @@ public class UserService(IUserRepository userRepository, IUserRoleRepository use
         if (!updateSuccess)
         {
             _logger.LogError("Failed to update password for user {Email}", dto.Email);
-            return false;
+            return null;
         }
 
         await _passwordHistoryRepository.InsertPasswordUpdateRecordAsync(user.Id.Value);
 
         _logger.LogInformation("Password updated successfully for user {Email}", dto.Email);
-        return true;
+        return token;
     }
 
     public async Task<bool> HasUpdatedPassword(UserId id)
