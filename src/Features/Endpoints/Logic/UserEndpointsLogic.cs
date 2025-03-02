@@ -1,7 +1,9 @@
 ﻿using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RoomSchedulerAPI.Features.Models.DTOs.ResponseDTOs;
 using RoomSchedulerAPI.Features.Models.DTOs.UserDTOs;
+using RoomSchedulerAPI.Features.Models.Entities;
 using RoomSchedulerAPI.Features.Repositories.Interfaces;
 using RoomSchedulerAPI.Features.Services.Interfaces;
 using System.Security.Claims;
@@ -29,22 +31,17 @@ public static class UserEndpointsLogic
     public static async Task<IResult> GetUserByIdLogicAsync(
         [FromRoute] Guid id,
         IUserService userService,
+        IAuthorizationService authorizationService,
         ClaimsPrincipal claims,
         ILogger<Program> logger)
     {
-        logger.LogDebug("Retrieving user with ID {userId}", id);
+        logger.LogDebug("Retrieving user with ID {userId}", id);   
 
-        //var isAdmin = claims.IsInRole("Admin");
-
-        //if (!isAdmin)
-        //{
-        //    var userIdClaim = claims.FindFirst("sub") ?? claims.FindFirst(ClaimTypes.NameIdentifier);
-
-        //    if (userIdClaim == null || userIdClaim.Value != id.ToString() || !claims.IsInRole("User"))
-        //    {
-        //        return Results.Forbid();
-        //    }
-        //}
+        var authorizationResult = await authorizationService.AuthorizeAsync(claims, id, "UserIdAccessPolicy");
+        if (!authorizationResult.Succeeded)
+        {
+            return Results.Forbid();
+        }
 
         var userDTO = await userService.GetUserByIdAsync(id);
         return userDTO != null 
@@ -56,20 +53,16 @@ public static class UserEndpointsLogic
         [FromBody] UserUpdateDTO dto,
         [FromRoute] Guid id,
         IUserService userService,
+        IAuthorizationService authorizationService,
         ClaimsPrincipal claims,
         ILogger<Program> logger)
     {
         logger.LogDebug("Updating user with ID {userId}", id);
 
-        var isAdmin = claims.IsInRole("Admin");
-        if (!isAdmin)
+        var authorizationResult = await authorizationService.AuthorizeAsync(claims, id, "UserIdAccessPolicy");
+        if (!authorizationResult.Succeeded)
         {
-            var userIdClaim = claims.FindFirst("sub") ?? claims.FindFirst(ClaimTypes.NameIdentifier);
-
-            if (userIdClaim == null || userIdClaim.Value != id.ToString() || !claims.IsInRole("User"))
-            {
-                return Results.Forbid();
-            }
+            return Results.Forbid();
         }
 
         var userDTO = await userService.UpdateUserAsync(id, dto);
@@ -120,13 +113,14 @@ public static class UserEndpointsLogic
     public static async Task<IResult> UpdatePasswordLogicAsync(
         [FromBody] UpdatePasswordDTO dto,
         IUserService userService,
+       IAuthorizationService authorizationService,
         ClaimsPrincipal claims,
         ILogger<Program> logger)
     {
         logger.LogDebug("User updating password");
 
-        var userNameClaim = claims.FindFirst("name") ?? claims.FindFirst(ClaimTypes.Name);
-        if (userNameClaim == null || userNameClaim.Value != dto.Email || !claims.IsInRole("User"))
+        var authorizationResult = await authorizationService.AuthorizeAsync(claims, dto, "UserNameAccessPolicy");
+        if (!authorizationResult.Succeeded)
         {
             return Results.Forbid();
         }
