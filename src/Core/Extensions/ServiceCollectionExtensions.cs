@@ -2,7 +2,9 @@
 using FluentValidation.AspNetCore;
 using FluentValidation.Resources;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
+using RoomSchedulerAPI.Core.Authorization;
 using RoomSchedulerAPI.Core.DB.DBConnection;
 using RoomSchedulerAPI.Core.DB.DBConnection.Interface;
 using RoomSchedulerAPI.Core.Middleware;
@@ -96,16 +98,9 @@ public static class ServiceCollectionExtensions
           });
 
         // Authorization policies
-        services.AddAuthorizationBuilder()
-            .AddPolicy("PasswordUpdatedPolicy", policy =>
-            {
-                policy.RequireClaim("passwordUpdated", "true");
-            })
-            .AddPolicy("AdminAndPasswordUpdatedPolicy", policy =>
-            {
-                policy.RequireRole("Admin");
-                policy.RequireClaim("passwordUpdated", "true");
-            });
+        services.AddAuthorizationBuilder().AddCustomPolicies(); 
+        services.AddScoped<IAuthorizationHandler, UserIdAccessHandler>();
+        services.AddScoped<IAuthorizationHandler, UserNameAccessHandler>();
 
         return services;        
     }

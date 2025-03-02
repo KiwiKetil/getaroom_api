@@ -9,14 +9,14 @@ public class UserIdAccessHandler : AuthorizationHandler<UserIdAccessRequirement,
                                                     UserIdAccessRequirement requirement,
                                                     Guid resource)
     {
-        if (context.User.IsInRole("Admin")) 
+        if (context.User.IsInRole("Admin"))
         {
             context.Succeed(requirement);
             return Task.CompletedTask;
         }
         var userIdClaim = context.User.FindFirst("sub") ?? context.User.FindFirst(ClaimTypes.NameIdentifier);
 
-        if (userIdClaim != null && userIdClaim.Value == resource.ToString() && context.User.IsInRole("User")) 
+        if (userIdClaim != null && userIdClaim.Value == resource.ToString() && context.User.IsInRole("User"))
         {
             context.Succeed(requirement);
         }
