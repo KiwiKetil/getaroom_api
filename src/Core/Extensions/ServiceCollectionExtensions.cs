@@ -99,6 +99,7 @@ public static class ServiceCollectionExtensions
 
         // Authorization policies
         services.AddAuthorizationBuilder().AddCustomPolicies(); 
+
         services.AddScoped<IAuthorizationHandler, UserIdAccessHandler>();
         services.AddScoped<IAuthorizationHandler, UserNameAccessHandler>();
 
