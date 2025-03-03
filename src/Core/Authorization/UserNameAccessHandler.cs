@@ -11,7 +11,7 @@ public class UserNameAccessHandler : AuthorizationHandler<UserNameAccessRequirem
                                                     UpdatePasswordDTO resource)
     {
         var userNameClaim = context.User.FindFirst("name") ?? context.User.FindFirst(ClaimTypes.Name);
-        if (userNameClaim != null && userNameClaim.Value == resource.Email && context.User.IsInRole("User"))
+        if (userNameClaim != null && userNameClaim.Value == resource.Email)
         {
             context.Succeed(requirement);
         }
