@@ -17,7 +17,12 @@ public class TokenGenerator(IConfiguration config, ILogger<TokenGenerator> logge
     {
         if (authenticatedUser == null)
         {
-            throw new ArgumentException("An authenticated user is needed to create a token");
+            throw new ArgumentException("An authenticated user is needed");
+        }
+
+        if (userRoles == null || !userRoles.Any())
+        {
+            throw new ArgumentException("Role(s) are needed");
         }
 
         userRoles ??= [];

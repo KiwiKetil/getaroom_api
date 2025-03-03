@@ -23,10 +23,25 @@ public class TokenGeneratorTests
     }
 
     [Fact]
-    public void GenerateToken_WithNullUser_ThrowsArgumentException()
+    public void GenerateToken_WhenUserIsNull_ThrowsArgumentException()
     {
-        // Arrange, Act & Assert
-        Assert.Throws<ArgumentException>(() => _service.GenerateToken(null!, false, []));
+        // Arrange
+        List<UserRole> roles = [new UserRole { RoleName = "User" }];
+
+        // Act & Assert
+        var exception = Assert.Throws<ArgumentException>(() => _service.GenerateToken(null!, false, roles));
+        Assert.Equal("An authenticated user is needed", exception.Message); 
+    }
+
+    [Fact]
+    public void GenerateToken_WhenRolesAreNullOrEmpty_ThrowsArgumentException()
+    {
+        // Arrange
+        var authenticatedUser = new User { Id = UserId.NewId, Email = "email@123@gmail.com" };
+
+        // Act & Assert
+        var exception = Assert.Throws<ArgumentException>(() => _service.GenerateToken(authenticatedUser, false, []));
+        Assert.Equal("Role(s) are needed", exception.Message);
     }
 
     [Fact]
@@ -98,4 +113,3 @@ public class TokenGeneratorTests
         Assert.True(bool.Parse(passwordUpdatedClaim.Value));
     }
 }
-
