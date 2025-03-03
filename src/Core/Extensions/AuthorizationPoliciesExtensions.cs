@@ -8,17 +8,20 @@ public static class AuthorizationPoliciesExtensions
     public static AuthorizationBuilder AddCustomPolicies(this AuthorizationBuilder builder)
     {
         return builder
-            .AddPolicy("PasswordUpdatedPolicy", policy =>
+            // endpoint policies
+            .AddPolicy("UserRoleAndPasswordUpdatedPolicy", policy =>
             {
+                policy.RequireRole("User", "Admin");
                 policy.RequireClaim("passwordUpdated", "true");
             })
 
-            .AddPolicy("AdminAndPasswordUpdatedPolicy", policy =>
+            .AddPolicy("AdminRoleAndPasswordUpdatedPolicy", policy =>
             {
                 policy.RequireRole("Admin");
                 policy.RequireClaim("passwordUpdated", "true");
             })
 
+            // authorization policies
             .AddPolicy("UserIdAccessPolicy", policy =>
             policy.Requirements.Add(new UserIdAccessRequirement()))
 

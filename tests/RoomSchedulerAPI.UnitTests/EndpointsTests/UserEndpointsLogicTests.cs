@@ -454,66 +454,25 @@ public class UserEndpointsLogicTests
         Assert.Equal(userDTO.Email, userRegistrationDTO.Email);
     }
 
-    //[Fact]
-    //public async Task RegisterUserLogicAsync_WhenValidationFails_ReturnsBadRequestAndErrors()
-    //{
-    //    // Arrange
-    //    var userRegistrationDTO = new UserRegistrationDTO("Kristoffer", "Sveberg", "99999999", "kris@gmail.com", "secretPassword123!");
-    //    var userId = UserId.NewId;
-    //    var links = new List<Link>();
-    //    var userDTO = new UserDTO(userId, "Kristoffer", "Sveberg", "99999999", "kris@gmail.com", links);
-    //    var errors = new List<ValidationFailure>(
-    //    [
-    //        new ValidationFailure("Password", "Password must be 8-24 characters, include at least 1 number, 1 uppercase," +
-    //                                              " 1 lowercase, and 1 special character ('! ? * # _ -')")
-    //    ]);
-    //    var expectedErrors = new List<string> {"Password must be 8-24 characters, include at least 1 number, 1 uppercase," +
-    //                                              " 1 lowercase, and 1 special character ('! ? * # _ -')" };
+    [Fact]
+    public async Task RegisterUserLogicAsync_WhenUserAlreadyExists_ReturnsConflictAndErrorResponse()
+    {
+        // Arrange
+        var userRegistrationDTO = new UserRegistrationDTO("Kristoffer", "Sveberg", "(99999999", "kris@gmail.com", "secretPassword123!");
 
-    //    var validatorMock = new Mock<IValidator<UserRegistrationDTO>>();
-    //    validatorMock.Setup(x => x.ValidateAsync(userRegistrationDTO, It.IsAny<CancellationToken>()))
-    //        .ReturnsAsync(new ValidationResult(errors));
+        _userServiceMock.Setup(x => x.RegisterUserAsync(userRegistrationDTO)).ReturnsAsync((UserDTO?)null);
 
-    //    _userServiceMock.Setup(x => x.RegisterUserAsync(userRegistrationDTO))
-    //        .ReturnsAsync(userDTO);
+        // Act
+        var result = await UserEndpointsLogic.RegisterUserLogicAsync(
+            userRegistrationDTO,
+            _userServiceMock.Object,
+            _loggerMock.Object);
 
-    //    // Act
-    //    var result = await UserEndpointsLogic.RegisterUserLogicAsync(
-    //        userRegistrationDTO,
-    //        validatorMock.Object,
-    //        _userServiceMock.Object,
-    //        _loggerMock.Object);
-
-    //    // Assert
-    //    var badRequestResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.BadRequest<ErrorResponse>>(result);
-    //    Assert.NotNull(badRequestResult.Value);
-    //    Assert.Equal(expectedErrors, badRequestResult.Value.Errors);
-    //}
-
-    //[Fact]
-    //public async Task RegisterUserLogicAsync_WhenUserAlreadyExists_ReturnsConflictAndMessage()
-    //{
-    //    // Arrange
-    //    var userRegistrationDTO = new UserRegistrationDTO("Kristoffer", "Sveberg", "(99999999", "kris@gmail.com", "secretPassword123!");
-
-    //    var validatorMock = new Mock<IValidator<UserRegistrationDTO>>();
-    //    validatorMock.Setup(x => x.ValidateAsync(userRegistrationDTO, It.IsAny<CancellationToken>()))
-    //        .ReturnsAsync(new ValidationResult());
-
-    //    _userServiceMock.Setup(x => x.RegisterUserAsync(userRegistrationDTO)).ReturnsAsync((UserDTO?)null);
-
-    //    // Act
-    //    var result = await UserEndpointsLogic.RegisterUserLogicAsync(
-    //        userRegistrationDTO,
-    //        validatorMock.Object,
-    //        _userServiceMock.Object,
-    //        _loggerMock.Object);
-
-    //    // Assert
-    //    var conflictResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.Conflict<ErrorResponse>>(result);
-    //    Assert.NotNull(conflictResult.Value);
-    //    Assert.Equal("User already exists", conflictResult.Value.Message);
-    //}
+        // Assert
+        var conflictResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.Conflict<ErrorResponse>>(result);
+        Assert.NotNull(conflictResult.Value);
+        Assert.Equal("User already exists", conflictResult.Value.Message);
+    }
 
     #endregion RegisterUserLogicAsync
 
