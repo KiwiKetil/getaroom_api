@@ -178,31 +178,33 @@ public class UserEndpointsLogicTests
         Assert.Equal("User was not found", NotFoundResult.Value.Message);
     }
 
-    //[Fact]
-    //public async Task GetUserByIdLogicAsync_WhenUserIdDoesNotMatchTargetId_ReturnsForbidden()
-    //{
-    //    // Arrange        
-    //    var id = Guid.NewGuid();
+    [Fact]
+    public async Task GetUserByIdLogicAsync_WhenUserIsNotAuthorized_ReturnsForbidden()
+    {
+        // Arrange        
+        var id = Guid.NewGuid();
 
-    //    var claimsIdentity = new ClaimsIdentity(
-    //    [
-    //        new Claim(ClaimTypes.Role, "User"),
-    //        new Claim(ClaimTypes.NameIdentifier, Guid.NewGuid().ToString())
-    //    ], "TestAuthentication");
-    //    var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
+        var claimsIdentity = new ClaimsIdentity(
+        [
+            new Claim(ClaimTypes.Role, "User"),
+            new Claim(ClaimTypes.NameIdentifier, Guid.NewGuid().ToString())
+        ], "TestAuthentication");
+        var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
 
-    //    _userServiceMock.Setup(x => x.GetUserByIdAsync(id)).ReturnsAsync((UserDTO?)null);
+        _userServiceMock.Setup(x => x.GetUserByIdAsync(id)).ReturnsAsync((UserDTO?)null);
+        _authorizationServiceMock.Setup(x => x.AuthorizeAsync(claimsPrincipal, id, "UserIdAccessPolicy")).ReturnsAsync(AuthorizationResult.Failed);
 
-    //    // Act
-    //    var result = await UserEndpointsLogic.GetUserByIdLogicAsync(
-    //        id,
-    //        _userServiceMock.Object,
-    //        claimsPrincipal,
-    //        _loggerMock.Object);
+        // Act
+        var result = await UserEndpointsLogic.GetUserByIdLogicAsync(
+            id,
+            _userServiceMock.Object,
+            _authorizationServiceMock.Object,
+            claimsPrincipal,
+            _loggerMock.Object);
 
-    //    // Assert
-    //    Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.ForbidHttpResult>(result);
-    //}
+        // Assert
+        Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.ForbidHttpResult>(result);
+    }
 
     //[Fact]
     //public async Task GetUserByIdLogicAsync_WhenNameIdentifierClaimIsNull_ReturnsForbidden()
