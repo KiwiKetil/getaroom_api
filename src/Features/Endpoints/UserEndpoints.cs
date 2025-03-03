@@ -11,40 +11,41 @@ public static class UserEndpoints
     {
         // https://localhost:7089/api/v1/users?page=1&pageSize=10     
         app.MapGet("/api/v1/users", UserEndpointsLogic.GetUsersLogicAsync)
-        .RequireAuthorization("AdminAndPasswordUpdatedPolicy")
+        .RequireAuthorization("AdminRoleAndPasswordUpdatedPolicy")
         .WithName("GetUsers");
 
         // https://localhost:7089/api/v1/users/887ac10b-58cc-4372-a567-0e02b2c3d493
         app.MapGet("/api/v1/users/{id}", UserEndpointsLogic.GetUserByIdLogicAsync)
-        .RequireAuthorization("PasswordUpdatedPolicy")
+        .RequireAuthorization("UserRoleAndPasswordUpdatedPolicy")
         .WithName("GetUserById");
 
         // https://localhost:7089/api/v1/users/b97ac10b-58cc-4372-a567-0e02b2c3d490
         app.MapPut("/api/v1/users/{id}", UserEndpointsLogic.UpdateUserLogicAsync)
-        .RequireAuthorization("PasswordUpdatedPolicy")
-        .WithName("UpdateUser")
-        .EndpointValidationFilter<UserUpdateDTO>();
+        .RequireAuthorization("UserRoleAndPasswordUpdatedPolicy")
+        .EndpointValidationFilter<UserUpdateDTO>()
+        .WithName("UpdateUser");
 
         // https://localhost:7089/api/v1/users/6d7b1ca5-54f6-4859-a746-fc712d564128
         app.MapDelete("/api/v1/users/{id}", UserEndpointsLogic.DeleteUserLogicAsync)
-        .RequireAuthorization("AdminAndPasswordUpdatedPolicy")
+        .RequireAuthorization("AdminRoleAndPasswordUpdatedPolicy")
         .WithName("DeleteUser");
 
         // https://localhost:7089/api/v1/users/register
         app.MapPost("/api/v1/users/register", UserEndpointsLogic.RegisterUserLogicAsync)
-        .RequireAuthorization("AdminAndPasswordUpdatedPolicy")
-        .WithName("RegisterUser")
-        .EndpointValidationFilter<UserRegistrationDTO>();
+        .RequireAuthorization("AdminRoleAndPasswordUpdatedPolicy")
+        .EndpointValidationFilter<UserRegistrationDTO>()
+        .WithName("RegisterUser");
 
         // https://localhost:7089/api/v1/login
         app.MapPost("/api/v1/login", UserEndpointsLogic.UserLoginLogicAsync)
-        .WithName("UserLogin")
-        .EndpointValidationFilter<LoginDTO>();
+        .EndpointValidationFilter<LoginDTO>()
+        .WithName("UserLogin");
 
         // https://localhost:7089/api/v1/users/update-password
         app.MapPost("/api/v1/users/update-password", UserEndpointsLogic.UpdatePasswordLogicAsync)
         .RequireAuthorization()
-        .WithName("UpdatePassword")
-        .EndpointValidationFilter<UpdatePasswordDTO>();
+        .EndpointValidationFilter<UpdatePasswordDTO>()
+        .WithName("UpdatePassword");
+
     }
 }

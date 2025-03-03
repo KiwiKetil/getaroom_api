@@ -94,7 +94,7 @@ public static class UserEndpointsLogic
         var userDTO = await userService.RegisterUserAsync(dto);
         return userDTO != null 
             ? Results.Ok(userDTO)
-            : Results.Conflict(new ErrorResponse(Message: "User already exists"));
+            : Results.Conflict(new ErrorResponse(Message: "User could not be registered"));
     }
 
     public static async Task<IResult> UserLoginLogicAsync(
@@ -113,7 +113,7 @@ public static class UserEndpointsLogic
     public static async Task<IResult> UpdatePasswordLogicAsync(
         [FromBody] UpdatePasswordDTO dto,
         IUserService userService,
-       IAuthorizationService authorizationService,
+        IAuthorizationService authorizationService,
         ClaimsPrincipal claims,
         ILogger<Program> logger)
     {

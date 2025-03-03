@@ -16,7 +16,7 @@ public class UserIdAccessHandler : AuthorizationHandler<UserIdAccessRequirement,
         }
         var userIdClaim = context.User.FindFirst("sub") ?? context.User.FindFirst(ClaimTypes.NameIdentifier);
 
-        if (userIdClaim != null && userIdClaim.Value == resource.ToString() && context.User.IsInRole("User"))
+        if (userIdClaim != null && userIdClaim.Value == resource.ToString())
         {
             context.Succeed(requirement);
         }
