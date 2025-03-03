@@ -39,7 +39,7 @@ public class UserEndpointsLogicTests
         };
         int totalCount = userDTOs.Count;
 
-        _userServiceMock.Setup(x => x.GetUsersAsync(It.IsAny<UserQuery>())).ReturnsAsync(new UsersAndCountDTO(totalCount, userDTOs));
+        _userServiceMock.Setup(x => x.GetUsersAsync(It.IsAny<UserQuery>())).ReturnsAsync(new UsersWithCountDTO(totalCount, userDTOs));
 
         // Act
         var result = await UserEndpointsLogic.GetUsersLogicAsync(
@@ -48,7 +48,7 @@ public class UserEndpointsLogicTests
             _loggerMock.Object);
 
         // Assert    
-        var okResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.Ok<UsersAndCountDTO>>(result);
+        var okResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.Ok<UsersWithCountDTO>>(result);
         Assert.NotNull(okResult.Value);
         Assert.Equal(totalCount, okResult.Value.TotalCount);
         Assert.Equal(userDTOs, okResult.Value.UserDTOs);
@@ -60,7 +60,7 @@ public class UserEndpointsLogicTests
     {
         // Arrange
         var query = new UserQuery(null, null, null, null);
-        var usersAndCountDTO = new UsersAndCountDTO(0, []);
+        var usersAndCountDTO = new UsersWithCountDTO(0, []);
 
         _userServiceMock.Setup(x => x.GetUsersAsync(query)).ReturnsAsync(usersAndCountDTO);
 
