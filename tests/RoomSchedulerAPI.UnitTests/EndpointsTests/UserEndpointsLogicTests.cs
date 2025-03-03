@@ -607,91 +607,35 @@ public class UserEndpointsLogicTests
         var forbidResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.ForbidHttpResult>(result);
     }
 
-    //[Fact]
-    //public async Task UpdatePasswordLogic_WhenUserIsNotFound_ReturnsNotFoundAndMessage()
-    //{
-    //    // Arrange
-    //    var updatePasswordDTO = new UpdatePasswordDTO { Email = "epost@epost.no", Password = "GammeltPassord123!", NewPassword = "NyttPasssord123!" };
+    [Fact]
+    public async Task UpdatePasswordLogicAsync_WhenPasswordCouldNotBeUpdated_ReturnsUnauthorized() 
+    {
+        //Arrange
+        var updatePasswordDTO = new UpdatePasswordDTO { Email = "epost@epost.no", Password = "GammeltPassord123!", NewPassword = "NyttPasssord123!" };
 
-    //    var validatorMock = new Mock<IValidator<UpdatePasswordDTO>>();
-    //    validatorMock.Setup(x => x.ValidateAsync(updatePasswordDTO, It.IsAny<CancellationToken>())).ReturnsAsync(new ValidationResult());
+        var claimsIdentity = new ClaimsIdentity(
+        [
+            new Claim(ClaimTypes.Name, "epost@epost.no"),
+            new Claim(ClaimTypes.Role, "User")
+        ]);
+        var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
 
-    //    var passwordVerificationServiceMock = new Mock<IPasswordVerificationService>();
-    //    var tokenGeneratorMock = new Mock<ITokenGenerator>();
+        _authorizationServiceMock.Setup(x => x.AuthorizeAsync(claimsPrincipal, updatePasswordDTO, "UserNameAccessPolicy"))
+            .ReturnsAsync(AuthorizationResult.Success);
 
-    //    var claimsIdentity = new ClaimsIdentity(
-    //    [
-    //        new Claim(ClaimTypes.Name, "epost@epost.no"),
-    //        new Claim(ClaimTypes.Role, "User")
-    //    ]);
-    //    var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
+        _userServiceMock.Setup(x => x.UpdatePasswordAsync(updatePasswordDTO)).ReturnsAsync((string?)null);
 
-    //    var expectedMessage = "User not found";
+        // Act
+        var result = await UserEndpointsLogic.UpdatePasswordLogicAsync(
+            updatePasswordDTO, 
+            _userServiceMock.Object,
+            _authorizationServiceMock.Object,
+            claimsPrincipal, 
+            _loggerMock.Object);
 
-    //    _userServiceMock.Setup(x => x.GetUserByEmailAsync(updatePasswordDTO.Email)).ReturnsAsync((User?)null);
-
-    //    // Act
-    //    var result = await UserEndpointsLogic.UpdatePasswordLogicAsync(
-    //        updatePasswordDTO,
-    //        validatorMock.Object,
-    //        _userServiceMock.Object,
-    //        _userRoleRepositoryMock.Object,
-    //        passwordVerificationServiceMock.Object,
-    //        tokenGeneratorMock.Object,
-    //        claimsPrincipal,
-    //        _loggerMock.Object);
-
-    //    // Assert
-    //    var notFoundResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.NotFound<ErrorResponse>>(result);
-    //    Assert.NotNull(notFoundResult.Value);
-    //    Assert.Equal(expectedMessage, notFoundResult.Value.Message);
-    //    tokenGeneratorMock.Verify(x => x.GenerateToken(It.IsAny<User>(), It.IsAny<bool>(), It.IsAny<IEnumerable<UserRole>>()), Times.Never);
-    //}
-
-
-    //[Fact]
-    //public async Task UpdatePasswordLogicAsync_WhenUpdatingPasswordFails_ReturnsBadRequestAndMessage()
-    //{
-    //    // Arrange
-    //    var updatePasswordDTO = new UpdatePasswordDTO { Email = "epost@epost.no", Password = "GammeltPassord123!", NewPassword = "NyttPasssord123!" };
-    //    var verifiedUser = new User { Id = UserId.NewId };
-
-    //    var validatorMock = new Mock<IValidator<UpdatePasswordDTO>>();
-    //    validatorMock.Setup(x => x.ValidateAsync(updatePasswordDTO, It.IsAny<CancellationToken>())).ReturnsAsync(new ValidationResult());
-
-    //    var passwordVerificationServiceMock = new Mock<IPasswordVerificationService>();
-    //    passwordVerificationServiceMock.Setup(x => x.VerifyPassword(updatePasswordDTO, It.IsAny<User>())).Returns(true);
-
-    //    var tokenGeneratorMock = new Mock<ITokenGenerator>();
-
-    //    var claimsIdentity = new ClaimsIdentity(
-    //    [
-    //        new Claim(ClaimTypes.Name, "epost@epost.no"),
-    //        new Claim(ClaimTypes.Role, "User")
-    //    ]);
-    //    var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
-
-    //    _userServiceMock.Setup(x => x.GetUserByEmailAsync(updatePasswordDTO.Email)).ReturnsAsync(verifiedUser);
-    //    _userServiceMock.Setup(x => x.UpdatePasswordAsync(updatePasswordDTO, It.IsAny<User>())).ReturnsAsync(false);
-
-    //    // Act
-    //    var result = await UserEndpointsLogic.UpdatePasswordLogicAsync(
-    //        updatePasswordDTO,
-    //        validatorMock.Object,
-    //        _userServiceMock.Object,
-    //        _userRoleRepositoryMock.Object,
-    //        passwordVerificationServiceMock.Object,
-    //        tokenGeneratorMock.Object,
-    //        claimsPrincipal,
-    //        _loggerMock.Object);
-
-    //    // Assert
-    //    var badRequestResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.BadRequest<ErrorResponse>>(result);
-    //    Assert.NotNull(badRequestResult.Value);
-    //    Assert.Equal("Password could not be updated. Please check your username or password and try again.", badRequestResult.Value.Message);
-    //    tokenGeneratorMock.Verify(x => x.GenerateToken(It.IsAny<User>(), It.IsAny<bool>(), It.IsAny<IEnumerable<UserRole>>()), Times.Never);
-    //}
+        //Assert
+        Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.UnauthorizedHttpResult>(result);
+    }
 
     #endregion UpdatePasswordLogicAsync
-
 }

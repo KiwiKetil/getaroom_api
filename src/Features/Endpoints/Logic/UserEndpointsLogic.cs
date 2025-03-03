@@ -113,7 +113,7 @@ public static class UserEndpointsLogic
     public static async Task<IResult> UpdatePasswordLogicAsync(
         [FromBody] UpdatePasswordDTO dto,
         IUserService userService,
-       IAuthorizationService authorizationService,
+        IAuthorizationService authorizationService,
         ClaimsPrincipal claims,
         ILogger<Program> logger)
     {
