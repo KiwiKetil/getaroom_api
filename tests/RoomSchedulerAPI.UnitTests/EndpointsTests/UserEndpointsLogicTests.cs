@@ -131,7 +131,7 @@ public class UserEndpointsLogicTests
         var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
 
         _userServiceMock.Setup(x => x.GetUserByIdAsync(id)).ReturnsAsync(userDTO);
-        _authorizationServiceMock.Setup(x => x.AuthorizeAsync(claimsPrincipal, id, "UserIdAccessPolicy")).ReturnsAsync(AuthorizationResult.Success()); ;
+        _authorizationServiceMock.Setup(x => x.AuthorizeAsync(claimsPrincipal, id, "UserIdAccessPolicy")).ReturnsAsync(AuthorizationResult.Success()); 
 
         // Act
         var result = await UserEndpointsLogic.GetUserByIdLogicAsync(
@@ -148,33 +148,35 @@ public class UserEndpointsLogicTests
         okResult.Value.Should().BeEquivalentTo(userDTO);  // userDTO is type Record, therefore prob not needed since Equals() compare by value anyways.
     }
 
-    //[Fact]
-    //public async Task GetUserByIdLogicAsync_AsAdmin_WhenUserDoesNotExist_ReturnsNotFoundAndMessage()
-    //{
-    //    // Arrange
-    //    var id = Guid.NewGuid();
+    [Fact]
+    public async Task GetUserByIdLogicAsync_AsAdmin_WhenUserDoesNotExist_ReturnsNotFoundAndMessage()
+    {
+        // Arrange
+        var id = Guid.NewGuid();
 
-    //    var claimsIdentity = new ClaimsIdentity(
-    //    [
-    //        new Claim(ClaimTypes.Role, "Admin")
+        var claimsIdentity = new ClaimsIdentity(
+        [
+            new Claim(ClaimTypes.Role, "Admin")
 
-    //    ], "TestAuthentication");
-    //    var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
+        ], "TestAuthentication");
+        var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
 
-    //    _userServiceMock.Setup(x => x.GetUserByIdAsync(id)).ReturnsAsync((UserDTO?)null);
+        _userServiceMock.Setup(x => x.GetUserByIdAsync(id)).ReturnsAsync((UserDTO?)null);
+        _authorizationServiceMock.Setup(x => x.AuthorizeAsync(claimsPrincipal, id, "UserIdAccessPolicy")).ReturnsAsync(AuthorizationResult.Success());
 
-    //    // Act
-    //    var result = await UserEndpointsLogic.GetUserByIdLogicAsync(
-    //        id,
-    //        _userServiceMock.Object,
-    //        claimsPrincipal,
-    //        _loggerMock.Object);
+        // Act
+        var result = await UserEndpointsLogic.GetUserByIdLogicAsync(
+            id,
+            _userServiceMock.Object,
+            _authorizationServiceMock.Object,
+            claimsPrincipal,
+            _loggerMock.Object);
 
-    //    // Assert
-    //    var NotFoundResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.NotFound<ErrorResponse>>(result);
-    //    Assert.NotNull(NotFoundResult.Value);
-    //    Assert.Equal("User was not found", NotFoundResult.Value.Message);
-    //}
+        // Assert
+        var NotFoundResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.NotFound<ErrorResponse>>(result);
+        Assert.NotNull(NotFoundResult.Value);
+        Assert.Equal("User was not found", NotFoundResult.Value.Message);
+    }
 
     //[Fact]
     //public async Task GetUserByIdLogicAsync_WhenUserIdDoesNotMatchTargetId_ReturnsForbidden()
