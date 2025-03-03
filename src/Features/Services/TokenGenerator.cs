@@ -25,11 +25,11 @@ public class TokenGenerator(IConfiguration config, ILogger<TokenGenerator> logge
             throw new ArgumentException("Role(s) are needed");
         }
 
-        userRoles ??= [];
-
         _logger.LogDebug("Generating token for user ID: {UserId}", authenticatedUser.Id);
 
-        var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]!));
+        var jwtKey = _config["Jwt:Key"] ?? throw new InvalidOperationException("Missing configuration: Jwt:Key");
+
+        var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
         var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
         var userId = authenticatedUser.Id;
