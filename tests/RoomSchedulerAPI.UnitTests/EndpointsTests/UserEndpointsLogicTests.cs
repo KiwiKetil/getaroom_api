@@ -338,110 +338,42 @@ public class UserEndpointsLogicTests
         Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.ForbidHttpResult>(result);
     }
 
-    //[Fact]
-    //public async Task UpdateUserLogicAsync_WhenNameIdentifierClaimIsNull_ReturnsForbidden()
-    //{
-    //    // Arrange
-    //    var validatorMock = new Mock<IValidator<UserUpdateDTO>>();
+    [Fact]
+    public async Task UpdateUserLogicAsync_WhenUserCouldNotBeUpdated_ReturnsConflictAndErrorResponse()
+    {
+        // Arrange
+        var id = Guid.NewGuid();
+        var userId = new UserId(id);
 
-    //    var id = Guid.NewGuid();
+        var claimsIdentity = new ClaimsIdentity(
+        [
+            new Claim(ClaimTypes.Role, "User"),
+            new Claim(ClaimTypes.NameIdentifier, id.ToString())
+        ], "TestAuthentication");
+        var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
 
-    //    var claimsIdentity = new ClaimsIdentity(
-    //    [
-    //        new Claim(ClaimTypes.Role, "User"),
-    //    ], "TestAuthentication");
-    //    var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
+        var links = new List<Link>();
+        var userUpdateDTO = new UserUpdateDTO("Sarah", "Connor", "12344321", "sarahexample.com");
 
-    //    var userUpdateDTO = new UserUpdateDTO("Sarah", "Connor", "12344321", "sarah@example.com");
+        _userServiceMock.Setup(x => x.UpdateUserAsync(id, userUpdateDTO))
+            .ReturnsAsync((UserDTO?)null);
 
-    //    validatorMock.Setup(v => v.ValidateAsync(userUpdateDTO, It.IsAny<CancellationToken>()))
-    //        .ReturnsAsync(new ValidationResult());
+        _authorizationServiceMock.Setup(x => x.AuthorizeAsync(claimsPrincipal, id, "UserIdAccessPolicy")).ReturnsAsync(AuthorizationResult.Success);
 
-    //    // Act
-    //    var result = await UserEndpointsLogic.UpdateUserLogicAsync(
-    //        userUpdateDTO,
-    //        id,
-    //        _userServiceMock.Object,
-    //        validatorMock.Object,
-    //        claimsPrincipal,
-    //        _loggerMock.Object);
+        // Act
+        var result = await UserEndpointsLogic.UpdateUserLogicAsync(
+            userUpdateDTO,
+            id,
+            _userServiceMock.Object,
+            _authorizationServiceMock.Object,
+            claimsPrincipal,
+            _loggerMock.Object);
 
-    //    // Assert
-    //    Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.ForbidHttpResult>(result);
-    //}
-
-    //[Fact]
-    //public async Task UpdateUserLogicAsync_WhenUserRoleIsMissingFromClaims_ReturnsForbidden()
-    //{
-    //    // Arrange
-    //    var validatorMock = new Mock<IValidator<UserUpdateDTO>>();
-
-    //    var id = Guid.Parse("d77ac10b-58cc-4372-a567-0e02b2c3d488");
-
-    //    var claimsIdentity = new ClaimsIdentity(
-    //    [
-    //        new Claim(ClaimTypes.NameIdentifier, Guid.Parse("d77ac10b-58cc-4372-a567-0e02b2c3d488").ToString()),
-    //        new Claim(ClaimTypes.Role, "SomeRole")
-    //    ], "TestAuthentication");
-    //    var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
-
-    //    var userUpdateDTO = new UserUpdateDTO("Sarah", "Connor", "12344321", "sarah@example.com");
-
-    //    validatorMock.Setup(v => v.ValidateAsync(userUpdateDTO, It.IsAny<CancellationToken>()))
-    //        .ReturnsAsync(new ValidationResult());
-
-    //    // Act
-    //    var result = await UserEndpointsLogic.UpdateUserLogicAsync(
-    //        userUpdateDTO,
-    //        id,
-    //        _userServiceMock.Object,
-    //        validatorMock.Object,
-    //        claimsPrincipal,
-    //        _loggerMock.Object);
-
-    //    // Assert
-    //    Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.ForbidHttpResult>(result);
-    //}
-
-    //[Fact]
-    //public async Task UpdateUserLogicAsync_WhenResultIsNull_ReturnsConflictAndMessage()
-    //{
-    //    // Arrange
-    //    var validatorMock = new Mock<IValidator<UserUpdateDTO>>();
-
-    //    var id = Guid.NewGuid();
-    //    var userId = new UserId(id);
-
-    //    var claimsIdentity = new ClaimsIdentity(
-    //    [
-    //        new Claim(ClaimTypes.Role, "User"),
-    //        new Claim(ClaimTypes.NameIdentifier, id.ToString())
-    //    ], "TestAuthentication");
-    //    var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
-
-    //    var links = new List<Link>();
-    //    var userUpdateDTO = new UserUpdateDTO("Sarah", "Connor", "12344321", "sarahexample.com");
-
-    //    validatorMock.Setup(v => v.ValidateAsync(userUpdateDTO, It.IsAny<CancellationToken>()))
-    //        .ReturnsAsync(new ValidationResult());
-
-    //    _userServiceMock.Setup(x => x.UpdateUserAsync(id, userUpdateDTO))
-    //        .ReturnsAsync((UserDTO?)null);
-
-    //    // Act
-    //    var result = await UserEndpointsLogic.UpdateUserLogicAsync(
-    //        userUpdateDTO,
-    //        id,
-    //        _userServiceMock.Object,
-    //        validatorMock.Object,
-    //        claimsPrincipal,
-    //        _loggerMock.Object);
-
-    //    // Assert
-    //    var conflictResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.Conflict<ErrorResponse>>(result);
-    //    Assert.NotNull(conflictResult.Value);
-    //    Assert.Equal("User could not be updated", conflictResult.Value.Message);
-    //}
+        // Assert
+        var conflictResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.Conflict<ErrorResponse>>(result);
+        Assert.NotNull(conflictResult.Value);
+        Assert.Equal("User could not be updated", conflictResult.Value.Message);
+    }
 
     #endregion UpdateUserLogicAsync
 
