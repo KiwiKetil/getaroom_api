@@ -236,7 +236,8 @@ public class UserEndpointsLogicTests
         _userServiceMock.Setup(x => x.UpdateUserAsync(id, userUpdateDTO))
             .ReturnsAsync(userDTO);
 
-        _authorizationServiceMock.Setup(x => x.AuthorizeAsync(claimsPrincipal, id, "UserIdAccessPolicy")).ReturnsAsync(AuthorizationResult.Success); ;
+        _authorizationServiceMock.Setup(x => x.AuthorizeAsync(claimsPrincipal, id, "UserIdAccessPolicy"))
+            .ReturnsAsync(AuthorizationResult.Success); ;
 
         //Act
         var result = await UserEndpointsLogic.UpdateUserLogicAsync(
@@ -257,50 +258,48 @@ public class UserEndpointsLogicTests
         Assert.Equal(userUpdateDTO.Email, okResult.Value.Email);
     }
 
-    //[Fact]
-    //public async Task UpdateUserLogicAsync_AsValidUser_WhenUpdateIsSuccessful_ReturnsOkAndValidData()
-    //{
-    //    // Arrange
-    //    var validatorMock = new Mock<IValidator<UserUpdateDTO>>();
+    [Fact]
+    public async Task UpdateUserLogicAsync_AsAuthorizedUser_WhenUpdateIsSuccessful_ReturnsOkAndUpdatedUserDTO()
+    {
+        // Arrange
+        var id = Guid.NewGuid();
+        var userId = new UserId(id);
 
-    //    var id = Guid.NewGuid();
-    //    var userId = new UserId(id);
+        var claimsIdentity = new ClaimsIdentity(
+        [
+            new Claim(ClaimTypes.Role, "User"),
+            new Claim(ClaimTypes.NameIdentifier, id.ToString())
+        ], "TestAuthentication");
+        var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
 
-    //    var claimsIdentity = new ClaimsIdentity(
-    //    [
-    //        new Claim(ClaimTypes.Role, "User"),
-    //        new Claim(ClaimTypes.NameIdentifier, id.ToString())
-    //    ], "TestAuthentication");
-    //    var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
+        var links = new List<Link>();
+        var userUpdateDTO = new UserUpdateDTO("Sarah", "Connor", "12344321", "sarah@example.com");
+        var userDTO = new UserDTO(userId, "Sarah", "Connor", "12344321", "sarah@example.com", links);
 
-    //    var links = new List<Link>();
-    //    var userUpdateDTO = new UserUpdateDTO("Sarah", "Connor", "12344321", "sarah@example.com");
-    //    var userDTO = new UserDTO(userId, "Sarah", "Connor", "12344321", "sarah@example.com", links);
+        _userServiceMock.Setup(x => x.UpdateUserAsync(id, userUpdateDTO))
+            .ReturnsAsync(userDTO);
 
-    //    validatorMock.Setup(v => v.ValidateAsync(userUpdateDTO, It.IsAny<CancellationToken>()))
-    //        .ReturnsAsync(new ValidationResult());
+        _authorizationServiceMock.Setup(x => x.AuthorizeAsync(claimsPrincipal, id, "UserIdAccessPolicy"))
+            .ReturnsAsync(AuthorizationResult.Success());
 
-    //    _userServiceMock.Setup(x => x.UpdateUserAsync(id, userUpdateDTO))
-    //        .ReturnsAsync(userDTO);
+        // Act
+        var result = await UserEndpointsLogic.UpdateUserLogicAsync(
+            userUpdateDTO,
+            id,
+            _userServiceMock.Object,
+            _authorizationServiceMock.Object,
+            claimsPrincipal,
+            _loggerMock.Object);
 
-    //    // Act
-    //    var result = await UserEndpointsLogic.UpdateUserLogicAsync(
-    //        userUpdateDTO,
-    //        id,
-    //        _userServiceMock.Object,
-    //        validatorMock.Object,
-    //        claimsPrincipal,
-    //        _loggerMock.Object);
-
-    //    // Assert
-    //    var okResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.Ok<UserDTO>>(result);
-    //    Assert.NotNull(okResult.Value);
-    //    Assert.Equal(userDTO, okResult.Value);
-    //    Assert.Equal(userUpdateDTO.FirstName, okResult.Value.FirstName);
-    //    Assert.Equal(userUpdateDTO.LastName, okResult.Value.LastName);
-    //    Assert.Equal(userUpdateDTO.PhoneNumber, okResult.Value.PhoneNumber);
-    //    Assert.Equal(userUpdateDTO.Email, okResult.Value.Email);
-    //}
+        // Assert
+        var okResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.Ok<UserDTO>>(result);
+        Assert.NotNull(okResult.Value);
+        Assert.Equal(userDTO, okResult.Value);
+        Assert.Equal(userUpdateDTO.FirstName, okResult.Value.FirstName);
+        Assert.Equal(userUpdateDTO.LastName, okResult.Value.LastName);
+        Assert.Equal(userUpdateDTO.PhoneNumber, okResult.Value.PhoneNumber);
+        Assert.Equal(userUpdateDTO.Email, okResult.Value.Email);
+    }
 
     //[Fact]
     //public async Task UpdateUserLogicAsync_WhenValidationFails_ReturnsBadRequestAndErrors()
