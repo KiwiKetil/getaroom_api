@@ -17,7 +17,7 @@ public static class ValidationFilterExtensions
             if (!validationResult.IsValid)
             {
                 var errors = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
-                return Results.BadRequest(new ErrorResponse ( Errors: errors ));
+                return Results.BadRequest(new ErrorResponse(Errors: errors));
             }
             return await next(context);
         });

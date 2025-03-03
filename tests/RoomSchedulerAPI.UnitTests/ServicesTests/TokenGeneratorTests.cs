@@ -45,6 +45,48 @@ public class TokenGeneratorTests
     }
 
     [Fact]
+    public void GenerateToken_WhenJwtKeyIsNotSet_ThrowsInvalidOperationException()
+    {
+        // Arrange
+        var authenticatedUser = new User { Id = UserId.NewId, Email = "email@123@gmail.com" };
+        List<UserRole> roles = [new UserRole { RoleName = "User" }];
+
+        _configMock.Setup(c => c["Jwt:Key"]).Returns((string?)null);
+
+        // Act & Assert
+        var exception = Assert.Throws<InvalidOperationException>(() => _service.GenerateToken(authenticatedUser, false, roles));
+        Assert.Equal("Missing configuration: Jwt:Key", exception.Message);
+    }
+
+    [Fact]
+    public void GenerateToken_WhenJwtIssuerIsNotSet_ThrowsInvalidOperationException()
+    {
+        // Arrange
+        var authenticatedUser = new User { Id = UserId.NewId, Email = "email@123@gmail.com" };
+        List<UserRole> roles = [new UserRole { RoleName = "User" }];
+
+        _configMock.Setup(c => c["Jwt:Issuer"]).Returns((string?)null);
+
+        // Act & Assert
+        var exception = Assert.Throws<InvalidOperationException>(() => _service.GenerateToken(authenticatedUser, false, roles));
+        Assert.Equal("Missing configuration: Jwt:Issuer", exception.Message);
+    }
+
+    [Fact]
+    public void GenerateToken_WhenJwtAudienceIsNotSet_ThrowsInvalidOperationException()
+    {
+        // Arrange
+        var authenticatedUser = new User { Id = UserId.NewId, Email = "email@123@gmail.com" };
+        List<UserRole> roles = [new UserRole { RoleName = "User" }];
+
+        _configMock.Setup(c => c["Jwt:Audience"]).Returns((string?)null);
+
+        // Act & Assert
+        var exception = Assert.Throws<InvalidOperationException>(() => _service.GenerateToken(authenticatedUser, false, roles));
+        Assert.Equal("Missing configuration: Jwt:Audience", exception.Message);
+    }
+
+    [Fact]
     public void GenerateToken_WhenSuccess_WhenUserHasNotUpdatedPassword_ReturnsValidTokenWithCorrectClaims()
     {
         // Arrange

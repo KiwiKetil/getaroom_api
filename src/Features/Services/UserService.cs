@@ -19,13 +19,13 @@ public class UserService(IUserRepository userRepository, IUserRoleRepository use
     private readonly ILogger<UserService> _logger = logger;
     private readonly IMapper _mapper = mapper;
 
-    public async Task<UsersAndCountDTO> GetUsersAsync(UserQuery query)
+    public async Task<UsersWithCountDTO> GetUsersAsync(UserQuery query)
     {
         _logger.LogDebug("Retrieving users");
 
         var (users, totalCount) = await _userRepository.GetUsersAsync(query);
         var dtos = users.Select(user => _mapper.Map<UserDTO>(user)).ToList();
-        return new UsersAndCountDTO(totalCount, dtos);
+        return new UsersWithCountDTO(totalCount, dtos);
     }
 
     public async Task<UserDTO?> GetUserByIdAsync(Guid id)

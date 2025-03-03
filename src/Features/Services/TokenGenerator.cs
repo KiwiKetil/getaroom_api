@@ -28,6 +28,8 @@ public class TokenGenerator(IConfiguration config, ILogger<TokenGenerator> logge
         _logger.LogDebug("Generating token for user ID: {UserId}", authenticatedUser.Id);
 
         var jwtKey = _config["Jwt:Key"] ?? throw new InvalidOperationException("Missing configuration: Jwt:Key");
+        var jwtIssuer = _config["Jwt:Issuer"] ?? throw new InvalidOperationException("Missing configuration: Jwt:Issuer");
+        var jwtAudience = _config["Jwt:Audience"] ?? throw new InvalidOperationException("Missing configuration: Jwt:Audience");
 
         var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
         var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
@@ -47,8 +49,8 @@ public class TokenGenerator(IConfiguration config, ILogger<TokenGenerator> logge
 
         var token = new JwtSecurityToken
             (
-            issuer: _config["Jwt:Issuer"],
-            audience: _config["Jwt:Audience"],
+            issuer: jwtIssuer,
+            audience: jwtAudience,
             claims,
             expires: DateTime.UtcNow.AddMinutes(240),
             signingCredentials: credentials
