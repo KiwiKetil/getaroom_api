@@ -192,7 +192,6 @@ public class UserServiceTests
         Assert.Null(result);
     }
 
-
     #endregion UpdateuserAsync
 
     #region DeleteUserAsync
@@ -229,6 +228,35 @@ public class UserServiceTests
         Assert.Equal(user.PhoneNumber, userDTO.PhoneNumber);
         Assert.Equal(user.Email, userDTO.Email);
     }
+
+    [Fact]
+    public async Task DeleteUserAsync_WhenUserWasNotDeleted_ReturnsNull()
+    {
+        // Arrange
+        var id = Guid.NewGuid();
+        var userId = new UserId(id);
+
+        var user = new User
+        {
+            Id = userId,
+            FirstName = "Tom",
+            LastName = "Jerryson",
+            PhoneNumber = "61524234",
+            Email = "tom@planetearth.com",
+            Created = DateTime.UtcNow,
+            Updated = DateTime.UtcNow
+        };
+
+        _userRepositoryMock.Setup(x => x.DeleteUserAsync(userId))
+            .ReturnsAsync((User?)null);
+
+        // Act
+        var result = await _userService.DeleteUserAsync(id);
+
+        // Assert
+        Assert.Null(result);
+    }
+
 
     #endregion DeleteUserAsync
 }
