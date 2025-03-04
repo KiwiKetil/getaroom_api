@@ -15,6 +15,8 @@ public class PasswordVerificationServiceTests
         _service = new PasswordVerificationService(_loggerMock.Object); 
     }
 
+    #region VerifyPasswordWhenLogin
+
     [Fact]
     public void VerifyPassword_WhenLogin_WhenVerifid_ReturnsTrue()
     {
@@ -56,6 +58,10 @@ public class PasswordVerificationServiceTests
         // Assert
         Assert.False(result);
     }
+
+    #endregion VerifyPasswordWhenLogin
+
+    #region VerifyPasswordWhenUpdatingPassword
 
     [Fact]
     public void VerifyPassword_WhenUpdatingPassword_WhenVerifid_ReturnsTrue()
@@ -100,4 +106,6 @@ public class PasswordVerificationServiceTests
         // Assert
         Assert.False(result);
     }
+
+    #endregion VerifyPasswordWhenUpdatingPassword
 }
