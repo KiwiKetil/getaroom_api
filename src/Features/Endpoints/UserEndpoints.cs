@@ -16,12 +16,12 @@ public static class UserEndpoints
 
         // https://localhost:7089/api/v1/users/887ac10b-58cc-4372-a567-0e02b2c3d493
         app.MapGet("/api/v1/users/{id}", UserEndpointsLogic.GetUserByIdLogicAsync)
-        .RequireAuthorization("UserRoleAndPasswordUpdatedPolicy")
+        .RequireAuthorization("UserOrAdminRoleAndPasswordUpdatedPolicy")
         .WithName("GetUserById");
 
         // https://localhost:7089/api/v1/users/b97ac10b-58cc-4372-a567-0e02b2c3d490
         app.MapPut("/api/v1/users/{id}", UserEndpointsLogic.UpdateUserLogicAsync)
-        .RequireAuthorization("UserRoleAndPasswordUpdatedPolicy")
+        .RequireAuthorization("UserOrAdminRoleAndPasswordUpdatedPolicy")
         .EndpointValidationFilter<UserUpdateDTO>()
         .WithName("UpdateUser");
 

@@ -16,8 +16,8 @@ public class UserService(IUserRepository userRepository, IUserRoleRepository use
     private readonly IPasswordVerificationService _passwordVerificationService = passwordVerificationService;
     private readonly IPasswordHistoryRepository _passwordHistoryRepository = passwordHistoryRepository;
     private readonly ITokenGenerator _tokenGenerator = tokenGenerator;
-    private readonly ILogger<UserService> _logger = logger;
     private readonly IMapper _mapper = mapper;
+    private readonly ILogger<UserService> _logger = logger;
 
     public async Task<UsersWithCountDTO> GetUsersAsync(UserQuery query)
     {
