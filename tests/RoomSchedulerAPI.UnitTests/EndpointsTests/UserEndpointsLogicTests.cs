@@ -480,7 +480,7 @@ public class UserEndpointsLogicTests
     public async Task UserLoginLogicAsync_WhenLoginSuccess_ReturnsOkAndValidToken()
     {
         // Arrange
-        var loginDTO = new LoginDTO { Email = "testuser@unittest.com", Password = "secretPassword123!" };
+        var loginDTO = new LoginDTO ( Email: "testuser@unittest.com", Password: "secretPassword123!" );
         var user = new User
         {
             Id = UserId.NewId,
@@ -514,7 +514,7 @@ public class UserEndpointsLogicTests
     public async Task UserLoginLogicAsync_WhenLoginFails_ReturnsUnauthorized()
     {
         // Arrange
-        var loginDTO = new LoginDTO { Email = "testuser@unittest.com", Password = "secretPassword123!" };
+        var loginDTO = new LoginDTO ( Email: "testuser@unittest.com", Password: "secretPassword123!" );
         var user = new User
         {
             Id = UserId.NewId,

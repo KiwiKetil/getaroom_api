@@ -53,7 +53,7 @@ public class UserService(IUserRepository userRepository, IUserRoleRepository use
         var user = await _userRepository.DeleteUserAsync(new UserId(id));
         var res = _mapper.Map<UserDTO>(user);
 
-        return res ?? null;
+        return res;
     }
 
     public async Task<UserDTO?> RegisterUserAsync(UserRegistrationDTO dto)
@@ -118,10 +118,7 @@ public class UserService(IUserRepository userRepository, IUserRoleRepository use
         {
             _logger.LogError("Verification faield");
             return null; 
-        }
-      
-        var userRoles = await _userRoleRepository.GetUserRoles(user.Id);
-        var token = _tokenGenerator.GenerateToken(user, true, userRoles);
+        }      
 
         string newHashedPassword = BCrypt.Net.BCrypt.HashPassword(dto.NewPassword);
 
@@ -133,8 +130,11 @@ public class UserService(IUserRepository userRepository, IUserRoleRepository use
         }
 
         await _passwordHistoryRepository.InsertPasswordUpdateRecordAsync(user.Id.Value);
-
         _logger.LogInformation("Password updated successfully for user {Email}", dto.Email);
+
+        var userRoles = await _userRoleRepository.GetUserRoles(user.Id);
+        var token = _tokenGenerator.GenerateToken(user, true, userRoles);
+
         return token;
     }
 
@@ -153,6 +153,6 @@ public class UserService(IUserRepository userRepository, IUserRoleRepository use
 
         var user = await _userRepository.GetUserByEmailAsync(email);
 
-        return user;
+        return user ?? null;
     } 
 }

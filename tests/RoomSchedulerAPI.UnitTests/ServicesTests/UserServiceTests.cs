@@ -42,15 +42,17 @@ public class UserServiceTests
     #region GetUsersAsync
 
     [Fact]
-    public async Task GetUsersAsync_ReturnsUsersWithCountDTO_WithValidData()
+    public async Task GetUsersAsync_ReturnsUsersWithCountDTO()
     {
         // Arrange
         var userQuery = new UserQuery(null, null, null, null);
 
-        List<User> users = [
-            new User { FirstName = "Jim", LastName = "Moore" },
-            new User { FirstName = "Michelle", LastName = "Andersson" }
-            ];
+        List<User> users = 
+        [
+        new User { FirstName = "Jim", LastName = "Moore" },
+        new User { FirstName = "Michelle", LastName = "Andersson" }
+        ];
+
         int totalCount = users.Count;
 
         _userRepositoryMock.Setup(x => x.GetUsersAsync(userQuery))
@@ -162,6 +164,123 @@ public class UserServiceTests
         Assert.IsType<UserDTO>(result);
     }
 
+    [Fact]
+    public async Task UpdateUserAsync_WhenUserWasNotUpdated_ReturnsNull()
+    {
+        // Arrange
+        var id = Guid.NewGuid();
+        var userId = new UserId(id);
+
+        var userUpdateDTO = new UserUpdateDTO("Tom", "Jerryson", "61524234", "tom@planetearth.com");
+
+        var user = new User
+        {
+            Id = userId,
+            FirstName = "Tom",
+            LastName = "Jerryson",
+            PhoneNumber = "61524234",
+            Email = "tom@planetearth.com",
+            Created = DateTime.UtcNow,
+            Updated = DateTime.UtcNow
+        };
+
+        _userRepositoryMock.Setup(x => x.UpdateUserAsync(user.Id, It.IsAny<User>()))
+            .ReturnsAsync((User?)null);
+
+        // Act
+        var result = await _userService.UpdateUserAsync(id, userUpdateDTO);
+
+        // Assert
+        Assert.Null(result);
+    }
 
     #endregion UpdateuserAsync
+
+    #region DeleteUserAsync
+
+    [Fact]
+    public async Task DeleteUserAsync_WhenUserWasDeleted_ReturnsUserDTO()
+    {
+        // Arrange
+        var id = Guid.NewGuid();
+        var userId = new UserId(id);
+
+        var user = new User
+        {
+            Id = userId,
+            FirstName = "Tom",
+            LastName = "Jerryson",
+            PhoneNumber = "61524234",
+            Email = "tom@planetearth.com",
+            Created = DateTime.UtcNow,
+            Updated = DateTime.UtcNow
+        };
+
+        _userRepositoryMock.Setup(x => x.DeleteUserAsync(userId))
+            .ReturnsAsync(user);
+
+        // Act
+        var result = await _userService.DeleteUserAsync(id);
+
+        // Assert
+        var userDTO = Assert.IsType<UserDTO>(result);
+        Assert.Equal(user.Id, userDTO.Id);
+        Assert.Equal(user.FirstName, userDTO.FirstName);
+        Assert.Equal(user.LastName, userDTO.LastName);
+        Assert.Equal(user.PhoneNumber, userDTO.PhoneNumber);
+        Assert.Equal(user.Email, userDTO.Email);
+    }
+
+    [Fact]
+    public async Task DeleteUserAsync_WhenUserWasNotDeleted_ReturnsNull()
+    {
+        // Arrange
+        var id = Guid.NewGuid();
+        var userId = new UserId(id);
+
+        var user = new User
+        {
+            Id = userId,
+            FirstName = "Tom",
+            LastName = "Jerryson",
+            PhoneNumber = "61524234",
+            Email = "tom@planetearth.com",
+            Created = DateTime.UtcNow,
+            Updated = DateTime.UtcNow
+        };
+
+        _userRepositoryMock.Setup(x => x.DeleteUserAsync(userId))
+            .ReturnsAsync((User?)null);
+
+        // Act
+        var result = await _userService.DeleteUserAsync(id);
+
+        // Assert
+        Assert.Null(result);
+    }
+
+    #endregion DeleteUserAsync
+
+    #region RegisterUserAsync
+
+    [Fact]
+    public async Task RegisterUserAsync_() 
+    {
+        // Arrange
+        var loginDTO = new LoginDTO("a", "c");
+
+
+
+        // Act
+
+
+
+
+        // Assert
+
+
+
+    }
+
+    #endregion RegisterUserAsync
 }
