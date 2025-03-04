@@ -91,11 +91,29 @@ public class UserServiceTests
         Assert.Equal(0, userWithCountDTO.TotalCount);
     }
 
-
-
-
-
-
     #endregion GetUsersAsync
+
+    #region GetUserByIdAsync
+
+    [Fact]
+    public async Task GetUserByIdAsync_WhenUserIsFound_ReturnsUserDTO() 
+    {
+        // Arrange
+
+        var id = Guid.NewGuid();
+        var user = new User { Id = new UserId(id) , FirstName = "Peter"};
+
+        _userRepositoryMock.Setup(x => x.GetUserByIdAsync(user.Id)).ReturnsAsync(user);
+
+        // Act
+        var result = await _userService.GetUserByIdAsync(id);
+
+        // Assert
+        var userDTO = Assert.IsType<UserDTO>(result);
+        Assert.Equal(user.Id, userDTO.Id);
+        Assert.Equal(user.FirstName, userDTO.FirstName);
+    }
+
+    #endregion GetUserByIdAsync
 
 }
