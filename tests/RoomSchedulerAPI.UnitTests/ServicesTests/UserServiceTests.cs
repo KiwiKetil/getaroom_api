@@ -42,15 +42,17 @@ public class UserServiceTests
     #region GetUsersAsync
 
     [Fact]
-    public async Task GetUsersAsync_ReturnsUsersWithCountDTO_WithValidData()
+    public async Task GetUsersAsync_ReturnsUsersWithCountDTO()
     {
         // Arrange
         var userQuery = new UserQuery(null, null, null, null);
 
-        List<User> users = [
-            new User { FirstName = "Jim", LastName = "Moore" },
-            new User { FirstName = "Michelle", LastName = "Andersson" }
-            ];
+        List<User> users = 
+        [
+        new User { FirstName = "Jim", LastName = "Moore" },
+        new User { FirstName = "Michelle", LastName = "Andersson" }
+        ];
+
         int totalCount = users.Count;
 
         _userRepositoryMock.Setup(x => x.GetUsersAsync(userQuery))
@@ -257,6 +259,28 @@ public class UserServiceTests
         Assert.Null(result);
     }
 
-
     #endregion DeleteUserAsync
+
+    #region RegisterUserAsync
+
+    [Fact]
+    public async Task RegisterUserAsync_() 
+    {
+        // Arrange
+        var loginDTO = new LoginDTO("a", "c");
+
+
+
+        // Act
+
+
+
+
+        // Assert
+
+
+
+    }
+
+    #endregion RegisterUserAsync
 }

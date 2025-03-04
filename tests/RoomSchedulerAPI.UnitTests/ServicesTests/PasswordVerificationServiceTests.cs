@@ -22,10 +22,10 @@ public class PasswordVerificationServiceTests
         var hashedPassword = BCrypt.Net.BCrypt.HashPassword("CurrentPassword123!");
 
         var loginDTO = new LoginDTO
-        {
-            Email = "aaa@emailstest.com",
-            Password = "CurrentPassword123!",
-        };
+        (
+            Email: "aaa@emailstest.com",
+            Password: "CurrentPassword123!"
+        );
 
         var user = new User { HashedPassword = hashedPassword };
 
@@ -43,10 +43,10 @@ public class PasswordVerificationServiceTests
         var hashedPassword = BCrypt.Net.BCrypt.HashPassword("CurrentPassword123!");
 
         var loginDTO = new LoginDTO
-        {
-            Email = "aaa@emailstest.com",
-            Password = "WrongPassword123!",
-        };
+        (
+            Email: "aaa@emailstest.com",
+            Password: "WrongPassword123!"
+        );
 
         var user = new User { HashedPassword = hashedPassword };
 
