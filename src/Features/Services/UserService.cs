@@ -1,8 +1,6 @@
 ﻿using AutoMapper;
-using RoomSchedulerAPI.Features.Models.DTOs.ResponseDTOs;
 using RoomSchedulerAPI.Features.Models.DTOs.UserDTOs;
 using RoomSchedulerAPI.Features.Models.Entities;
-using RoomSchedulerAPI.Features.Repositories;
 using RoomSchedulerAPI.Features.Repositories.Interfaces;
 using RoomSchedulerAPI.Features.Services.Interfaces;
 
@@ -33,7 +31,9 @@ public class UserService(IUserRepository userRepository, IUserRoleRepository use
         _logger.LogDebug("Retrieving user with ID {userId}", id);
 
         var user = await _userRepository.GetUserByIdAsync(new UserId(id));
-        return user != null ? _mapper.Map<UserDTO>(user) : null;
+
+        var userDTO = _mapper.Map<UserDTO>(user);
+        return userDTO;
     }
 
     public async Task<UserDTO?> UpdateUserAsync(Guid id, UserUpdateDTO dto)
@@ -43,7 +43,8 @@ public class UserService(IUserRepository userRepository, IUserRoleRepository use
         var user = _mapper.Map<User>(dto);
         var res = await _userRepository.UpdateUserAsync(new UserId(id), user);
 
-        return res != null ? _mapper.Map<UserDTO>(res) : null;
+        var userDTO = _mapper.Map<UserDTO>(res);
+        return userDTO;
     }
 
     public async Task<UserDTO?> DeleteUserAsync(Guid id)
@@ -51,9 +52,9 @@ public class UserService(IUserRepository userRepository, IUserRoleRepository use
         _logger.LogDebug("Deleting user with ID {userId}", id);
 
         var user = await _userRepository.DeleteUserAsync(new UserId(id));
-        var res = _mapper.Map<UserDTO>(user);
 
-        return res;
+        var userDTO = _mapper.Map<UserDTO>(user);
+        return userDTO;
     }
 
     public async Task<UserDTO?> RegisterUserAsync(UserRegistrationDTO dto)
@@ -73,6 +74,7 @@ public class UserService(IUserRepository userRepository, IUserRoleRepository use
         user.HashedPassword = BCrypt.Net.BCrypt.HashPassword(dto.Password);
 
         var res = await _userRepository.RegisterUserAsync(user);
+
         var userDTO = _mapper.Map<UserDTO>(res);
         return userDTO;
     }
@@ -134,7 +136,6 @@ public class UserService(IUserRepository userRepository, IUserRoleRepository use
 
         var userRoles = await _userRoleRepository.GetUserRoles(user.Id);
         var token = _tokenGenerator.GenerateToken(user, true, userRoles);
-
         return token;
     }
 
@@ -143,7 +144,6 @@ public class UserService(IUserRepository userRepository, IUserRoleRepository use
         _logger.LogDebug("Checking if user has updated Password");
 
         var hasChangedPassword = await _passwordHistoryRepository.PasswordUpdateExistsAsync(id);
-
         return hasChangedPassword;
     }
 
@@ -152,7 +152,6 @@ public class UserService(IUserRepository userRepository, IUserRoleRepository use
         _logger.LogDebug("Retrieving user by email {email}", email);
 
         var user = await _userRepository.GetUserByEmailAsync(email);
-
-        return user ?? null;
+        return user;
     } 
 }

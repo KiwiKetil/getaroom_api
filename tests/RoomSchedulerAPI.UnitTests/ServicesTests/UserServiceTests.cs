@@ -264,22 +264,44 @@ public class UserServiceTests
     #region RegisterUserAsync
 
     [Fact]
-    public async Task RegisterUserAsync_() 
+    public async Task RegisterUserAsync_WhenRegistrationIsSuccessfull_ReturnsUserDTO() 
     {
         // Arrange
-        var loginDTO = new LoginDTO("a", "c");
+        var userId = UserId.NewId;
 
+        var userRegistrationDTO = new UserRegistrationDTO(
+            FirstName: "Al",
+            LastName: "Bundy",
+            PhoneNumber: "76547654",
+            Email: "email@myemail.no",
+            Password: "ThisIsMyPassword123!");
 
+        var user = new User
+        {
+            Id = userId,
+            FirstName = "Al",
+            LastName = "Bundy",
+            PhoneNumber = "76547654",
+            Email = "email@myemail.no",
+            Created = DateTime.UtcNow,
+            Updated = DateTime.UtcNow
+        };   
+
+        _userRepositoryMock.Setup(x => x.GetUserByEmailAsync(userRegistrationDTO.Email))
+            .ReturnsAsync((User?)null);
+
+        _userRepositoryMock.Setup(x => x.RegisterUserAsync(It.IsAny<User>()))
+            .ReturnsAsync(user);
 
         // Act
-
-
-
+        var result = await _userService.RegisterUserAsync(userRegistrationDTO);
 
         // Assert
-
-
-
+        var userDTO = Assert.IsType<UserDTO>(result);
+        Assert.Equal(userRegistrationDTO.FirstName, userDTO.FirstName);
+        Assert.Equal(userRegistrationDTO.LastName, userDTO.LastName);
+        Assert.Equal(userRegistrationDTO.PhoneNumber, userDTO.PhoneNumber);
+        Assert.Equal(userRegistrationDTO.Email, userDTO.Email);
     }
 
     #endregion RegisterUserAsync
