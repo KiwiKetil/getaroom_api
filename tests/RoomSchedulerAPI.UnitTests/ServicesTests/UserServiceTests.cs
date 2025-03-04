@@ -162,6 +162,59 @@ public class UserServiceTests
         Assert.IsType<UserDTO>(result);
     }
 
+    [Fact]
+    public async Task UpdateUserAsync_WhenUserWasNotUpdated_ReturnsNull()
+    {
+        // Arrange
+        var id = Guid.NewGuid();
+        var userId = new UserId(id);
+
+        var userUpdateDTO = new UserUpdateDTO("Tom", "Jerryson", "61524234", "tom@planetearth.com");
+
+        var user = new User
+        {
+            Id = userId,
+            FirstName = "Tom",
+            LastName = "Jerryson",
+            PhoneNumber = "61524234",
+            Email = "tom@planetearth.com",
+            Created = DateTime.UtcNow,
+            Updated = DateTime.UtcNow
+        };
+
+        _userRepositoryMock.Setup(x => x.UpdateUserAsync(user.Id, It.IsAny<User>()))
+            .ReturnsAsync((User?)null);
+
+        // Act
+        var result = await _userService.UpdateUserAsync(id, userUpdateDTO);
+
+        // Assert
+        Assert.Null(result);
+    }
+
 
     #endregion UpdateuserAsync
+
+    #region DeleteUserAsync
+
+    [Fact]
+    public async Task DeleteUserAsync_WhenUserWasDeleted_ReturnsUserDTO()
+    {
+        // Arrange
+        var id = Guid.NewGuid();
+
+
+
+
+        // Act
+
+
+
+
+        // Assert
+
+
+    }
+
+    #endregion DeleteUserAsync
 }
