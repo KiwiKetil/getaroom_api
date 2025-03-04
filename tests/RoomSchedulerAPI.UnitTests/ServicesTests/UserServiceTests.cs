@@ -202,18 +202,32 @@ public class UserServiceTests
     {
         // Arrange
         var id = Guid.NewGuid();
+        var userId = new UserId(id);
 
+        var user = new User
+        {
+            Id = userId,
+            FirstName = "Tom",
+            LastName = "Jerryson",
+            PhoneNumber = "61524234",
+            Email = "tom@planetearth.com",
+            Created = DateTime.UtcNow,
+            Updated = DateTime.UtcNow
+        };
 
-
+        _userRepositoryMock.Setup(x => x.DeleteUserAsync(userId))
+            .ReturnsAsync(user);
 
         // Act
-
-
-
+        var result = await _userService.DeleteUserAsync(id);
 
         // Assert
-
-
+        var userDTO = Assert.IsType<UserDTO>(result);
+        Assert.Equal(user.Id, userDTO.Id);
+        Assert.Equal(user.FirstName, userDTO.FirstName);
+        Assert.Equal(user.LastName, userDTO.LastName);
+        Assert.Equal(user.PhoneNumber, userDTO.PhoneNumber);
+        Assert.Equal(user.Email, userDTO.Email);
     }
 
     #endregion DeleteUserAsync
