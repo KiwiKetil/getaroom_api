@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.Extensions.Logging;
 using Moq;
-using MySqlX.XDevAPI.CRUD;
 using RoomSchedulerAPI.Features.AutoMapper;
 using RoomSchedulerAPI.Features.Models.DTOs.UserDTOs;
 using RoomSchedulerAPI.Features.Models.Entities;
@@ -18,7 +17,6 @@ public class UserServiceTests
     private readonly Mock<IPasswordVerificationService> _passwordVerificationServiceMock = new();
     private readonly Mock<IPasswordHistoryRepository> _passwordHistoryRepositoryMock = new();
     private readonly Mock<ITokenGenerator> _tokenGeneratorMock = new();
-    private readonly IMapper _mapper;
     private readonly Mock<ILogger<UserService>> _loggerMock = new();
 
     public UserServiceTests()
@@ -26,7 +24,7 @@ public class UserServiceTests
 
         var mapperConfig = new MapperConfiguration(cfg =>
         {
-            cfg.AddProfile<MappingProfile>(); // Add your mapping profile(s)
+            cfg.AddProfile<MappingProfile>();
         });
         IMapper mapper = mapperConfig.CreateMapper();
 
@@ -36,7 +34,7 @@ public class UserServiceTests
             _passwordVerificationServiceMock.Object,
             _passwordHistoryRepositoryMock.Object,
             _tokenGeneratorMock.Object,
-            _mapper = mapper,
+            mapper,
             _loggerMock.Object
             );
     }
@@ -72,7 +70,7 @@ public class UserServiceTests
     }
 
     [Fact]
-    public async Task GetUsersAsync_WhenNoUsersAreFound_ReturnsUsersWithCountDTO_WithEmptyCollectionAndTotalCountZero() 
+    public async Task GetUsersAsync_WhenNoUsersAreFound_ReturnsUsersWithCountDTO_WithEmptyCollectionAndTotalCountZero()
     {
         // Arrange
         var query = new UserQuery(null, null, null, null);
@@ -96,12 +94,11 @@ public class UserServiceTests
     #region GetUserByIdAsync
 
     [Fact]
-    public async Task GetUserByIdAsync_WhenUserIsFound_ReturnsUserDTO() 
+    public async Task GetUserByIdAsync_WhenUserIsFound_ReturnsUserDTO()
     {
         // Arrange
-
         var id = Guid.NewGuid();
-        var user = new User { Id = new UserId(id) , FirstName = "Peter"};
+        var user = new User { Id = new UserId(id), FirstName = "Peter" };
 
         _userRepositoryMock.Setup(x => x.GetUserByIdAsync(user.Id)).ReturnsAsync(user);
 
@@ -114,6 +111,57 @@ public class UserServiceTests
         Assert.Equal(user.FirstName, userDTO.FirstName);
     }
 
+    [Fact]
+    public async Task GetUserByIdAsync_WhenUserIsNotFound_ReturnsNull()
+    {
+        // Arrange
+        var id = Guid.NewGuid();
+        var user = new User { Id = new UserId(id), FirstName = "Peter" };
+
+        _userRepositoryMock.Setup(x => x.GetUserByIdAsync(user.Id))
+            .ReturnsAsync((User?)null);
+
+        // Act
+        var result = await _userService.GetUserByIdAsync(id);
+
+        // Assert
+        Assert.Null(result);
+    }
+
     #endregion GetUserByIdAsync
 
+    #region UpdateuserAsync
+
+    [Fact]
+    public async Task UpdateUserAsync_WhenUserWasUpdated_ReturnsUserDTO() 
+    {
+        // Arrange
+        var id = Guid.NewGuid();
+        var userId = new UserId(id);
+
+        var userUpdateDTO = new UserUpdateDTO("Tom", "Jerryson", "61524234", "tom@planetearth.com");
+
+        var user = new User
+        {
+            Id = userId,
+            FirstName = "Tom",
+            LastName = "Jerryson",
+            PhoneNumber = "61524234",
+            Email = "tom@planetearth.com",
+            Created = DateTime.UtcNow,
+            Updated = DateTime.UtcNow
+        };
+
+        _userRepositoryMock.Setup(x => x.UpdateUserAsync(user.Id, It.IsAny<User>()))
+            .ReturnsAsync(user);
+
+        // Act
+        var result = await _userService.UpdateUserAsync(id, userUpdateDTO);
+
+        // Assert
+        Assert.IsType<UserDTO>(result);
+    }
+
+
+    #endregion UpdateuserAsync
 }
