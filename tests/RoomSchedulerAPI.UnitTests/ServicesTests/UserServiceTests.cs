@@ -1,4 +1,6 @@
-﻿using AutoMapper;
+﻿using AutoFixture;
+using AutoFixture.Xunit2;
+using AutoMapper;
 using Microsoft.Extensions.Logging;
 using Moq;
 using RoomSchedulerAPI.Features.AutoMapper;
@@ -7,6 +9,7 @@ using RoomSchedulerAPI.Features.Models.Entities;
 using RoomSchedulerAPI.Features.Repositories.Interfaces;
 using RoomSchedulerAPI.Features.Services;
 using RoomSchedulerAPI.Features.Services.Interfaces;
+using RoomSchedulerAPI.UnitTests.CustomAutoDataAttributes;
 
 namespace RoomSchedulerAPI.UnitTests.ServicesTests;
 public class UserServiceTests
@@ -21,7 +24,6 @@ public class UserServiceTests
 
     public UserServiceTests()
     {
-
         var mapperConfig = new MapperConfiguration(cfg =>
         {
             cfg.AddProfile<MappingProfile>();
@@ -263,30 +265,11 @@ public class UserServiceTests
 
     #region RegisterUserAsync
 
-    [Fact]
-    public async Task RegisterUserAsync_WhenRegistrationIsSuccessfull_ReturnsUserDTO() 
-    {
+    [Theory]
+    [CustomUserAutoData]
+    public async Task RegisterUserAsync_WhenRegistrationIsSuccessfull_ReturnsUserDTO(UserRegistrationDTO userRegistrationDTO, User user)
+    {        
         // Arrange
-        var userId = UserId.NewId;
-
-        var userRegistrationDTO = new UserRegistrationDTO(
-            FirstName: "Al",
-            LastName: "Bundy",
-            PhoneNumber: "76547654",
-            Email: "email@myemail.no",
-            Password: "ThisIsMyPassword123!");
-
-        var user = new User
-        {
-            Id = userId,
-            FirstName = "Al",
-            LastName = "Bundy",
-            PhoneNumber = "76547654",
-            Email = "email@myemail.no",
-            Created = DateTime.UtcNow,
-            Updated = DateTime.UtcNow
-        };   
-
         _userRepositoryMock.Setup(x => x.GetUserByEmailAsync(userRegistrationDTO.Email))
             .ReturnsAsync((User?)null);
 
@@ -303,6 +286,8 @@ public class UserServiceTests
         Assert.Equal(userRegistrationDTO.PhoneNumber, userDTO.PhoneNumber);
         Assert.Equal(userRegistrationDTO.Email, userDTO.Email);
     }
+
+
 
     #endregion RegisterUserAsync
 }
