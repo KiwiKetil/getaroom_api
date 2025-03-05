@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Logging;
 using Moq;
 using RoomSchedulerAPI.Features.Endpoints.Logic;
-using RoomSchedulerAPI.Features.HateOAS;
 using RoomSchedulerAPI.Features.Models.DTOs.ResponseDTOs;
 using RoomSchedulerAPI.Features.Models.DTOs.UserDTOs;
 using RoomSchedulerAPI.Features.Models.Entities;
@@ -69,7 +68,7 @@ public class UserEndpointsLogicTests
     [AutoData]
     public async Task GetUserByIdLogicAsync_AsAdmin_WhenUserExists_ReturnsOkAndUserDTO(
         Guid id,
-        UserDTO userDTO, 
+        UserDTO userDTO,
         ClaimsPrincipal claimsPrincipal)
     {
         // Arrange
@@ -96,7 +95,7 @@ public class UserEndpointsLogicTests
     [Theory]
     [AutoData]
     public async Task GetUserByIdLogicAsync_AsAuthorizedUser_WhenUserExists_ReturnsOkAndUserDTO(
-        Guid id, 
+        Guid id,
         UserDTO userDTO,
         ClaimsPrincipal claimsPrincipal)
     {
@@ -174,8 +173,8 @@ public class UserEndpointsLogicTests
     [CustomUserAutoData]
     public async Task UpdateUserLogicAsync_AsAdmin_WhenUpdateIsSuccessful_ReturnsOkAndUpdatedUserDTO(
         Guid id,
-        UserUpdateDTO userUpdateDTO, 
-        UserDTO userDTO, 
+        UserUpdateDTO userUpdateDTO,
+        UserDTO userDTO,
         ClaimsPrincipal claimsPrincipal)
     {
         // Arrange
@@ -207,7 +206,7 @@ public class UserEndpointsLogicTests
     [Theory]
     [CustomUserAutoData]
     public async Task UpdateUserLogicAsync_AsAuthorizedUser_WhenUpdateIsSuccessful_ReturnsOkAndUpdatedUserDTO(
-        Guid id, 
+        Guid id,
         ClaimsPrincipal claimsPrincipal,
         UserUpdateDTO userUpdateDTO,
         UserDTO userDTO)
@@ -238,24 +237,14 @@ public class UserEndpointsLogicTests
         Assert.Equal(userUpdateDTO.Email, okResult.Value.Email);
     }
 
-    [Fact]
-    public async Task UpdateUserLogicAsync_WhenAuthorizationFails_ReturnsForbidden()
+    [Theory]
+    [AutoData]
+    public async Task UpdateUserLogicAsync_WhenAuthorizationFails_ReturnsForbidden(
+        Guid id,
+        ClaimsPrincipal claimsPrincipal,
+        UserUpdateDTO userUpdateDTO)
     {
         // Arrange
-        var id = Guid.NewGuid();
-        var userId = new UserId(id);
-
-        var claimsIdentity = new ClaimsIdentity(
-        [
-            new Claim(ClaimTypes.Role, "User"),
-            new Claim(ClaimTypes.NameIdentifier, Guid.NewGuid().ToString())
-        ], "TestAuthentication");
-        var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
-
-        var links = new List<Link>();
-        var userUpdateDTO = new UserUpdateDTO("Sarah", "Connor", "12344321", "sarah@example.com");
-        var userDTO = new UserDTO(userId, "Sarah", "Connor", "12344321", "sarah@example.com", links);
-
         _authorizationServiceMock.Setup(x => x.AuthorizeAsync(claimsPrincipal, id, "UserIdAccessPolicy"))
             .ReturnsAsync(AuthorizationResult.Failed());
 
@@ -272,23 +261,14 @@ public class UserEndpointsLogicTests
         Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.ForbidHttpResult>(result);
     }
 
-    [Fact]
-    public async Task UpdateUserLogicAsync_WhenUserCouldNotBeUpdated_ReturnsConflictAndErrorResponse()
+    [Theory]
+    [AutoData]
+    public async Task UpdateUserLogicAsync_WhenUserCouldNotBeUpdated_ReturnsConflictAndErrorResponse(
+        Guid id,
+        ClaimsPrincipal claimsPrincipal,
+        UserUpdateDTO userUpdateDTO)
     {
         // Arrange
-        var id = Guid.NewGuid();
-        var userId = new UserId(id);
-
-        var claimsIdentity = new ClaimsIdentity(
-        [
-            new Claim(ClaimTypes.Role, "User"),
-            new Claim(ClaimTypes.NameIdentifier, id.ToString())
-        ], "TestAuthentication");
-        var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
-
-        var links = new List<Link>();
-        var userUpdateDTO = new UserUpdateDTO("Sarah", "Connor", "12344321", "sarahexample.com");
-
         _authorizationServiceMock.Setup(x => x.AuthorizeAsync(claimsPrincipal, id, "UserIdAccessPolicy"))
             .ReturnsAsync(AuthorizationResult.Success);
 
@@ -314,15 +294,11 @@ public class UserEndpointsLogicTests
 
     #region DeleteUserLogicAsync
 
-    [Fact]
-    public async Task DeleteUserAsync_WhenSuccess_ReturnsOkAndDeletedUserDTO()
+    [Theory]
+    [AutoData]
+    public async Task DeleteUserAsync_WhenSuccess_ReturnsOkAndDeletedUserDTO(Guid id, UserDTO userDTO)
     {
         // Arrange
-        var id = Guid.NewGuid();
-        var userId = new UserId(id);
-        var links = new List<Link>();
-        var userDTO = new UserDTO(userId, "Bill", "Jones", "81625342", "billjones@test.no", links);
-
         _userServiceMock.Setup(x => x.DeleteUserAsync(id)).ReturnsAsync(userDTO);
 
         // Act
@@ -342,7 +318,6 @@ public class UserEndpointsLogicTests
     {
         // Arrange
         var id = Guid.NewGuid();
-        var userId = new UserId(id);
 
         _userServiceMock.Setup(x => x.DeleteUserAsync(id)).ReturnsAsync((UserDTO?)null);
 
@@ -362,15 +337,11 @@ public class UserEndpointsLogicTests
 
     #region RegisterUserLogicAsync
 
-    [Fact]
-    public async Task RegisterUserLogicAsync_WhenIsSuccess_ReturnsOkAndUserDTO()
+    [Theory]
+    [CustomUserAutoData]
+    public async Task RegisterUserLogicAsync_WhenIsSuccess_ReturnsOkAndUserDTO(UserRegistrationDTO userRegistrationDTO, UserDTO userDTO)
     {
         // Arrange
-        var userRegistrationDTO = new UserRegistrationDTO("Kristoffer", "Sveberg", "99999999", "kris@gmail.com", "secretPassword123!");
-        var userId = UserId.NewId;
-        var links = new List<Link>();
-        var userDTO = new UserDTO(userId, "Kristoffer", "Sveberg", "99999999", "kris@gmail.com", links);
-
         _userServiceMock.Setup(x => x.RegisterUserAsync(userRegistrationDTO))
             .ReturnsAsync(userDTO);
 
@@ -383,18 +354,17 @@ public class UserEndpointsLogicTests
         // Assert
         var okResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.Ok<UserDTO>>(result);
         Assert.NotNull(okResult.Value);
-        Assert.Equal(userDTO.FirstName, userRegistrationDTO.FirstName);
-        Assert.Equal(userDTO.LastName, userRegistrationDTO.LastName);
-        Assert.Equal(userDTO.PhoneNumber, userRegistrationDTO.PhoneNumber);
-        Assert.Equal(userDTO.Email, userRegistrationDTO.Email);
+        Assert.Equal(userRegistrationDTO.FirstName, okResult.Value.FirstName);
+        Assert.Equal(userRegistrationDTO.LastName, okResult.Value.LastName);
+        Assert.Equal(userRegistrationDTO.PhoneNumber, okResult.Value.PhoneNumber);
+        Assert.Equal(userRegistrationDTO.Email, okResult.Value.Email);
     }
 
-    [Fact]
-    public async Task RegisterUserLogicAsync_WhenUserAlreadyExists_ReturnsConflictAndErrorResponse()
+    [Theory]
+    [AutoData]
+    public async Task RegisterUserLogicAsync_WhenUserAlreadyExists_ReturnsConflictAndErrorResponse(UserRegistrationDTO userRegistrationDTO)
     {
         // Arrange
-        var userRegistrationDTO = new UserRegistrationDTO("Kristoffer", "Sveberg", "(99999999", "kris@gmail.com", "secretPassword123!");
-
         _userServiceMock.Setup(x => x.RegisterUserAsync(userRegistrationDTO))
             .ReturnsAsync((UserDTO?)null);
 
@@ -414,23 +384,11 @@ public class UserEndpointsLogicTests
 
     #region UserLoginLogicAsync
 
-    [Fact]
-    public async Task UserLoginLogicAsync_WhenLoginSuccess_ReturnsOkAndValidToken()
+    [Theory]
+    [AutoData]
+    public async Task UserLoginLogicAsync_WhenLoginSuccess_ReturnsOkAndValidToken(LoginDTO loginDTO)
     {
         // Arrange
-        var loginDTO = new LoginDTO(Email: "testuser@unittest.com", Password: "secretPassword123!");
-        var user = new User
-        {
-            Id = UserId.NewId,
-            FirstName = "Testuser",
-            LastName = "TestuserLastName",
-            PhoneNumber = "71625353",
-            Email = "testuser@unittest.com",
-            HashedPassword = "someHashedPassword",
-            Created = DateTime.UtcNow,
-            Updated = DateTime.UtcNow
-        };
-
         string token = "ValidTokenString";
 
         _userServiceMock.Setup(x => x.UserLoginAsync(loginDTO))
@@ -448,23 +406,11 @@ public class UserEndpointsLogicTests
         Assert.Equal(token, okResult.Value.Token);
     }
 
-    [Fact]
-    public async Task UserLoginLogicAsync_WhenLoginFails_ReturnsUnauthorized()
+    [Theory]
+    [AutoData]
+    public async Task UserLoginLogicAsync_WhenLoginFails_ReturnsUnauthorized(LoginDTO loginDTO)
     {
         // Arrange
-        var loginDTO = new LoginDTO(Email: "testuser@unittest.com", Password: "secretPassword123!");
-        var user = new User
-        {
-            Id = UserId.NewId,
-            FirstName = "Testuser",
-            LastName = "TestuserLastName",
-            PhoneNumber = "71625353",
-            Email = "testuser@gmail.com",
-            HashedPassword = "someHashedPassword",
-            Created = DateTime.UtcNow,
-            Updated = DateTime.UtcNow
-        };
-
         _userServiceMock.Setup(x => x.UserLoginAsync(loginDTO))
             .ReturnsAsync((string?)null);
 
@@ -482,19 +428,11 @@ public class UserEndpointsLogicTests
 
     #region UpdatePasswordLogicAsync
 
-    [Fact]
-    public async Task UpdatePasswordLogicAsync_AsAuthorizedUser_ReturnsOKAndValidToken()
+    [Theory]
+    [AutoData]
+    public async Task UpdatePasswordLogicAsync_AsAuthorizedUser_ReturnsOKAndValidToken(UpdatePasswordDTO updatePasswordDTO, ClaimsPrincipal claimsPrincipal)
     {
         // Arrange
-        var updatePasswordDTO = new UpdatePasswordDTO { Email = "testuser@email.no", Password = "CurrentPass123!", NewPassword = "NewPass123!" };
-
-        var claimsIdentity = new ClaimsIdentity(
-        [
-            new Claim(ClaimTypes.Role,  "User"),
-            new Claim(ClaimTypes.Name, "testuser@email.no")
-        ], "TestAuthentication");
-        var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
-
         string token = "ValidTokenString";
 
         _authorizationServiceMock.Setup(x => x.AuthorizeAsync(claimsPrincipal, updatePasswordDTO, "UserNameAccessPolicy"))
@@ -517,20 +455,11 @@ public class UserEndpointsLogicTests
         Assert.Equal("ValidTokenString", okResult.Value.Token);
     }
 
-    [Fact]
-    public async Task UpdatePasswordLogicAsync_WhenAuthorizationFails_ReturnsForbidden()
+    [Theory]
+    [AutoData]
+    public async Task UpdatePasswordLogicAsync_WhenAuthorizationFails_ReturnsForbidden(UpdatePasswordDTO updatePasswordDTO, ClaimsPrincipal claimsPrincipal)
     {
         // Arrange
-        var updatePasswordDTO = new UpdatePasswordDTO { Email = "epost@epost.no", Password = "GammeltPassord123!", NewPassword = "NyttPasssord123!" };
-        var verifiedUser = new User { Id = UserId.NewId };
-
-        var claimsIdentity = new ClaimsIdentity(
-        [
-            new Claim(ClaimTypes.Name, "epost@epost.no"),
-            new Claim(ClaimTypes.Role, "User")
-        ]);
-        var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
-
         _authorizationServiceMock.Setup(x => x.AuthorizeAsync(claimsPrincipal, updatePasswordDTO, "UserNameAccessPolicy")).ReturnsAsync(AuthorizationResult.Failed);
 
         // Act
@@ -545,19 +474,11 @@ public class UserEndpointsLogicTests
         var forbidResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.ForbidHttpResult>(result);
     }
 
-    [Fact]
-    public async Task UpdatePasswordLogicAsync_WhenPasswordCouldNotBeUpdated_ReturnsUnauthorized()
+    [Theory]
+    [AutoData]
+    public async Task UpdatePasswordLogicAsync_WhenPasswordCouldNotBeUpdated_ReturnsUnauthorized(UpdatePasswordDTO updatePasswordDTO, ClaimsPrincipal claimsPrincipal)
     {
         //Arrange
-        var updatePasswordDTO = new UpdatePasswordDTO { Email = "epost@epost.no", Password = "GammeltPassord123!", NewPassword = "NyttPasssord123!" };
-
-        var claimsIdentity = new ClaimsIdentity(
-        [
-            new Claim(ClaimTypes.Name, "epost@epost.no"),
-            new Claim(ClaimTypes.Role, "User")
-        ]);
-        var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
-
         _authorizationServiceMock.Setup(x => x.AuthorizeAsync(claimsPrincipal, updatePasswordDTO, "UserNameAccessPolicy"))
             .ReturnsAsync(AuthorizationResult.Success);
 
