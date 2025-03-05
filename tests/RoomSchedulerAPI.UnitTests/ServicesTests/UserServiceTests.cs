@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using AutoFixture.Xunit2;
+using AutoMapper;
 using Microsoft.Extensions.Logging;
 using Moq;
 using RoomSchedulerAPI.Features.AutoMapper;
@@ -163,29 +164,16 @@ public class UserServiceTests
 
     #region DeleteUserAsync
 
-    [Fact]
-    public async Task DeleteUserAsync_WhenUserWasDeleted_ReturnsUserDTO()
+    [Theory]
+    [CustomUserAutoData]
+    public async Task DeleteUserAsync_WhenUserWasDeleted_ReturnsUserDTO(User user)
     {
         // Arrange
-        var id = Guid.NewGuid();
-        var userId = new UserId(id);
-
-        var user = new User
-        {
-            Id = userId,
-            FirstName = "Tom",
-            LastName = "Jerryson",
-            PhoneNumber = "61524234",
-            Email = "tom@planetearth.com",
-            Created = DateTime.UtcNow,
-            Updated = DateTime.UtcNow
-        };
-
-        _userRepositoryMock.Setup(x => x.DeleteUserAsync(userId))
+        _userRepositoryMock.Setup(x => x.DeleteUserAsync(user.Id))
             .ReturnsAsync(user);
 
         // Act
-        var result = await _userService.DeleteUserAsync(id);
+        var result = await _userService.DeleteUserAsync(user.Id.Value);
 
         // Assert
         var userDTO = Assert.IsType<UserDTO>(result);
@@ -196,29 +184,16 @@ public class UserServiceTests
         Assert.Equal(user.Email, userDTO.Email);
     }
 
-    [Fact]
-    public async Task DeleteUserAsync_WhenUserWasNotDeleted_ReturnsNull()
+    [Theory]
+    [CustomUserAutoData]
+    public async Task DeleteUserAsync_WhenUserWasNotDeleted_ReturnsNull(User user)
     {
         // Arrange
-        var id = Guid.NewGuid();
-        var userId = new UserId(id);
-
-        var user = new User
-        {
-            Id = userId,
-            FirstName = "Tom",
-            LastName = "Jerryson",
-            PhoneNumber = "61524234",
-            Email = "tom@planetearth.com",
-            Created = DateTime.UtcNow,
-            Updated = DateTime.UtcNow
-        };
-
-        _userRepositoryMock.Setup(x => x.DeleteUserAsync(userId))
+        _userRepositoryMock.Setup(x => x.DeleteUserAsync(user.Id))
             .ReturnsAsync((User?)null);
 
         // Act
-        var result = await _userService.DeleteUserAsync(id);
+        var result = await _userService.DeleteUserAsync(user.Id.Value);
 
         // Assert
         Assert.Null(result);
