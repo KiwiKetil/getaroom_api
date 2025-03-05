@@ -1,6 +1,4 @@
-﻿using AutoFixture;
-using AutoFixture.Xunit2;
-using AutoMapper;
+﻿using AutoMapper;
 using Microsoft.Extensions.Logging;
 using Moq;
 using RoomSchedulerAPI.Features.AutoMapper;
@@ -43,17 +41,12 @@ public class UserServiceTests
 
     #region GetUsersAsync
 
-    [Fact]
-    public async Task GetUsersAsync_ReturnsUsersWithCountDTO()
+    [Theory]
+    [CustomUserAutoData]
+    public async Task GetUsersAsync_ReturnsUsersWithCountDTO(List<User> users)
     {
         // Arrange
         var userQuery = new UserQuery(null, null, null, null);
-
-        List<User> users = 
-        [
-        new User { FirstName = "Jim", LastName = "Moore" },
-        new User { FirstName = "Michelle", LastName = "Andersson" }
-        ];
 
         int totalCount = users.Count;
 
@@ -97,17 +90,15 @@ public class UserServiceTests
 
     #region GetUserByIdAsync
 
-    [Fact]
-    public async Task GetUserByIdAsync_WhenUserIsFound_ReturnsUserDTO()
+    [Theory]
+    [CustomUserAutoData]
+    public async Task GetUserByIdAsync_WhenUserIsFound_ReturnsUserDTO(User user)
     {
         // Arrange
-        var id = Guid.NewGuid();
-        var user = new User { Id = new UserId(id), FirstName = "Peter" };
-
         _userRepositoryMock.Setup(x => x.GetUserByIdAsync(user.Id)).ReturnsAsync(user);
 
         // Act
-        var result = await _userService.GetUserByIdAsync(id);
+        var result = await _userService.GetUserByIdAsync(user.Id.Value);
 
         // Assert
         var userDTO = Assert.IsType<UserDTO>(result);
@@ -115,18 +106,16 @@ public class UserServiceTests
         Assert.Equal(user.FirstName, userDTO.FirstName);
     }
 
-    [Fact]
-    public async Task GetUserByIdAsync_WhenUserIsNotFound_ReturnsNull()
+    [Theory]
+    [CustomUserAutoData]
+    public async Task GetUserByIdAsync_WhenUserIsNotFound_ReturnsNull(User user)
     {
         // Arrange
-        var id = Guid.NewGuid();
-        var user = new User { Id = new UserId(id), FirstName = "Peter" };
-
         _userRepositoryMock.Setup(x => x.GetUserByIdAsync(user.Id))
             .ReturnsAsync((User?)null);
 
         // Act
-        var result = await _userService.GetUserByIdAsync(id);
+        var result = await _userService.GetUserByIdAsync(user.Id.Value);
 
         // Assert
         Assert.Null(result);
@@ -134,69 +123,43 @@ public class UserServiceTests
 
     #endregion GetUserByIdAsync
 
-    #region UpdateuserAsync
+    #region UpdateUserAsync
 
-    [Fact]
-    public async Task UpdateUserAsync_WhenUserWasUpdated_ReturnsUserDTO() 
+    [Theory]
+    [CustomUserAutoData]
+    public async Task UpdateUserAsync_WhenUserWasUpdated_ReturnsUserDTO(UserUpdateDTO userUpdateDTO, User user)
     {
         // Arrange
-        var id = Guid.NewGuid();
-        var userId = new UserId(id);
-
-        var userUpdateDTO = new UserUpdateDTO("Tom", "Jerryson", "61524234", "tom@planetearth.com");
-
-        var user = new User
-        {
-            Id = userId,
-            FirstName = "Tom",
-            LastName = "Jerryson",
-            PhoneNumber = "61524234",
-            Email = "tom@planetearth.com",
-            Created = DateTime.UtcNow,
-            Updated = DateTime.UtcNow
-        };
-
         _userRepositoryMock.Setup(x => x.UpdateUserAsync(user.Id, It.IsAny<User>()))
             .ReturnsAsync(user);
 
         // Act
-        var result = await _userService.UpdateUserAsync(id, userUpdateDTO);
+        var result = await _userService.UpdateUserAsync(user.Id.Value, userUpdateDTO);
 
         // Assert
-        Assert.IsType<UserDTO>(result);
+        var userDTO = Assert.IsType<UserDTO>(result);
+        Assert.Equal(userDTO.FirstName, userUpdateDTO.FirstName);
+        Assert.Equal(userDTO.LastName, userUpdateDTO.LastName);
+        Assert.Equal(userDTO.PhoneNumber, userUpdateDTO.PhoneNumber);
+        Assert.Equal(userDTO.Email, userUpdateDTO.Email);
     }
 
-    [Fact]
-    public async Task UpdateUserAsync_WhenUserWasNotUpdated_ReturnsNull()
+    [Theory]
+    [CustomUserAutoData]
+    public async Task UpdateUserAsync_WhenUserWasNotUpdated_ReturnsNull(UserUpdateDTO userUpdateDTO, User user)
     {
         // Arrange
-        var id = Guid.NewGuid();
-        var userId = new UserId(id);
-
-        var userUpdateDTO = new UserUpdateDTO("Tom", "Jerryson", "61524234", "tom@planetearth.com");
-
-        var user = new User
-        {
-            Id = userId,
-            FirstName = "Tom",
-            LastName = "Jerryson",
-            PhoneNumber = "61524234",
-            Email = "tom@planetearth.com",
-            Created = DateTime.UtcNow,
-            Updated = DateTime.UtcNow
-        };
-
         _userRepositoryMock.Setup(x => x.UpdateUserAsync(user.Id, It.IsAny<User>()))
             .ReturnsAsync((User?)null);
 
         // Act
-        var result = await _userService.UpdateUserAsync(id, userUpdateDTO);
+        var result = await _userService.UpdateUserAsync(user.Id.Value, userUpdateDTO);
 
         // Assert
         Assert.Null(result);
     }
 
-    #endregion UpdateuserAsync
+    #endregion UpdateUserAsync
 
     #region DeleteUserAsync
 
@@ -268,7 +231,7 @@ public class UserServiceTests
     [Theory]
     [CustomUserAutoData]
     public async Task RegisterUserAsync_WhenRegistrationIsSuccessfull_ReturnsUserDTO(UserRegistrationDTO userRegistrationDTO, User user)
-    {        
+    {
         // Arrange
         _userRepositoryMock.Setup(x => x.GetUserByEmailAsync(userRegistrationDTO.Email))
             .ReturnsAsync((User?)null);
