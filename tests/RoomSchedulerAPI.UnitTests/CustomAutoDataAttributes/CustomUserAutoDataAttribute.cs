@@ -11,7 +11,14 @@ internal class CustomUserAutoDataAttribute : AutoDataAttribute
         var fixture = new Fixture();
 
         fixture.Customize<User>(c => c
-        .With(x => x.Id, UserId.NewId)
+        .With(x => x.Id, new UserId(new Guid("a47ac10b-58cc-4372-a567-0e02b2c3d481")))
+        .With(x => x.FirstName, "Al")
+        .With(x => x.LastName, "Bundy")
+        .With(x => x.PhoneNumber, "76544567")
+        .With(x => x.Email, "al@bundy.com"));
+
+        fixture.Customize<UserDTO>(u => u
+        .With(x => x.Id, new UserId(new Guid("a47ac10b-58cc-4372-a567-0e02b2c3d481")))
         .With(x => x.FirstName, "Al")
         .With(x => x.LastName, "Bundy")
         .With(x => x.PhoneNumber, "76544567")
@@ -22,6 +29,18 @@ internal class CustomUserAutoDataAttribute : AutoDataAttribute
         .With(x => x.LastName, "Bundy")
         .With(x => x.PhoneNumber, "76544567")
         .With(x => x.Email, "al@bundy.com"));
+
+        fixture.Customize<UserUpdateDTO>(u => u
+        .With(x => x.FirstName, "Al")
+        .With(x => x.LastName, "Bundy")
+        .With(x => x.PhoneNumber, "76544567")
+        .With(x => x.Email, "al@bundy.com"));
+
+        fixture.Customize<List<User>>(c => c.FromFactory(() => new List<User>
+        {
+            new() { FirstName = "Jim", LastName = "Moore" },
+            new() { FirstName = "Michelle", LastName = "Andersson" }
+        }));
 
         return fixture;
     })

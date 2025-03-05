@@ -287,7 +287,7 @@ public class UserServiceTests
         Assert.Equal(userRegistrationDTO.Email, userDTO.Email);
     }
 
-
+    // continue testing register user
 
     #endregion RegisterUserAsync
 }
