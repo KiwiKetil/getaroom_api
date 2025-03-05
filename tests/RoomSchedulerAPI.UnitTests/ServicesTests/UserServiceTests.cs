@@ -43,48 +43,42 @@ public class UserServiceTests
     #region GetUsersAsync
 
     [Theory]
-    [CustomUserAutoData]
-    public async Task GetUsersAsync_ReturnsUsersWithCountDTO(List<User> users)
+    [AutoData]
+    public async Task GetUsersAsync_ReturnsUsersWithCountDTO(UserQuery userQuery, List<User> users)
     {
         // Arrange
-        var userQuery = new UserQuery(null, null, null, null);
-
-        int totalCount = users.Count;
-
         _userRepositoryMock.Setup(x => x.GetUsersAsync(userQuery))
-            .ReturnsAsync((users, totalCount));
+            .ReturnsAsync((users, users.Count));
 
         //Act
         var result = await _userService.GetUsersAsync(userQuery);
 
         //Assert
-        var usersWithCountDTO = Assert.IsType<UsersWithCountDTO>(result);
-        Assert.Equal(totalCount, usersWithCountDTO.TotalCount);
-        Assert.Equal(totalCount, usersWithCountDTO.UserDTOs.Count());
-        Assert.Equal(usersWithCountDTO.UserDTOs.ElementAt(0).FirstName, users[0].FirstName);
-        Assert.Equal(usersWithCountDTO.UserDTOs.ElementAt(0).LastName, users[0].LastName);
-        Assert.Equal(usersWithCountDTO.UserDTOs.ElementAt(1).FirstName, users[1].FirstName);
-        Assert.Equal(usersWithCountDTO.UserDTOs.ElementAt(1).LastName, users[1].LastName);
+        var res = Assert.IsType<UsersWithCountDTO>(result);
+        Assert.Equal(users.Count, res.TotalCount);
+        Assert.Equal(users.Count, res.UserDTOs.Count());
+        Assert.Equal(users[0].FirstName, res.UserDTOs.ElementAt(0).FirstName);
+        Assert.Equal(users[0].LastName, res.UserDTOs.ElementAt(0).LastName);
+        Assert.Equal(users[1].FirstName, res.UserDTOs.ElementAt(1).FirstName);
+        Assert.Equal(users[1].LastName, res.UserDTOs.ElementAt(1).LastName);
     }
 
-    [Fact]
-    public async Task GetUsersAsync_WhenNoUsersAreFound_ReturnsUsersWithCountDTO_WithEmptyCollectionAndTotalCountZero()
+    [Theory]
+    [AutoData]
+    public async Task GetUsersAsync_WhenNoUsersAreFound_ReturnsUsersWithCountDTO_WithEmptyCollectionAndTotalCountZero(UserQuery userQuery)
     {
         // Arrange
-        var query = new UserQuery(null, null, null, null);
-
         List<User> users = [];
-        int totalCount = users.Count;
 
-        _userRepositoryMock.Setup(x => x.GetUsersAsync(query)).ReturnsAsync((users, totalCount));
+        _userRepositoryMock.Setup(x => x.GetUsersAsync(userQuery)).ReturnsAsync((users, users.Count));
 
         // Act
-        var result = await _userService.GetUsersAsync(query);
+        var result = await _userService.GetUsersAsync(userQuery);
 
         // Assert
-        var userWithCountDTO = Assert.IsType<UsersWithCountDTO>(result);
-        Assert.Empty(userWithCountDTO.UserDTOs);
-        Assert.Equal(0, userWithCountDTO.TotalCount);
+        var res = Assert.IsType<UsersWithCountDTO>(result);
+        Assert.Empty(res.UserDTOs);
+        Assert.Equal(0, res.TotalCount);
     }
 
     #endregion GetUsersAsync
@@ -92,7 +86,7 @@ public class UserServiceTests
     #region GetUserByIdAsync
 
     [Theory]
-    [CustomUserAutoData]
+    [AutoData]
     public async Task GetUserByIdAsync_WhenUserIsFound_ReturnsUserDTO(User user)
     {
         // Arrange
@@ -102,13 +96,13 @@ public class UserServiceTests
         var result = await _userService.GetUserByIdAsync(user.Id.Value);
 
         // Assert
-        var userDTO = Assert.IsType<UserDTO>(result);
-        Assert.Equal(user.Id, userDTO.Id);
-        Assert.Equal(user.FirstName, userDTO.FirstName);
+        var res = Assert.IsType<UserDTO>(result);
+        Assert.Equal(user.Id, res.Id);
+        Assert.Equal(user.FirstName, res.FirstName);
     }
 
     [Theory]
-    [CustomUserAutoData]
+    [AutoData]
     public async Task GetUserByIdAsync_WhenUserIsNotFound_ReturnsNull(User user)
     {
         // Arrange
@@ -138,11 +132,11 @@ public class UserServiceTests
         var result = await _userService.UpdateUserAsync(user.Id.Value, userUpdateDTO);
 
         // Assert
-        var userDTO = Assert.IsType<UserDTO>(result);
-        Assert.Equal(userDTO.FirstName, userUpdateDTO.FirstName);
-        Assert.Equal(userDTO.LastName, userUpdateDTO.LastName);
-        Assert.Equal(userDTO.PhoneNumber, userUpdateDTO.PhoneNumber);
-        Assert.Equal(userDTO.Email, userUpdateDTO.Email);
+        var res = Assert.IsType<UserDTO>(result);
+        Assert.Equal(userUpdateDTO.FirstName, res.FirstName);
+        Assert.Equal(userUpdateDTO.LastName, res.LastName);
+        Assert.Equal(userUpdateDTO.PhoneNumber, res.PhoneNumber);
+        Assert.Equal(userUpdateDTO.Email, res.Email);
     }
 
     [Theory]
@@ -176,12 +170,12 @@ public class UserServiceTests
         var result = await _userService.DeleteUserAsync(user.Id.Value);
 
         // Assert
-        var userDTO = Assert.IsType<UserDTO>(result);
-        Assert.Equal(user.Id, userDTO.Id);
-        Assert.Equal(user.FirstName, userDTO.FirstName);
-        Assert.Equal(user.LastName, userDTO.LastName);
-        Assert.Equal(user.PhoneNumber, userDTO.PhoneNumber);
-        Assert.Equal(user.Email, userDTO.Email);
+        var res = Assert.IsType<UserDTO>(result);
+        Assert.Equal(user.Id, res.Id);
+        Assert.Equal(user.FirstName, res.FirstName);
+        Assert.Equal(user.LastName, res.LastName);
+        Assert.Equal(user.PhoneNumber, res.PhoneNumber);
+        Assert.Equal(user.Email, res.Email);
     }
 
     [Theory]
@@ -218,11 +212,11 @@ public class UserServiceTests
         var result = await _userService.RegisterUserAsync(userRegistrationDTO);
 
         // Assert
-        var userDTO = Assert.IsType<UserDTO>(result);
-        Assert.Equal(userRegistrationDTO.FirstName, userDTO.FirstName);
-        Assert.Equal(userRegistrationDTO.LastName, userDTO.LastName);
-        Assert.Equal(userRegistrationDTO.PhoneNumber, userDTO.PhoneNumber);
-        Assert.Equal(userRegistrationDTO.Email, userDTO.Email);
+        var res = Assert.IsType<UserDTO>(result);
+        Assert.Equal(userRegistrationDTO.FirstName, res.FirstName);
+        Assert.Equal(userRegistrationDTO.LastName, res.LastName);
+        Assert.Equal(userRegistrationDTO.PhoneNumber, res.PhoneNumber);
+        Assert.Equal(userRegistrationDTO.Email, res.Email);
     }
 
     // continue testing register user
