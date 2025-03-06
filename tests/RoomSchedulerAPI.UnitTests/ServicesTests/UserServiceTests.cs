@@ -312,8 +312,6 @@ public class UserServiceTests
         _userRepositoryMock.Setup(x => x.UpdatePasswordAsync(user.Id, It.IsAny<string>()))
             .ReturnsAsync(true);
 
-        _passwordHistoryRepositoryMock.Setup(x => x.InsertPasswordUpdateRecordAsync(user.Id.Value));
-
         _userRoleRepositoryMock.Setup(x => x.GetUserRolesAsync(user.Id))
             .ReturnsAsync(roles);
         _tokenGeneratorMock.Setup(x => x.GenerateToken(user, true, roles))
@@ -327,32 +325,59 @@ public class UserServiceTests
         Assert.Equal("ValidTokenString", result);
     }
 
-    //[Theory]
-    //[AutoData]
-    //public async Task UpdatePasswordAsync_WhenUserWasNotFound_ReturnsNull(UpdatePasswordDTO updatePasswordDTO, User user, IEnumerable<UserRole> roles)
-    //{
-    //    // Arrange
-    //    //_userRepositoryMock.Setup(x => x.GetUserByEmailAsync(updatePasswordDTO.Email)).ReturnsAsync(user);
-    //    //_passwordVerificationServiceMock.Setup(x => x.VerifyPassword(updatePasswordDTO, user))
-    //    //    .Returns(true);
-    //    //_userRepositoryMock.Setup(x => x.UpdatePasswordAsync(user.Id, It.IsAny<string>()))
-    //    //    .ReturnsAsync(true);
+    [Theory]
+    [AutoData]
+    public async Task UpdatePasswordAsync_WhenUserWasNotFound_ReturnsNull(UpdatePasswordDTO updatePasswordDTO, User user, IEnumerable<UserRole> roles)
+    {
+        //Arrange
+        _userRepositoryMock.Setup(x => x.GetUserByEmailAsync(updatePasswordDTO.Email)).ReturnsAsync((User?)null);
 
-    //    //_passwordHistoryRepositoryMock.Setup(x => x.InsertPasswordUpdateRecordAsync(user.Id.Value));
+        //Act
+       var result = await _userService.UpdatePasswordAsync(updatePasswordDTO);
 
-    //    //_userRoleRepositoryMock.Setup(x => x.GetUserRolesAsync(user.Id))
-    //    //    .ReturnsAsync(roles);
-    //    //_tokenGeneratorMock.Setup(x => x.GenerateToken(user, true, roles))
-    //    //    .Returns("ValidTokenString");
+        //Assert
+        Assert.Null(result);
+        _passwordVerificationServiceMock.Verify(x => x.VerifyPassword(updatePasswordDTO, user), Times.Never);
+        _userRepositoryMock.Verify(x => x.UpdatePasswordAsync(user.Id, It.IsAny<string>()), Times.Never);
+        _userRoleRepositoryMock.Verify(x => x.GetUserRolesAsync(user.Id), Times.Never);
+        _tokenGeneratorMock.Verify(x => x.GenerateToken(user, true, roles), Times.Never);
+    }
 
-    //    // Act
-    //    var result = await _userService.UpdatePasswordAsync(updatePasswordDTO);
+    [Theory]
+    [AutoData]
+    public async Task UpdatePasswordAsync_WhenPasswordVerificationFails_ReturnsNull(UpdatePasswordDTO updatePasswordDTO, User user, IEnumerable<UserRole> roles)
+    {
+        //Arrange
+        _userRepositoryMock.Setup(x => x.GetUserByEmailAsync(updatePasswordDTO.Email)).ReturnsAsync(user);
+        _passwordVerificationServiceMock.Setup(x => x.VerifyPassword(updatePasswordDTO, user)).Returns(false);
 
-    //    // Assert
-    //    //Assert.IsType<string>(result);
-    //    //Assert.Equal("ValidTokenString", result);
-    //}
+        //Act
+        var result = await _userService.UpdatePasswordAsync(updatePasswordDTO);
 
+        //Assert
+        Assert.Null(result);
+        _userRepositoryMock.Verify(x => x.UpdatePasswordAsync(user.Id, It.IsAny<string>()), Times.Never);
+        _userRoleRepositoryMock.Verify(x => x.GetUserRolesAsync(user.Id), Times.Never);
+        _tokenGeneratorMock.Verify(x => x.GenerateToken(user, true, roles), Times.Never);
+    }
+
+    [Theory]
+    [AutoData]
+    public async Task UpdatePasswordAsync_WhenPasswordUpdateFails_ReturnsNull(UpdatePasswordDTO updatePasswordDTO, User user, IEnumerable<UserRole> roles)
+    {
+        //Arrange
+        _userRepositoryMock.Setup(x => x.GetUserByEmailAsync(updatePasswordDTO.Email)).ReturnsAsync(user);
+        _passwordVerificationServiceMock.Setup(x => x.VerifyPassword(updatePasswordDTO, user)).Returns(true);
+        _userRepositoryMock.Setup(x => x.UpdatePasswordAsync(user.Id, It.IsAny<string>())).ReturnsAsync(false); ;
+
+        //Act
+        var result = await _userService.UpdatePasswordAsync(updatePasswordDTO);
+
+        //Assert
+        Assert.Null(result);
+        _userRoleRepositoryMock.Verify(x => x.GetUserRolesAsync(user.Id), Times.Never);
+        _tokenGeneratorMock.Verify(x => x.GenerateToken(user, true, roles), Times.Never);
+    }
 
     #endregion UpdatePasswordAsync
 }
