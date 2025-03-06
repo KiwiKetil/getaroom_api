@@ -97,8 +97,8 @@ public class UserService(IUserRepository userRepository, IUserRoleRepository use
             return null;
         }
 
-        bool hasUpdatedPassword = await HasUpdatedPassword(user.Id);
-        var userRoles = await _userRoleRepository.GetUserRoles(user.Id);
+        bool hasUpdatedPassword = await HasUpdatedPasswordAsync(user.Id);
+        var userRoles = await _userRoleRepository.GetUserRolesAsync(user.Id);
 
         var token = _tokenGenerator.GenerateToken(user, hasUpdatedPassword, userRoles);
         return token;
@@ -134,12 +134,12 @@ public class UserService(IUserRepository userRepository, IUserRoleRepository use
         await _passwordHistoryRepository.InsertPasswordUpdateRecordAsync(user.Id.Value);
         _logger.LogInformation("Password updated successfully for user {Email}", dto.Email);
 
-        var userRoles = await _userRoleRepository.GetUserRoles(user.Id);
+        var userRoles = await _userRoleRepository.GetUserRolesAsync(user.Id);
         var token = _tokenGenerator.GenerateToken(user, true, userRoles);
         return token;
     }
 
-    public async Task<bool> HasUpdatedPassword(UserId id)
+    public async Task<bool> HasUpdatedPasswordAsync(UserId id)
     {
         _logger.LogDebug("Checking if user has updated Password");
 

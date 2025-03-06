@@ -25,6 +25,66 @@ public class TokenGeneratorTests
 
     [Theory]
     [AutoData]
+    public void GenerateToken_WhenSuccess_WhenUserHasUpdatedPassword_ReturnsValidTokenWithCorrectClaims(User user, List<UserRole> roles)
+    {
+        // Arrange
+        var expectedRoles = roles.Select(r => r.RoleName).ToList();
+
+        // Act
+        var result = _service.GenerateToken(user, true, roles);
+
+        // Assert
+        var handler = new JwtSecurityTokenHandler();
+        var jwtToken = handler.ReadJwtToken(result);
+        var idClaim = jwtToken.Subject;
+        var nameClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.UniqueName);
+        var rolesClaim = jwtToken.Claims.Where(c => c.Type == ClaimTypes.Role).Select(r => r.Value).ToList();
+        var rolesOutput = string.Join(", ", rolesClaim);
+
+        var passwordUpdatedClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == "passwordUpdated");
+
+        Assert.IsType<string>(result);
+        Assert.Equal(user.Id.Value.ToString(), idClaim);
+        Assert.NotNull(nameClaim);
+        Assert.Equal(user.Email, nameClaim.Value);
+        Assert.Equal(expectedRoles, rolesClaim);
+        Assert.Contains("TheIssuer", jwtToken.Issuer);
+        Assert.Contains("TheAudience", jwtToken.Audiences);
+        Assert.NotNull(passwordUpdatedClaim);
+        Assert.True(bool.Parse(passwordUpdatedClaim.Value));
+    }
+
+    [Theory]
+    [AutoData]
+    public void GenerateToken_WhenSuccess_WhenUserHasNotUpdatedPassword_ReturnsValidTokenWithCorrectClaims(User user, List<UserRole> roles)
+    {
+        // Arrange
+        var expectedRoles = roles.Select(r => r.RoleName).ToList();
+
+        // Act
+        var result = _service.GenerateToken(user, false, roles);
+
+        // Assert
+        var handler = new JwtSecurityTokenHandler();
+        var jwtToken = handler.ReadJwtToken(result);
+        var idClaim = jwtToken.Subject;
+        var nameClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.UniqueName);
+        var rolesClaim = jwtToken.Claims.Where(c => c.Type == ClaimTypes.Role).Select(c => c.Value).ToList();
+        var passwordUpdatedClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == "passwordUpdated");
+
+        Assert.IsType<string>(result);
+        Assert.Equal(user.Id.Value.ToString(), idClaim);
+        Assert.NotNull(nameClaim);
+        Assert.Equal(user.Email, nameClaim.Value);
+        Assert.Equal(expectedRoles, rolesClaim);
+        Assert.Contains("TheIssuer", jwtToken.Issuer);
+        Assert.Contains("TheAudience", jwtToken.Audiences);
+        Assert.NotNull(passwordUpdatedClaim);
+        Assert.False(bool.Parse(passwordUpdatedClaim.Value));
+    }
+
+    [Theory]
+    [AutoData]
     public void GenerateToken_WhenUserIsNull_ThrowsArgumentException(List<UserRole> roles)
     {
         // Arrange, Act & Assert
@@ -75,65 +135,5 @@ public class TokenGeneratorTests
         // Act & Assert
         var res = Assert.Throws<InvalidOperationException>(() => _service.GenerateToken(user, false, roles));
         Assert.Equal("Missing configuration: Jwt:Audience", res.Message);
-    }
-
-    [Theory]
-    [AutoData]
-    public void GenerateToken_WhenSuccess_WhenUserHasNotUpdatedPassword_ReturnsValidTokenWithCorrectClaims(User user, List<UserRole> roles)
-    {
-        // Arrange
-        var expectedRoles = roles.Select(r => r.RoleName).ToList();
-
-        // Act
-        var result = _service.GenerateToken(user, false, roles);
-
-        // Assert
-        var handler = new JwtSecurityTokenHandler();
-        var jwtToken = handler.ReadJwtToken(result);
-        var idClaim = jwtToken.Subject;
-        var nameClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.UniqueName);
-        var rolesClaim = jwtToken.Claims.Where(c => c.Type == ClaimTypes.Role).Select(c => c.Value).ToList();
-        var passwordUpdatedClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == "passwordUpdated");
-
-        Assert.IsType<string>(result);
-        Assert.Equal(user.Id.Value.ToString(), idClaim);
-        Assert.NotNull(nameClaim);
-        Assert.Equal(user.Email, nameClaim.Value);
-        Assert.Equal(expectedRoles, rolesClaim);
-        Assert.Contains("TheIssuer", jwtToken.Issuer);
-        Assert.Contains("TheAudience", jwtToken.Audiences);
-        Assert.NotNull(passwordUpdatedClaim);
-        Assert.False(bool.Parse(passwordUpdatedClaim.Value));
-    }
-
-    [Theory]
-    [AutoData]
-    public void GenerateToken_WhenSuccess_WhenUserHasUpdatedPassword_ReturnsValidTokenWithCorrectClaims(User user, List<UserRole> roles)
-    {
-        // Arrange
-        var expectedRoles = roles.Select(r => r.RoleName).ToList();
-
-        // Act
-        var result = _service.GenerateToken(user, true, roles);
-
-        // Assert
-        var handler = new JwtSecurityTokenHandler();
-        var jwtToken = handler.ReadJwtToken(result);
-        var idClaim = jwtToken.Subject;
-        var nameClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.UniqueName);
-        var rolesClaim = jwtToken.Claims.Where(c => c.Type == ClaimTypes.Role).Select(r => r.Value).ToList();
-        var rolesOutput = string.Join(", ", rolesClaim);
-
-        var passwordUpdatedClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == "passwordUpdated");
-
-        Assert.IsType<string>(result);
-        Assert.Equal(user.Id.Value.ToString(), idClaim);
-        Assert.NotNull(nameClaim);
-        Assert.Equal(user.Email, nameClaim.Value);
-        Assert.Equal(expectedRoles, rolesClaim);
-        Assert.Contains("TheIssuer", jwtToken.Issuer);
-        Assert.Contains("TheAudience", jwtToken.Audiences);
-        Assert.NotNull(passwordUpdatedClaim);
-        Assert.True(bool.Parse(passwordUpdatedClaim.Value));
     }
 }
