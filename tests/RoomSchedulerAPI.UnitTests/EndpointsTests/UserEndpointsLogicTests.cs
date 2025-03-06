@@ -66,34 +66,6 @@ public class UserEndpointsLogicTests
 
     [Theory]
     [AutoData]
-    public async Task GetUserByIdLogicAsync_AsAdmin_WhenUserExists_ReturnsOkAndUserDTO(
-        Guid id,
-        UserDTO userDTO,
-        ClaimsPrincipal claimsPrincipal)
-    {
-        // Arrange
-        _authorizationServiceMock.Setup(x => x.AuthorizeAsync(claimsPrincipal, id, "UserIdAccessPolicy"))
-            .ReturnsAsync(AuthorizationResult.Success());
-
-        _userServiceMock.Setup(x => x.GetUserByIdAsync(id))
-            .ReturnsAsync(userDTO);
-
-        // Act
-        var result = await UserEndpointsLogic.GetUserByIdLogicAsync(
-            id,
-            _userServiceMock.Object,
-            _authorizationServiceMock.Object,
-            claimsPrincipal,
-            _loggerMock.Object);
-
-        // Assert
-        var okResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.Ok<UserDTO>>(result);
-        Assert.NotNull(okResult);
-        Assert.Equal(userDTO, okResult.Value);
-    }
-
-    [Theory]
-    [AutoData]
     public async Task GetUserByIdLogicAsync_AsAuthorizedUser_WhenUserExists_ReturnsOkAndUserDTO(
         Guid id,
         UserDTO userDTO,
@@ -142,7 +114,7 @@ public class UserEndpointsLogicTests
 
     [Theory]
     [AutoData]
-    public async Task GetUserByIdLogicAsync_AsAdmin_WhenUserDoesNotExist_ReturnsNotFoundAndErrorResponse(Guid id, ClaimsPrincipal claimsPrincipal)
+    public async Task GetUserByIdLogicAsync_AsAuthorizedUser_WhenUserDoesNotExist_ReturnsNotFoundAndErrorResponse(Guid id, ClaimsPrincipal claimsPrincipal)
     {
         // Arrange
         _authorizationServiceMock.Setup(x => x.AuthorizeAsync(claimsPrincipal, id, "UserIdAccessPolicy"))
@@ -168,40 +140,6 @@ public class UserEndpointsLogicTests
     #endregion GetUserById
 
     #region UpdateUserLogicAsync
-
-    [Theory]
-    [CustomUserAutoData]
-    public async Task UpdateUserLogicAsync_AsAdmin_WhenUpdateIsSuccessful_ReturnsOkAndUpdatedUserDTO(
-        Guid id,
-        UserUpdateDTO userUpdateDTO,
-        UserDTO userDTO,
-        ClaimsPrincipal claimsPrincipal)
-    {
-        // Arrange
-        _authorizationServiceMock.Setup(x => x.AuthorizeAsync(claimsPrincipal, id, "UserIdAccessPolicy"))
-            .ReturnsAsync(AuthorizationResult.Success);
-
-        _userServiceMock.Setup(x => x.UpdateUserAsync(id, userUpdateDTO))
-            .ReturnsAsync(userDTO);
-
-        //Act
-        var result = await UserEndpointsLogic.UpdateUserLogicAsync(
-            userUpdateDTO,
-            id,
-            _userServiceMock.Object,
-            _authorizationServiceMock.Object,
-            claimsPrincipal,
-            _loggerMock.Object);
-
-        //Assert
-        var okResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.Ok<UserDTO>>(result);
-        Assert.NotNull(okResult.Value);
-        Assert.Equal(userDTO, okResult.Value);
-        Assert.Equal(userUpdateDTO.FirstName, okResult.Value.FirstName);
-        Assert.Equal(userUpdateDTO.LastName, okResult.Value.LastName);
-        Assert.Equal(userUpdateDTO.PhoneNumber, okResult.Value.PhoneNumber);
-        Assert.Equal(userUpdateDTO.Email, okResult.Value.Email);
-    }
 
     [Theory]
     [CustomUserAutoData]
