@@ -39,7 +39,7 @@ public class TokenGenerator(IConfiguration config, ILogger<TokenGenerator> logge
 
         List<Claim> claims = [];
         claims.Add(new Claim(JwtRegisteredClaimNames.Sub, userId.Value.ToString()));
-        claims.Add(new Claim(JwtRegisteredClaimNames.Name, userName.ToString()));
+        claims.Add(new Claim(JwtRegisteredClaimNames.UniqueName, userName.ToString()));
         claims.Add(new Claim("passwordUpdated", hasUpdatedPassword ? "true" : "false"));
 
         foreach (var role in userRoles)
