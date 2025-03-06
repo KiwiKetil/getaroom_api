@@ -4,5 +4,5 @@ namespace RoomSchedulerAPI.Features.Repositories.Interfaces;
 
 public interface IUserRoleRepository
 {
-    Task<IEnumerable<UserRole>> GetUserRoles(UserId id);
+    Task<IEnumerable<UserRole>> GetUserRolesAsync(UserId id);
 }

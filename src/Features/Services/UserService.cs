@@ -97,8 +97,8 @@ public class UserService(IUserRepository userRepository, IUserRoleRepository use
             return null;
         }
 
-        bool hasUpdatedPassword = await HasUpdatedPassword(user.Id);
-        var userRoles = await _userRoleRepository.GetUserRoles(user.Id);
+        bool hasUpdatedPassword = await _passwordHistoryRepository.PasswordUpdateExistsAsync(user.Id);
+        var userRoles = await _userRoleRepository.GetUserRolesAsync(user.Id);
 
         var token = _tokenGenerator.GenerateToken(user, hasUpdatedPassword, userRoles);
         return token;
@@ -108,15 +108,15 @@ public class UserService(IUserRepository userRepository, IUserRoleRepository use
     {
         _logger.LogDebug("Updating password for user {Email}", dto.Email);
 
-        var user = await GetUserByEmailAsync(dto.Email);
+        var user = await _userRepository.GetUserByEmailAsync(dto.Email);
         if (user is null)
         {
             _logger.LogError("User not found by email {Email}", dto.Email);
             return null; 
         }
 
-        var verifiedUser = _passwordVerificationService.VerifyPassword(dto, user);
-        if (!verifiedUser)
+        var verified = _passwordVerificationService.VerifyPassword(dto, user);
+        if (!verified)
         {
             _logger.LogError("Verification faield");
             return null; 
@@ -124,7 +124,7 @@ public class UserService(IUserRepository userRepository, IUserRoleRepository use
 
         string newHashedPassword = BCrypt.Net.BCrypt.HashPassword(dto.NewPassword);
 
-        bool updateSuccess = await _userRepository.UpdatePasswordAsync(user.Id, newHashedPassword);
+        var updateSuccess = await _userRepository.UpdatePasswordAsync(user.Id, newHashedPassword);
         if (!updateSuccess)
         {
             _logger.LogError("Failed to update password for user {Email}", dto.Email);
@@ -134,24 +134,8 @@ public class UserService(IUserRepository userRepository, IUserRoleRepository use
         await _passwordHistoryRepository.InsertPasswordUpdateRecordAsync(user.Id.Value);
         _logger.LogInformation("Password updated successfully for user {Email}", dto.Email);
 
-        var userRoles = await _userRoleRepository.GetUserRoles(user.Id);
+        var userRoles = await _userRoleRepository.GetUserRolesAsync(user.Id);
         var token = _tokenGenerator.GenerateToken(user, true, userRoles);
         return token;
     }
-
-    public async Task<bool> HasUpdatedPassword(UserId id)
-    {
-        _logger.LogDebug("Checking if user has updated Password");
-
-        var hasChangedPassword = await _passwordHistoryRepository.PasswordUpdateExistsAsync(id);
-        return hasChangedPassword;
-    }
-
-    public async Task<User?> GetUserByEmailAsync(string email)
-    {
-        _logger.LogDebug("Retrieving user by email {email}", email);
-
-        var user = await _userRepository.GetUserByEmailAsync(email);
-        return user;
-    } 
 }

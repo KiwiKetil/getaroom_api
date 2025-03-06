@@ -10,7 +10,7 @@ public class UserRoleRepository(IDbConnectionFactory mySqlConnectionFactory, ILo
     private readonly IDbConnectionFactory _mySqlConnectionFactory = mySqlConnectionFactory;
     private readonly ILogger _logger = logger;
 
-    public async Task<IEnumerable<UserRole>> GetUserRoles(UserId id)
+    public async Task<IEnumerable<UserRole>> GetUserRolesAsync(UserId id)
     {
         _logger.LogDebug("Retrieving roles for user with ID: {UserId}", id);
         
