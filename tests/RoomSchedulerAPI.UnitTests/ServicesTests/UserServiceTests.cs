@@ -9,7 +9,6 @@ using RoomSchedulerAPI.Features.Repositories.Interfaces;
 using RoomSchedulerAPI.Features.Services;
 using RoomSchedulerAPI.Features.Services.Interfaces;
 using RoomSchedulerAPI.UnitTests.CustomAutoDataAttributes;
-using System.Data;
 
 namespace RoomSchedulerAPI.UnitTests.ServicesTests;
 public class UserServiceTests
@@ -263,7 +262,7 @@ public class UserServiceTests
 
     [Theory]
     [AutoData]
-    public async Task UserLoginAsync_WhenUserIsNotFound_ReturnsNull(LoginDTO loginDTO, User user, IEnumerable<UserRole> roles)
+    public async Task UserLoginAsync_WhenUserWasNotFound_ReturnsNull(LoginDTO loginDTO, User user, IEnumerable<UserRole> roles)
     {
         // Arrange
         _userRepositoryMock.Setup(x => x.GetUserByEmailAsync(loginDTO.Email))
@@ -300,4 +299,60 @@ public class UserServiceTests
 
     #endregion UserLoginAsync
 
+    #region UpdatePasswordAsync
+
+    [Theory]
+    [AutoData]
+    public async Task UpdatePasswordAsync_WhenSuccess_ReturnsTokenWithValidData(UpdatePasswordDTO updatePasswordDTO, User user, IEnumerable<UserRole> roles)
+    {
+        // Arrange
+        _userRepositoryMock.Setup(x => x.GetUserByEmailAsync(updatePasswordDTO.Email)).ReturnsAsync(user);
+        _passwordVerificationServiceMock.Setup(x => x.VerifyPassword(updatePasswordDTO, user))
+            .Returns(true);
+        _userRepositoryMock.Setup(x => x.UpdatePasswordAsync(user.Id, It.IsAny<string>()))
+            .ReturnsAsync(true);
+
+        _passwordHistoryRepositoryMock.Setup(x => x.InsertPasswordUpdateRecordAsync(user.Id.Value));
+
+        _userRoleRepositoryMock.Setup(x => x.GetUserRolesAsync(user.Id))
+            .ReturnsAsync(roles);
+        _tokenGeneratorMock.Setup(x => x.GenerateToken(user, true, roles))
+            .Returns("ValidTokenString");
+
+        // Act
+        var result = await _userService.UpdatePasswordAsync(updatePasswordDTO);
+
+        // Assert
+        Assert.IsType<string>(result);
+        Assert.Equal("ValidTokenString", result);
+    }
+
+    //[Theory]
+    //[AutoData]
+    //public async Task UpdatePasswordAsync_WhenUserWasNotFound_ReturnsNull(UpdatePasswordDTO updatePasswordDTO, User user, IEnumerable<UserRole> roles)
+    //{
+    //    // Arrange
+    //    //_userRepositoryMock.Setup(x => x.GetUserByEmailAsync(updatePasswordDTO.Email)).ReturnsAsync(user);
+    //    //_passwordVerificationServiceMock.Setup(x => x.VerifyPassword(updatePasswordDTO, user))
+    //    //    .Returns(true);
+    //    //_userRepositoryMock.Setup(x => x.UpdatePasswordAsync(user.Id, It.IsAny<string>()))
+    //    //    .ReturnsAsync(true);
+
+    //    //_passwordHistoryRepositoryMock.Setup(x => x.InsertPasswordUpdateRecordAsync(user.Id.Value));
+
+    //    //_userRoleRepositoryMock.Setup(x => x.GetUserRolesAsync(user.Id))
+    //    //    .ReturnsAsync(roles);
+    //    //_tokenGeneratorMock.Setup(x => x.GenerateToken(user, true, roles))
+    //    //    .Returns("ValidTokenString");
+
+    //    // Act
+    //    var result = await _userService.UpdatePasswordAsync(updatePasswordDTO);
+
+    //    // Assert
+    //    //Assert.IsType<string>(result);
+    //    //Assert.Equal("ValidTokenString", result);
+    //}
+
+
+    #endregion UpdatePasswordAsync
 }

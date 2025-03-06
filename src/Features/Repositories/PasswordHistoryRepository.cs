@@ -31,5 +31,4 @@ public class PasswordHistoryRepository(IDbConnectionFactory mySqlConnectionFacto
     ";
         await dbConnection.ExecuteAsync(sql, new { Id = Guid.NewGuid(), UserId = userId });
     }
-
 }
