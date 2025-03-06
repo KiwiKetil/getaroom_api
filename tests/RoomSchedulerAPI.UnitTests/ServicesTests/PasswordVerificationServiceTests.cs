@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using AutoFixture.Xunit2;
+using Microsoft.Extensions.Logging;
 using Moq;
 using RoomSchedulerAPI.Features.Models.DTOs.UserDTOs;
 using RoomSchedulerAPI.Features.Models.Entities;
@@ -17,19 +18,12 @@ public class PasswordVerificationServiceTests
 
     #region VerifyPasswordWhenLogin
 
-    [Fact]
-    public void VerifyPassword_WhenLogin_WhenVerifid_ReturnsTrue()
+    [Theory]
+    [AutoData]
+    public void VerifyPassword_WhenLogin_WhenVerifid_ReturnsTrue(LoginDTO loginDTO, User user)
     {
         // Arrange
-        var hashedPassword = BCrypt.Net.BCrypt.HashPassword("CurrentPassword123!");
-
-        var loginDTO = new LoginDTO
-        (
-            Email: "aaa@emailstest.com",
-            Password: "CurrentPassword123!"
-        );
-
-        var user = new User { HashedPassword = hashedPassword };
+        user.HashedPassword = BCrypt.Net.BCrypt.HashPassword(loginDTO.Password);
 
         // Act
         var result = _service.VerifyPassword(loginDTO, user);
@@ -38,19 +32,12 @@ public class PasswordVerificationServiceTests
         Assert.True(result);
     }
 
-    [Fact]
-    public void VerifyPassword_WhenLogin_WhenVerificationFails_ReturnsFalse()
+    [Theory]
+    [AutoData]
+    public void VerifyPassword_WhenLogin_WhenVerificationFails_ReturnsFalse(LoginDTO loginDTO, User user)
     {
         // Arrange
-        var hashedPassword = BCrypt.Net.BCrypt.HashPassword("CurrentPassword123!");
-
-        var loginDTO = new LoginDTO
-        (
-            Email: "aaa@emailstest.com",
-            Password: "WrongPassword123!"
-        );
-
-        var user = new User { HashedPassword = hashedPassword };
+        user.HashedPassword = BCrypt.Net.BCrypt.HashPassword("TestPassword123!");
 
         // Act
         var result = _service.VerifyPassword(loginDTO, user);
@@ -63,20 +50,12 @@ public class PasswordVerificationServiceTests
 
     #region VerifyPasswordWhenUpdatingPassword
 
-    [Fact]
-    public void VerifyPassword_WhenUpdatingPassword_WhenVerifid_ReturnsTrue()
+    [Theory]
+    [AutoData]
+    public void VerifyPassword_WhenUpdatingPassword_WhenVerifid_ReturnsTrue(UpdatePasswordDTO updatePasswordDTO, User user)
     {
         // Arrange
-        var hashedPassword = BCrypt.Net.BCrypt.HashPassword("CurrentPassword123!");
-
-        var updatePasswordDTO = new UpdatePasswordDTO
-        {
-            Email = "aaa@emailstest.com",
-            Password = "CurrentPassword123!",
-            NewPassword = "TheNewPassword123!"
-        };
-
-        var user = new User { HashedPassword = hashedPassword };
+        user.HashedPassword = BCrypt.Net.BCrypt.HashPassword(updatePasswordDTO.Password);
 
         // Act
         var result = _service.VerifyPassword(updatePasswordDTO, user);
@@ -85,20 +64,12 @@ public class PasswordVerificationServiceTests
         Assert.True(result);
     }
 
-    [Fact]
-    public void VerifyPassword_WhenUpdatingPassword_WhenVerificationFails_ReturnsFalse()
+    [Theory]
+    [AutoData]
+    public void VerifyPassword_WhenUpdatingPassword_WhenVerificationFails_ReturnsFalse(UpdatePasswordDTO updatePasswordDTO, User user)
     {
         // Arrange
-        var hashedPassword = BCrypt.Net.BCrypt.HashPassword("CurrentPassword123!");
-
-        var updatePasswordDTO = new UpdatePasswordDTO
-        {
-            Email = "aaa@emailstest.com",
-            Password = "WrongPassword123!",
-            NewPassword = "TheNewPassword123!"
-        };
-
-        var user = new User { HashedPassword = hashedPassword };
+        user.HashedPassword = BCrypt.Net.BCrypt.HashPassword("CurrentPassword123!");
 
         // Act
         var result = _service.VerifyPassword(updatePasswordDTO, user);
