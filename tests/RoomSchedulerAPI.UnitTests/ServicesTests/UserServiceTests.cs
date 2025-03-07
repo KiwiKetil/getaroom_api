@@ -2,6 +2,7 @@
 using AutoMapper;
 using Microsoft.Extensions.Logging;
 using Moq;
+using RoomSchedulerAPI.Core.DB.DBConnection.Interface;
 using RoomSchedulerAPI.Features.AutoMapper;
 using RoomSchedulerAPI.Features.Models.DTOs.UserDTOs;
 using RoomSchedulerAPI.Features.Models.Entities;
@@ -20,6 +21,7 @@ public class UserServiceTests
     private readonly Mock<IPasswordHistoryRepository> _passwordHistoryRepositoryMock = new();
     private readonly Mock<ITokenGenerator> _tokenGeneratorMock = new();
     private readonly Mock<ILogger<UserService>> _loggerMock = new();
+    private readonly Mock<IDbConnectionFactory> _mySqlConnectionFactoryMock = new();
 
     public UserServiceTests()
     {
@@ -36,6 +38,7 @@ public class UserServiceTests
             _passwordHistoryRepositoryMock.Object,
             _tokenGeneratorMock.Object,
             mapper,
+            _mySqlConnectionFactoryMock.Object,
             _loggerMock.Object
             );
     }
@@ -333,7 +336,7 @@ public class UserServiceTests
         _userRepositoryMock.Setup(x => x.GetUserByEmailAsync(updatePasswordDTO.Email)).ReturnsAsync((User?)null);
 
         //Act
-       var result = await _userService.UpdatePasswordAsync(updatePasswordDTO);
+        var result = await _userService.UpdatePasswordAsync(updatePasswordDTO);
 
         //Assert
         Assert.Null(result);

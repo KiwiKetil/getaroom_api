@@ -1,4 +1,5 @@
-﻿using RoomSchedulerAPI.Features.Models.DTOs.UserDTOs;
+﻿using RoomSchedulerAPI.Core.DB.UnitOFWork;
+using RoomSchedulerAPI.Features.Models.DTOs.UserDTOs;
 using RoomSchedulerAPI.Features.Models.Entities;
 
 namespace RoomSchedulerAPI.Features.Repositories.Interfaces;
@@ -11,5 +12,5 @@ public interface IUserRepository
     Task<User?> DeleteUserAsync(UserId id);
     Task<User?> GetUserByEmailAsync(string email);
     Task<User?> RegisterUserAsync(User user);
-    Task<bool> UpdatePasswordAsync(UserId id, string newHashedPassword);
+    Task<bool> UpdatePasswordAsync(UnitOFWork uow, UserId id, string newHashedPassword);
 }
