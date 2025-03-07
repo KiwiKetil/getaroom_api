@@ -1,5 +1,6 @@
 ﻿using Dapper;
 using RoomSchedulerAPI.Core.DB.DBConnection.Interface;
+using RoomSchedulerAPI.Core.DB.UnitOFWork;
 using RoomSchedulerAPI.Features.Models.Entities;
 using RoomSchedulerAPI.Features.Repositories.Interfaces;
 
@@ -22,13 +23,19 @@ public class PasswordHistoryRepository(IDbConnectionFactory mySqlConnectionFacto
         return count > 0;
     }
 
-    public async Task InsertPasswordUpdateRecordAsync(Guid userId)
+    public async Task<bool> InsertPasswordUpdateRecordAsync(UnitOFWork uow, Guid userId)
     {
-        using var dbConnection = await _mySqlConnectionFactory.CreateConnectionAsync();
         string sql = @"
         INSERT INTO PasswordHistory (Id, UserId, ChangedDate)
-        VALUES (@Id, @UserId, CURRENT_TIMESTAMP)
-    ";
-        await dbConnection.ExecuteAsync(sql, new { Id = Guid.NewGuid(), UserId = userId });
+                     VALUES (@Id, @UserId, CURRENT_TIMESTAMP)";
+
+        int rowsAffected = await uow.Connection.ExecuteAsync(sql, new { Id = Guid.NewGuid(), UserId = userId, uow.Transaction });
+
+        if (rowsAffected != 1)
+        {
+            throw new InvalidOperationException($"Expected to affect 1 row, but affected {rowsAffected} rows for UserId {userId}");
+        }
+
+        return true;
     }
 }

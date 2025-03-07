@@ -1,5 +1,6 @@
 ﻿using Dapper;
 using RoomSchedulerAPI.Core.DB.DBConnection.Interface;
+using RoomSchedulerAPI.Core.DB.UnitOFWork;
 using RoomSchedulerAPI.Features.Models.DTOs.UserDTOs;
 using RoomSchedulerAPI.Features.Models.Entities;
 using RoomSchedulerAPI.Features.Repositories.Interfaces;
@@ -202,7 +203,7 @@ public class UserRepository(IDbConnectionFactory mySqlConnectionFactory, ILogger
             }
 
             string getNewUserSql = @"SELECT Id, FirstName, LastName, PhoneNumber, Email FROM Users WHERE Id = @Id";
-            var registeredUser = await dbConnection.QueryFirstOrDefaultAsync<User>(getNewUserSql, new { user.Id }, transaction);
+            var registeredUser = await dbConnection.QueryFirstOrDefaultAsync<User>(getNewUserSql, new { user.Id.Value }, transaction);
 
             transaction.Commit();
             _logger.LogInformation("New user successfully registered.");
@@ -217,33 +218,20 @@ public class UserRepository(IDbConnectionFactory mySqlConnectionFactory, ILogger
         }
     }
 
-    public async Task<bool> UpdatePasswordAsync(UserId id, string newHashedPassword)
+    public async Task<bool> UpdatePasswordAsync(UnitOFWork uow, UserId id, string newHashedPassword)
     {
         _logger.LogDebug("Updating password in DB");
 
-        using var dbConnection = await _mySqlConnectionFactory.CreateConnectionAsync();
-        using var transaction = dbConnection.BeginTransaction();
+        string updateUserPasswordSql = "UPDATE Users SET HashedPassword = @HashedPassword WHERE Id = @Id";
 
-        try
+        int rowsAffected = await uow.Connection.ExecuteAsync(updateUserPasswordSql,
+            new { HashedPassword = newHashedPassword, Id = id.Value, uow.Transaction });
+
+        if (rowsAffected > 1)
         {
-            string updateUserPasswordSql = "UPDATE Users SET HashedPassword = @HashedPassword WHERE Id = @Id";
-            int rowsAffected = await dbConnection.ExecuteAsync(updateUserPasswordSql,
-                new { HashedPassword = newHashedPassword, Id = id },
-                transaction);
-
-            if (rowsAffected > 1)
-            {
-                throw new InvalidOperationException($"Data integrity issue: {rowsAffected} rows updated for UserId {id}");
-            }
-
-            transaction.Commit();
-            return rowsAffected == 1;
+            throw new InvalidOperationException($"Data integrity issue: {rowsAffected} rows updated for UserId {id}");
         }
-        catch (Exception ex)
-        {
-            _logger.LogCritical(ex, "Rolling back password update for UserId {UserId}", id);
-            transaction.Rollback();
-            return false;
-        }
+
+        return rowsAffected == 1;
     }
 }
