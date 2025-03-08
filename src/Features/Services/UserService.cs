@@ -129,10 +129,11 @@ public class UserService(IUserRepository userRepository, IUserRoleRepository use
         string newHashedPassword = BCrypt.Net.BCrypt.HashPassword(dto.NewPassword);
 
         using var uow = new UnitOFWork(_mySqlConnectionFactory);
-        await uow.BeginAsync();
 
         try
         {
+            await uow.BeginAsync();
+
             var updateSuccess = await _userRepository.UpdatePasswordAsync(uow, user.Id, newHashedPassword);
             if (!updateSuccess)
             {
