@@ -7,6 +7,8 @@ using Microsoft.IdentityModel.Tokens;
 using RoomSchedulerAPI.Core.Authorization;
 using RoomSchedulerAPI.Core.DB.DBConnection;
 using RoomSchedulerAPI.Core.DB.DBConnection.Interface;
+using RoomSchedulerAPI.Core.DB.UnitOFWork;
+using RoomSchedulerAPI.Core.DB.UnitOFWork.Interfaces;
 using RoomSchedulerAPI.Core.Middleware;
 using RoomSchedulerAPI.Features.AutoMapper;
 using RoomSchedulerAPI.Features.Repositories;
@@ -103,6 +105,9 @@ public static class ServiceCollectionExtensions
 
         services.AddScoped<IAuthorizationHandler, UserIdAccessHandler>();
         services.AddScoped<IAuthorizationHandler, UserNameAccessHandler>();
+
+        // UnitOfWorkFactory
+        services.AddScoped<IUnitOfWorkFactory, UnitOfWorkFactory>();
 
         return services;
     }

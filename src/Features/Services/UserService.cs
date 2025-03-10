@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using RoomSchedulerAPI.Core.DB.DBConnection.Interface;
 using RoomSchedulerAPI.Core.DB.UnitOFWork;
+using RoomSchedulerAPI.Core.DB.UnitOFWork.Interfaces;
 using RoomSchedulerAPI.Features.Models.DTOs.UserDTOs;
 using RoomSchedulerAPI.Features.Models.Entities;
 using RoomSchedulerAPI.Features.Repositories.Interfaces;
@@ -9,7 +10,7 @@ using RoomSchedulerAPI.Features.Services.Interfaces;
 namespace RoomSchedulerAPI.Features.Services;
 
 public class UserService(IUserRepository userRepository, IUserRoleRepository userRoleRepository, IPasswordVerificationService passwordVerificationService,
-    IPasswordHistoryRepository passwordHistoryRepository, ITokenGenerator tokenGenerator, IMapper mapper, IDbConnectionFactory mySqlConnectionFactory, ILogger<UserService> logger) : IUserService
+    IPasswordHistoryRepository passwordHistoryRepository, ITokenGenerator tokenGenerator, IMapper mapper, IUnitOfWorkFactory unitOfWorkFactory, ILogger<UserService> logger) : IUserService
 {
     private readonly IUserRepository _userRepository = userRepository;
     private readonly IUserRoleRepository _userRoleRepository = userRoleRepository;
@@ -17,7 +18,7 @@ public class UserService(IUserRepository userRepository, IUserRoleRepository use
     private readonly IPasswordHistoryRepository _passwordHistoryRepository = passwordHistoryRepository;
     private readonly ITokenGenerator _tokenGenerator = tokenGenerator;
     private readonly IMapper _mapper = mapper;
-    private readonly IDbConnectionFactory _mySqlConnectionFactory = mySqlConnectionFactory;
+    private readonly IUnitOfWorkFactory _unitOfWorkFactory = unitOfWorkFactory;
     private readonly ILogger<UserService> _logger = logger;
 
     public async Task<UsersWithCountDTO> GetUsersAsync(UserQuery query)
@@ -123,36 +124,36 @@ public class UserService(IUserRepository userRepository, IUserRoleRepository use
         var verified = _passwordVerificationService.VerifyPassword(dto, user);
         if (!verified)
         {
-            _logger.LogError("Verification faield");
+            _logger.LogError("Verification failed");
             return null;
         }
 
         string newHashedPassword = BCrypt.Net.BCrypt.HashPassword(dto.NewPassword);
 
-        using var uow = new UnitOFWork(_mySqlConnectionFactory);
+        var unitOfWork = _unitOfWorkFactory.Create();
         try
         {
-            await uow.BeginAsync();
+            await unitOfWork.BeginAsync();
 
-            var updateSuccess = await _userRepository.UpdatePasswordAsync(uow, user.Id, newHashedPassword);
+            var updateSuccess = await _userRepository.UpdatePasswordAsync(unitOfWork, user.Id, newHashedPassword);
             if (!updateSuccess)
             {
                 throw new InvalidOperationException("Failed to update user password.");
             }
 
-            var historySuccess = await _passwordHistoryRepository.InsertPasswordUpdateRecordAsync(uow, user.Id.Value);
+            var historySuccess = await _passwordHistoryRepository.InsertPasswordUpdateRecordAsync(unitOfWork, user.Id.Value);
             if (!historySuccess)
             {
                 throw new InvalidOperationException("Password history record was not inserted.");
             }
 
-            await uow.CommitAsync();
-            _logger.LogInformation("Committed UoW with ID: {UnitOfWorkId}", uow.Id);
+            await unitOfWork.CommitAsync();
+            _logger.LogInformation("Committed UoW with ID: {UnitOfWorkId}", unitOfWork.Id);
         }
         catch (Exception ex)
         {
-            _logger.LogCritical(ex, "Error in UoW with ID: {UnitOfWorkId}. Rolling back...", uow.Id);
-            await uow.RollbackAsync();
+            _logger.LogCritical(ex, "Error in UoW with ID: {UnitOfWorkId}. Rolling back...", unitOfWork.Id);
+            await unitOfWork.RollbackAsync();
             return null;
         }
 

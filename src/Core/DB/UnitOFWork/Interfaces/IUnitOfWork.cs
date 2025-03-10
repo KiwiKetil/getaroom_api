@@ -4,7 +4,7 @@ namespace RoomSchedulerAPI.Core.DB.UnitOFWork.Interfaces;
 
 public interface IUnitOfWork : IDisposable
 {
-    UnitofWorkId Id { get; }
+    UnitOfWorkId Id { get; }
     IDbConnection Connection { get; }
     IDbTransaction Transaction { get; }
     Task BeginAsync();

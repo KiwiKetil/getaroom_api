@@ -4,20 +4,20 @@ using System.Data;
 
 namespace RoomSchedulerAPI.Core.DB.UnitOFWork;
 
-public record struct UnitofWorkId(Guid Value) 
+public record struct UnitOfWorkId(Guid Value) 
 {
-    public static UnitofWorkId NewId => new (Guid.NewGuid());
-    public static UnitofWorkId Empty => new (Guid.Empty); 
+    public static UnitOfWorkId NewId => new (Guid.NewGuid());
+    public static UnitOfWorkId Empty => new (Guid.Empty); 
 }
 
 public class UnitOFWork(IDbConnectionFactory dbConnectionFactory) : IUnitOfWork
 {
-    private readonly UnitofWorkId _id = UnitofWorkId.NewId;
+    private readonly UnitOfWorkId _id = UnitOfWorkId.NewId;
     private readonly IDbConnectionFactory _dbConnectionFactory = dbConnectionFactory;
     private IDbConnection? _connection;
     private IDbTransaction? _transaction;
 
-    public UnitofWorkId Id => _id;
+    public UnitOfWorkId Id => _id;
     public IDbConnection Connection => _connection ?? throw new InvalidOperationException("Connection has not been initialized.");
     public IDbTransaction Transaction => _transaction ?? throw new InvalidOperationException("Transaction has not been initialized.");
 
