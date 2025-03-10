@@ -1,6 +1,7 @@
 ﻿using Dapper;
 using RoomSchedulerAPI.Core.DB.DBConnection.Interface;
 using RoomSchedulerAPI.Core.DB.UnitOFWork;
+using RoomSchedulerAPI.Core.DB.UnitOFWork.Interfaces;
 using RoomSchedulerAPI.Features.Models.DTOs.UserDTOs;
 using RoomSchedulerAPI.Features.Models.Entities;
 using RoomSchedulerAPI.Features.Repositories.Interfaces;
@@ -218,7 +219,7 @@ public class UserRepository(IDbConnectionFactory mySqlConnectionFactory, ILogger
         }
     }
 
-    public async Task<bool> UpdatePasswordAsync(UnitOFWork uow, UserId id, string newHashedPassword)
+    public async Task<bool> UpdatePasswordAsync(IUnitOfWork uow, UserId id, string newHashedPassword)
     {
         _logger.LogDebug("Updating password in DB");
 

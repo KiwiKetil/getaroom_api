@@ -1,6 +1,7 @@
 ﻿using Dapper;
 using RoomSchedulerAPI.Core.DB.DBConnection.Interface;
 using RoomSchedulerAPI.Core.DB.UnitOFWork;
+using RoomSchedulerAPI.Core.DB.UnitOFWork.Interfaces;
 using RoomSchedulerAPI.Features.Models.Entities;
 using RoomSchedulerAPI.Features.Repositories.Interfaces;
 
@@ -23,7 +24,7 @@ public class PasswordHistoryRepository(IDbConnectionFactory mySqlConnectionFacto
         return count > 0;
     }
 
-    public async Task<bool> InsertPasswordUpdateRecordAsync(UnitOFWork uow, Guid userId)
+    public async Task<bool> InsertPasswordUpdateRecordAsync(IUnitOfWork uow, Guid userId)
     {
         string sql = @"
         INSERT INTO PasswordHistory (Id, UserId, ChangedDate)
