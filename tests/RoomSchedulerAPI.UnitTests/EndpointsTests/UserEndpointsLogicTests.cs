@@ -22,6 +22,25 @@ public class UserEndpointsLogicTests
 
     [Theory]
     [AutoData]
+    public async Task GetUsersLogicAsync_WhenNoUsersExist_ReturnsNotFoundWithMessage(UserQuery userQuery)
+    {
+        // Arrange
+        _userServiceMock.Setup(x => x.GetUsersAsync(userQuery)).ReturnsAsync(new UsersWithCountDTO(0, []));
+
+        // Act
+        var result = await UserEndpointsLogic.GetUsersLogicAsync(
+            userQuery,
+            _userServiceMock.Object,
+            _loggerMock.Object);
+
+        //Assert
+        var notFoundResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.NotFound<ErrorResponse>>(result);
+        Assert.NotNull(notFoundResult.Value);
+        Assert.Equal("No users found", notFoundResult.Value.Message);
+    }
+
+    [Theory]
+    [AutoData]
     public async Task GetUsersLogicAsync_WhenUsersExist_ReturnsOkWithValidData(List<UserDTO> userDTOs, UserQuery userQuery)
     {
         // Arrange
@@ -41,28 +60,29 @@ public class UserEndpointsLogicTests
         okResult.Value.UserDTOs.Should().BeEquivalentTo(userDTOs, options => options.WithStrictOrdering());
     }
 
-    [Theory]
-    [AutoData]
-    public async Task GetUsersLogicAsync_WhenNoUsersExist_ReturnsNotFoundWithMessage(UserQuery userQuery)
-    {
-        // Arrange
-        _userServiceMock.Setup(x => x.GetUsersAsync(userQuery)).ReturnsAsync(new UsersWithCountDTO(0, []));
-
-        // Act
-        var result = await UserEndpointsLogic.GetUsersLogicAsync(
-            userQuery,
-            _userServiceMock.Object,
-            _loggerMock.Object);
-
-        //Assert
-        var notFoundResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.NotFound<ErrorResponse>>(result);
-        Assert.NotNull(notFoundResult.Value);
-        Assert.Equal("No users found", notFoundResult.Value.Message);
-    }
-
     #endregion GetUsers
 
     #region GetUserById
+
+    [Theory]
+    [AutoData]
+    public async Task GetUserByIdLogicAsync_WhenAuthorizationFails_ReturnsForbidden(Guid id, ClaimsPrincipal claimsPrincipal)
+    {
+        // Arrange        
+        _authorizationServiceMock.Setup(x => x.AuthorizeAsync(claimsPrincipal, id, "UserIdAccessPolicy"))
+            .ReturnsAsync(AuthorizationResult.Failed);
+
+        // Act
+        var result = await UserEndpointsLogic.GetUserByIdLogicAsync(
+            id,
+            _userServiceMock.Object,
+            _authorizationServiceMock.Object,
+            claimsPrincipal,
+            _loggerMock.Object);
+
+        // Assert
+        Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.ForbidHttpResult>(result);
+    }
 
     [Theory]
     [AutoData]
@@ -94,26 +114,6 @@ public class UserEndpointsLogicTests
 
     [Theory]
     [AutoData]
-    public async Task GetUserByIdLogicAsync_WhenAuthorizationFails_ReturnsForbidden(Guid id, ClaimsPrincipal claimsPrincipal)
-    {
-        // Arrange        
-        _authorizationServiceMock.Setup(x => x.AuthorizeAsync(claimsPrincipal, id, "UserIdAccessPolicy"))
-            .ReturnsAsync(AuthorizationResult.Failed);
-
-        // Act
-        var result = await UserEndpointsLogic.GetUserByIdLogicAsync(
-            id,
-            _userServiceMock.Object,
-            _authorizationServiceMock.Object,
-            claimsPrincipal,
-            _loggerMock.Object);
-
-        // Assert
-        Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.ForbidHttpResult>(result);
-    }
-
-    [Theory]
-    [AutoData]
     public async Task GetUserByIdLogicAsync_AsAuthorizedUser_WhenUserDoesNotExist_ReturnsNotFoundAndErrorResponse(Guid id, ClaimsPrincipal claimsPrincipal)
     {
         // Arrange
@@ -135,19 +135,43 @@ public class UserEndpointsLogicTests
         var NotFoundResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.NotFound<ErrorResponse>>(result);
         Assert.NotNull(NotFoundResult.Value);
         Assert.Equal("User was not found", NotFoundResult.Value.Message);
-    }
+    }   
 
     #endregion GetUserById
 
     #region UpdateUserLogicAsync
 
     [Theory]
-    [CustomUserAutoData]
-    public async Task UpdateUserLogicAsync_AsAuthorizedUser_WhenUpdateIsSuccessful_ReturnsOkAndUpdatedUserDTO(
+    [AutoData]
+    public async Task UpdateUserLogicAsync_WhenAuthorizationFails_ReturnsForbidden(
         Guid id,
         ClaimsPrincipal claimsPrincipal,
-        UserUpdateDTO userUpdateDTO,
-        UserDTO userDTO)
+        UserUpdateDTO userUpdateDTO)
+    {
+        // Arrange
+        _authorizationServiceMock.Setup(x => x.AuthorizeAsync(claimsPrincipal, id, "UserIdAccessPolicy"))
+            .ReturnsAsync(AuthorizationResult.Failed());
+
+        // Act
+        var result = await UserEndpointsLogic.UpdateUserLogicAsync(
+            userUpdateDTO,
+            id,
+            _userServiceMock.Object,
+            _authorizationServiceMock.Object,
+            claimsPrincipal,
+            _loggerMock.Object);
+
+        // Assert
+        Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.ForbidHttpResult>(result);
+    }
+
+    [Theory]
+    [CustomUserAutoData]
+    public async Task UpdateUserLogicAsync_AsAuthorizedUser_WhenUpdateIsSuccessful_ReturnsOkAndUpdatedUserDTO(
+    Guid id,
+    ClaimsPrincipal claimsPrincipal,
+    UserUpdateDTO userUpdateDTO,
+    UserDTO userDTO)
     {
         // Arrange
         _authorizationServiceMock.Setup(x => x.AuthorizeAsync(claimsPrincipal, id, "UserIdAccessPolicy"))
@@ -173,30 +197,6 @@ public class UserEndpointsLogicTests
         Assert.Equal(userUpdateDTO.LastName, okResult.Value.LastName);
         Assert.Equal(userUpdateDTO.PhoneNumber, okResult.Value.PhoneNumber);
         Assert.Equal(userUpdateDTO.Email, okResult.Value.Email);
-    }
-
-    [Theory]
-    [AutoData]
-    public async Task UpdateUserLogicAsync_WhenAuthorizationFails_ReturnsForbidden(
-        Guid id,
-        ClaimsPrincipal claimsPrincipal,
-        UserUpdateDTO userUpdateDTO)
-    {
-        // Arrange
-        _authorizationServiceMock.Setup(x => x.AuthorizeAsync(claimsPrincipal, id, "UserIdAccessPolicy"))
-            .ReturnsAsync(AuthorizationResult.Failed());
-
-        // Act
-        var result = await UserEndpointsLogic.UpdateUserLogicAsync(
-            userUpdateDTO,
-            id,
-            _userServiceMock.Object,
-            _authorizationServiceMock.Object,
-            claimsPrincipal,
-            _loggerMock.Object);
-
-        // Assert
-        Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.ForbidHttpResult>(result);
     }
 
     [Theory]
@@ -368,6 +368,25 @@ public class UserEndpointsLogicTests
 
     [Theory]
     [AutoData]
+    public async Task UpdatePasswordLogicAsync_WhenAuthorizationFails_ReturnsForbidden(UpdatePasswordDTO updatePasswordDTO, ClaimsPrincipal claimsPrincipal)
+    {
+        // Arrange
+        _authorizationServiceMock.Setup(x => x.AuthorizeAsync(claimsPrincipal, updatePasswordDTO, "UserNameAccessPolicy")).ReturnsAsync(AuthorizationResult.Failed);
+
+        // Act
+        var result = await UserEndpointsLogic.UpdatePasswordLogicAsync(
+            updatePasswordDTO,
+            _userServiceMock.Object,
+            _authorizationServiceMock.Object,
+            claimsPrincipal,
+            _loggerMock.Object);
+
+        // Assert
+        var forbidResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.ForbidHttpResult>(result);
+    }
+
+    [Theory]
+    [AutoData]
     public async Task UpdatePasswordLogicAsync_AsAuthorizedUser_ReturnsOKAndValidToken(UpdatePasswordDTO updatePasswordDTO, ClaimsPrincipal claimsPrincipal)
     {
         // Arrange
@@ -391,25 +410,6 @@ public class UserEndpointsLogicTests
         var okResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.Ok<TokenResponse>>(result);
         Assert.NotNull(okResult.Value);
         Assert.Equal("ValidTokenString", okResult.Value.Token);
-    }
-
-    [Theory]
-    [AutoData]
-    public async Task UpdatePasswordLogicAsync_WhenAuthorizationFails_ReturnsForbidden(UpdatePasswordDTO updatePasswordDTO, ClaimsPrincipal claimsPrincipal)
-    {
-        // Arrange
-        _authorizationServiceMock.Setup(x => x.AuthorizeAsync(claimsPrincipal, updatePasswordDTO, "UserNameAccessPolicy")).ReturnsAsync(AuthorizationResult.Failed);
-
-        // Act
-        var result = await UserEndpointsLogic.UpdatePasswordLogicAsync(
-            updatePasswordDTO,
-            _userServiceMock.Object,
-            _authorizationServiceMock.Object,
-            claimsPrincipal,
-            _loggerMock.Object);
-
-        // Assert
-        var forbidResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.ForbidHttpResult>(result);
     }
 
     [Theory]
