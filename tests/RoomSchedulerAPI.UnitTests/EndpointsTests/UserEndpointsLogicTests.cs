@@ -24,7 +24,7 @@ public class UserEndpointsLogicTests
     public async Task GetUsersLogicAsync_WhenNoUsersExist_ReturnsNotFoundWithMessage(UserQuery userQuery)
     {
         // Arrange
-        _userServiceMock.Setup(x => x.GetUsersAsync(userQuery)).ReturnsAsync(new UsersWithCountDTO(0, []));
+        _userServiceMock.Setup(x => x.GetUsersAsync(userQuery)).ReturnsAsync(new AllUsersDTO(0, []));
 
         // Act
         var result = await UserEndpointsLogic.GetUsersLogicAsync(
@@ -43,7 +43,7 @@ public class UserEndpointsLogicTests
     public async Task GetUsersLogicAsync_WhenUsersExist_ReturnsOkWithValidData(List<UserDTO> userDTOs, UserQuery userQuery)
     {
         // Arrange
-        _userServiceMock.Setup(x => x.GetUsersAsync(It.IsAny<UserQuery>())).ReturnsAsync(new UsersWithCountDTO(userDTOs.Count, userDTOs));
+        _userServiceMock.Setup(x => x.GetUsersAsync(It.IsAny<UserQuery>())).ReturnsAsync(new AllUsersDTO(userDTOs.Count, userDTOs));
 
         // Act
         var result = await UserEndpointsLogic.GetUsersLogicAsync(
@@ -52,7 +52,7 @@ public class UserEndpointsLogicTests
             _loggerMock.Object);
 
         // Assert    
-        var okResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.Ok<UsersWithCountDTO>>(result);
+        var okResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.Ok<AllUsersDTO>>(result);
         Assert.NotNull(okResult.Value);
         Assert.Equal(userDTOs.Count, okResult.Value.TotalCount);
         Assert.Equal(userDTOs, okResult.Value.UserDTOs);
