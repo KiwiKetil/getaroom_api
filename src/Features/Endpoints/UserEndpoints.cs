@@ -1,9 +1,9 @@
 ﻿using FluentValidation;
-using RoomSchedulerAPI.Core.Extensions;
-using RoomSchedulerAPI.Features.Endpoints.Logic;
-using RoomSchedulerAPI.Features.Models.DTOs.UserDTOs;
+using GetARoomAPI.Core.Extensions;
+using GetARoomAPI.Features.Endpoints.Logic;
+using GetARoomAPI.Features.Models.DTOs.UserDTOs;
 
-namespace RoomSchedulerAPI.Features.Endpoints;
+namespace GetARoomAPI.Features.Endpoints;
 
 public static class UserEndpoints
 {
@@ -46,6 +46,5 @@ public static class UserEndpoints
         .RequireAuthorization()
         .EndpointValidationFilter<UpdatePasswordDTO>()
         .WithName("UpdatePassword");
-
     }
 }

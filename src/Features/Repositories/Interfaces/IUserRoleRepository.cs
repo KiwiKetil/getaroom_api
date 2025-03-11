@@ -1,6 +1,6 @@
-﻿using RoomSchedulerAPI.Features.Models.Entities;
+﻿using GetARoomAPI.Features.Models.Entities;
 
-namespace RoomSchedulerAPI.Features.Repositories.Interfaces;
+namespace GetARoomAPI.Features.Repositories.Interfaces;
 
 public interface IUserRoleRepository
 {

@@ -1,6 +1,4 @@
-﻿using System.Security.Policy;
-
-namespace RoomSchedulerAPI.Features.Models.DTOs.UserDTOs;
+﻿namespace GetARoomAPI.Features.Models.DTOs.UserDTOs;
 
 public record UserRegistrationDTO
 (

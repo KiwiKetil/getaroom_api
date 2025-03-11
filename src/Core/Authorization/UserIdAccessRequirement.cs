@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 
-namespace RoomSchedulerAPI.Core.Authorization;
+namespace GetARoomAPI.Core.Authorization;
 
 public class UserIdAccessRequirement : IAuthorizationRequirement { }
 

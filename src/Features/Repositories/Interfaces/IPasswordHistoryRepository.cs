@@ -1,7 +1,7 @@
-﻿using RoomSchedulerAPI.Core.DB.UnitOFWork.Interfaces;
-using RoomSchedulerAPI.Features.Models.Entities;
+﻿using GetARoomAPI.Core.DB.UnitOFWork.Interfaces;
+using GetARoomAPI.Features.Models.Entities;
 
-namespace RoomSchedulerAPI.Features.Repositories.Interfaces;
+namespace GetARoomAPI.Features.Repositories.Interfaces;
 
 public interface IPasswordHistoryRepository
 {

@@ -1,8 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using RoomSchedulerAPI.Core.DB.DBConnection.Interface;
+﻿using GetARoomAPI.Core.DB.DBConnection.Interface;
+using Microsoft.AspNetCore.Mvc;
 using System.Data.Common;
 
-namespace RoomSchedulerAPI.Features.Endpoints.Diagnostics;
+namespace GetARoomAPI.Features.Endpoints.Diagnostics;
 
 public static class DBHealthCheck
 {
@@ -26,14 +26,14 @@ public static class DBHealthCheck
                 {
                     return Results.Problem("Failed to create a asynchronous database connection.");
                 }
-           
-                return Results.Ok("Both synchronous and asynchronous connections was successful!");                
+
+                return Results.Ok("Both synchronous and asynchronous connections was successful!");
             }
             catch (Exception ex)
             {
                 return Results.Problem($"Connection failed: {ex.Message}");
             }
         })
-        .RequireAuthorization("AdminAndPasswordUpdatedPolicy");
+        .RequireAuthorization("AdminRoleAndPasswordUpdatedPolicy");
     }
 }

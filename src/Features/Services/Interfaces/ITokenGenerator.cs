@@ -1,6 +1,6 @@
-﻿using RoomSchedulerAPI.Features.Models.Entities;
+﻿using GetARoomAPI.Features.Models.Entities;
 
-namespace RoomSchedulerAPI.Features.Services.Interfaces;
+namespace GetARoomAPI.Features.Services.Interfaces;
 
 public interface ITokenGenerator
 {

@@ -29,7 +29,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\RoomSchedulerAPI.csproj" />
+    <ProjectReference Include="..\..\src\GetARoomAPI.csproj" />
   </ItemGroup>
 
   <ItemGroup>

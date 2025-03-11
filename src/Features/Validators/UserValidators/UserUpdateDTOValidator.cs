@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
-using RoomSchedulerAPI.Features.Models.DTOs.UserDTOs;
+using GetARoomAPI.Features.Models.DTOs.UserDTOs;
 
-namespace RoomSchedulerAPI.Features.Validators.UserValidators;
+namespace GetARoomAPI.Features.Validators.UserValidators;
 
 public class UserUpdateDTOValidator : AbstractValidator<UserUpdateDTO>
 {

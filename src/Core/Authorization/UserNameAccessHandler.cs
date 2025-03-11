@@ -1,8 +1,8 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using RoomSchedulerAPI.Features.Models.DTOs.UserDTOs;
+﻿using GetARoomAPI.Features.Models.DTOs.UserDTOs;
+using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 
-namespace RoomSchedulerAPI.Core.Authorization;
+namespace GetARoomAPI.Core.Authorization;
 
 public class UserNameAccessHandler : AuthorizationHandler<UserNameAccessRequirement, UpdatePasswordDTO>
 {

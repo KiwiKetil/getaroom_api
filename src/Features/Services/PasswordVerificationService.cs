@@ -1,7 +1,7 @@
-﻿using RoomSchedulerAPI.Features.Models.Entities;
-using RoomSchedulerAPI.Features.Services.Interfaces;
+﻿using GetARoomAPI.Features.Models.Entities;
+using GetARoomAPI.Features.Services.Interfaces;
 
-namespace RoomSchedulerAPI.Features.Services;
+namespace GetARoomAPI.Features.Services;
 
 public class PasswordVerificationService(ILogger<PasswordVerificationService> logger) : IPasswordVerificationService
 {

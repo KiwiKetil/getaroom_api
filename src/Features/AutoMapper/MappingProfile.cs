@@ -1,10 +1,10 @@
 ﻿using AutoMapper;
-using RoomSchedulerAPI.Features.HateOAS;
-using RoomSchedulerAPI.Features.Models.DTOs.UserDTOs;
-using RoomSchedulerAPI.Features.Models.Entities;
+using GetARoomAPI.Features.HATEOAS;
+using GetARoomAPI.Features.Models.DTOs.UserDTOs;
+using GetARoomAPI.Features.Models.Entities;
 using System.Globalization;
 
-namespace RoomSchedulerAPI.Features.AutoMapper;
+namespace GetARoomAPI.Features.AutoMapper;
 
 public class MappingProfile : Profile
 {
@@ -30,7 +30,7 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src =>
         CultureInfo.CurrentCulture.TextInfo.ToTitleCase(src.FirstName.ToLowerInvariant() ?? string.Empty)))
             .ForMember(dest => dest.LastName, opt => opt.MapFrom(src =>
-        CultureInfo.CurrentCulture.TextInfo.ToTitleCase(src.LastName.ToLowerInvariant() ?? string.Empty)));        
+        CultureInfo.CurrentCulture.TextInfo.ToTitleCase(src.LastName.ToLowerInvariant() ?? string.Empty)));
 
         CreateMap<UserRegistrationDTO, User>()
             .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src =>

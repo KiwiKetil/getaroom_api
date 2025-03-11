@@ -1,12 +1,11 @@
 ﻿using Dapper;
-using RoomSchedulerAPI.Core.DB.DBConnection.Interface;
-using RoomSchedulerAPI.Core.DB.UnitOFWork;
-using RoomSchedulerAPI.Core.DB.UnitOFWork.Interfaces;
-using RoomSchedulerAPI.Features.Models.DTOs.UserDTOs;
-using RoomSchedulerAPI.Features.Models.Entities;
-using RoomSchedulerAPI.Features.Repositories.Interfaces;
+using GetARoomAPI.Core.DB.DBConnection.Interface;
+using GetARoomAPI.Core.DB.UnitOFWork.Interfaces;
+using GetARoomAPI.Features.Models.DTOs.UserDTOs;
+using GetARoomAPI.Features.Models.Entities;
+using GetARoomAPI.Features.Repositories.Interfaces;
 
-namespace RoomSchedulerAPI.Features.Repositories;
+namespace GetARoomAPI.Features.Repositories;
 
 public class UserRepository(IDbConnectionFactory mySqlConnectionFactory, ILogger<UserRepository> logger) : IUserRepository
 {
@@ -43,14 +42,14 @@ public class UserRepository(IDbConnectionFactory mySqlConnectionFactory, ILogger
         if (!string.IsNullOrEmpty(query.Email))
         {
             baseSql += " AND Email LIKE @Email";
-            parameters.Add("Email", $"{ query.Email}%");
+            parameters.Add("Email", $"{query.Email}%");
         }
 
         var skipNumber = (query.Page - 1) * query.PageSize;
         parameters.Add("PageSize", query.PageSize);
-        parameters.Add("SkipNumber", skipNumber);                          
+        parameters.Add("SkipNumber", skipNumber);
 
-        var dataSql = $"SELECT * {baseSql} ORDER BY {query.SortBy} {query.Order} LIMIT @PageSize OFFSET @SkipNumber";      
+        var dataSql = $"SELECT * {baseSql} ORDER BY {query.SortBy} {query.Order} LIMIT @PageSize OFFSET @SkipNumber";
         var users = await dbConnection.QueryAsync<User>(dataSql, parameters);
 
         var countSql = $"SELECT COUNT(*) {baseSql}";

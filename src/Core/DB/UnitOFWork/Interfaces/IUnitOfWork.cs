@@ -1,6 +1,6 @@
 ﻿using System.Data;
 
-namespace RoomSchedulerAPI.Core.DB.UnitOFWork.Interfaces;
+namespace GetARoomAPI.Core.DB.UnitOFWork.Interfaces;
 
 public interface IUnitOfWork : IDisposable
 {

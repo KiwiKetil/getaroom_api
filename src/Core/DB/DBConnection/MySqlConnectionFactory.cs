@@ -1,8 +1,8 @@
-﻿using MySql.Data.MySqlClient;
-using RoomSchedulerAPI.Core.DB.DBConnection.Interface;
+﻿using GetARoomAPI.Core.DB.DBConnection.Interface;
+using MySql.Data.MySqlClient;
 using System.Data;
 
-namespace RoomSchedulerAPI.Core.DB.DBConnection;
+namespace GetARoomAPI.Core.DB.DBConnection;
 
 public class MySqlConnectionFactory(string connectionString) : IDbConnectionFactory
 {
@@ -18,7 +18,7 @@ public class MySqlConnectionFactory(string connectionString) : IDbConnectionFact
     public async Task<IDbConnection> CreateConnectionAsync()
     {
         var connection = new MySqlConnection(_connectionString);
-        await connection.OpenAsync(); 
+        await connection.OpenAsync();
         return connection;
     }
 }

@@ -1,13 +1,13 @@
 ﻿using AutoFixture.Xunit2;
+using GetARoomAPI.Features.Models.Entities;
+using GetARoomAPI.Features.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
-using RoomSchedulerAPI.Features.Models.Entities;
-using RoomSchedulerAPI.Features.Services;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
-namespace RoomSchedulerAPI.UnitTests.ServicesTests;
+namespace GetARoomAPI.UnitTests.ServicesTests;
 public class TokenGeneratorTests
 {
     private readonly TokenGenerator _service;

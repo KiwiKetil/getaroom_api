@@ -1,6 +1,6 @@
-﻿using RoomSchedulerAPI.Features.Models.DTOs.UserDTOs;
+﻿using GetARoomAPI.Features.Models.DTOs.UserDTOs;
 
-namespace RoomSchedulerAPI.Features.Services.Interfaces;
+namespace GetARoomAPI.Features.Services.Interfaces;
 
 public interface IUserService
 {

@@ -1,4 +1,4 @@
-﻿namespace RoomSchedulerAPI.Features.Endpoints;
+﻿namespace GetARoomAPI.Features.Endpoints;
 
 public class RoomEndpoints
 {

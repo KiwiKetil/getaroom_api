@@ -1,16 +1,15 @@
 ﻿using Dapper;
-using RoomSchedulerAPI.Core.DB.DBConnection.Interface;
-using RoomSchedulerAPI.Core.DB.UnitOFWork;
-using RoomSchedulerAPI.Core.DB.UnitOFWork.Interfaces;
-using RoomSchedulerAPI.Features.Models.Entities;
-using RoomSchedulerAPI.Features.Repositories.Interfaces;
+using GetARoomAPI.Core.DB.DBConnection.Interface;
+using GetARoomAPI.Core.DB.UnitOFWork.Interfaces;
+using GetARoomAPI.Features.Models.Entities;
+using GetARoomAPI.Features.Repositories.Interfaces;
 
-namespace RoomSchedulerAPI.Features.Repositories;
+namespace GetARoomAPI.Features.Repositories;
 
 public class PasswordHistoryRepository(IDbConnectionFactory mySqlConnectionFactory, ILogger<PasswordHistoryRepository> logger) : IPasswordHistoryRepository
 {
     private readonly ILogger _logger = logger;
-    private readonly IDbConnectionFactory _mySqlConnectionFactory = mySqlConnectionFactory;  
+    private readonly IDbConnectionFactory _mySqlConnectionFactory = mySqlConnectionFactory;
 
     public async Task<bool> PasswordUpdateExistsAsync(UserId id)
     {

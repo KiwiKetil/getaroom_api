@@ -1,4 +1,4 @@
-﻿namespace RoomSchedulerAPI.Features.Models.DTOs.ResponseDTOs;
+﻿namespace GetARoomAPI.Features.Models.DTOs.ResponseDTOs;
 
 public record TokenResponse
 (

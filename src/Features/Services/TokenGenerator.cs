@@ -1,12 +1,11 @@
-﻿using Microsoft.IdentityModel.Tokens;
-using RoomSchedulerAPI.Features.Models.Entities;
-using RoomSchedulerAPI.Features.Repositories.Interfaces;
-using RoomSchedulerAPI.Features.Services.Interfaces;
+﻿using GetARoomAPI.Features.Models.Entities;
+using GetARoomAPI.Features.Services.Interfaces;
+using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace RoomSchedulerAPI.Features.Services;
+namespace GetARoomAPI.Features.Services;
 
 public class TokenGenerator(IConfiguration config, ILogger<TokenGenerator> logger) : ITokenGenerator
 {
