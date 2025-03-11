@@ -1,5 +1,7 @@
 ![image](https://github.com/user-attachments/assets/950f7979-d675-41cd-894a-4c5c12621369)
 
+## API is undergoing big changes and will not work as expected at the moment, please come back at a later time
+
 ### To Test This API
 
 #### 1. Execute Database Scripts
