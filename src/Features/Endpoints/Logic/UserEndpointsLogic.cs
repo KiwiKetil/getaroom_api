@@ -17,13 +17,13 @@ public static class UserEndpointsLogic
     {
         logger.LogDebug("Retrieving users");
 
-        var usersAndCountDTO = await userService.GetUsersAsync(query);
-        if (!usersAndCountDTO.UserDTOs.Any())
+        var completeUserDTO = await userService.GetUsersAsync(query);
+        if (!completeUserDTO.UserDTOs.Any())
         {
             return Results.NotFound(new ErrorResponse(Message: "No users found"));
         }
 
-        return Results.Ok(usersAndCountDTO);
+        return Results.Ok(completeUserDTO);
     }
 
     public static async Task<IResult> GetUserByIdLogicAsync(

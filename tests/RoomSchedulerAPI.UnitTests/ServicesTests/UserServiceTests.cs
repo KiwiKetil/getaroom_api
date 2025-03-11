@@ -58,7 +58,7 @@ public class UserServiceTests
         var result = await _userService.GetUsersAsync(userQuery);
 
         //Assert
-        var res = Assert.IsType<UsersWithCountDTO>(result);
+        var res = Assert.IsType<CompleteUserDTO>(result);
         Assert.Equal(users.Count, res.TotalCount);
         Assert.Equal(users.Count, res.UserDTOs.Count());
         Assert.Equal(users[0].FirstName, res.UserDTOs.ElementAt(0).FirstName);
@@ -80,7 +80,7 @@ public class UserServiceTests
         var result = await _userService.GetUsersAsync(userQuery);
 
         // Assert
-        var res = Assert.IsType<UsersWithCountDTO>(result);
+        var res = Assert.IsType<CompleteUserDTO>(result);
         Assert.Empty(res.UserDTOs);
         Assert.Equal(0, res.TotalCount);
     }
