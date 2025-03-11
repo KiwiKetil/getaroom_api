@@ -9,12 +9,13 @@ public static class UserEndpoints
 {
     public static void MapUserEndpoints(this WebApplication app)
     {
-        // https://localhost:7089/api/v1/users?page=1&pageSize=10     // admin only
+        // https://localhost:7089/api/v1/users?page=1&pageSize=10     // admin only // must add role!!!
         app.MapGet("/api/v1/users", UserEndpointsLogic.GetUsersLogicAsync)
-        .RequireAuthorization("AdminRoleAndPasswordUpdatedPolicy")
+        //.RequireAuthorization("AdminRoleAndPasswordUpdatedPolicy")
         .WithName("GetUsers");
         /*
-        //// https://localhost:7089/api/v1/clients?page=1&pageSize=10     // for employees and admin
+        //// https://localhost:7089/api/v1/clients?page=1&pageSize=10     // for employees and admin 
+        app.MapGet("/api/v1/users", UserEndpointsLogic.GetUsersLogicAsync)
         //app.MapGet("/api/v1/clients", UserEndpointsLogic.GetClientsLogicAsync)
         ////.RequireAuthorization("AdminRoleAndPasswordUpdatedPolicy")
         //.WithName("GetClients");
