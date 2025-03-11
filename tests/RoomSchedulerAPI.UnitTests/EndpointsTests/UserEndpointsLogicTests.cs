@@ -1,17 +1,16 @@
 ﻿using AutoFixture.Xunit2;
 using FluentAssertions;
+using GetARoomAPI.Features.Endpoints.Logic;
+using GetARoomAPI.Features.Models.DTOs.ResponseDTOs;
+using GetARoomAPI.Features.Models.DTOs.UserDTOs;
+using GetARoomAPI.Features.Services.Interfaces;
+using GetARoomAPI.UnitTests.CustomAutoDataAttributes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Logging;
 using Moq;
-using RoomSchedulerAPI.Features.Endpoints.Logic;
-using RoomSchedulerAPI.Features.Models.DTOs.ResponseDTOs;
-using RoomSchedulerAPI.Features.Models.DTOs.UserDTOs;
-using RoomSchedulerAPI.Features.Models.Entities;
-using RoomSchedulerAPI.Features.Services.Interfaces;
-using RoomSchedulerAPI.UnitTests.CustomAutoDataAttributes;
 using System.Security.Claims;
 
-namespace RoomSchedulerAPI.UnitTests.EndpointsTests;
+namespace GetARoomAPI.UnitTests.EndpointsTests;
 public class UserEndpointsLogicTests
 {
     private readonly Mock<IUserService> _userServiceMock = new();
@@ -135,7 +134,7 @@ public class UserEndpointsLogicTests
         var NotFoundResult = Assert.IsType<Microsoft.AspNetCore.Http.HttpResults.NotFound<ErrorResponse>>(result);
         Assert.NotNull(NotFoundResult.Value);
         Assert.Equal("User was not found", NotFoundResult.Value.Message);
-    }   
+    }
 
     #endregion GetUserById
 

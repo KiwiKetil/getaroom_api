@@ -1,25 +1,25 @@
 ﻿using FluentValidation;
 using FluentValidation.AspNetCore;
 using FluentValidation.Resources;
+using GetARoomAPI.Core.Authorization;
+using GetARoomAPI.Core.DB.DBConnection;
+using GetARoomAPI.Core.DB.DBConnection.Interface;
+using GetARoomAPI.Core.DB.UnitOFWork;
+using GetARoomAPI.Core.DB.UnitOFWork.Interfaces;
+using GetARoomAPI.Core.Middleware;
+using GetARoomAPI.Features.AutoMapper;
+using GetARoomAPI.Features.Repositories;
+using GetARoomAPI.Features.Repositories.Interfaces;
+using GetARoomAPI.Features.Services;
+using GetARoomAPI.Features.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
-using RoomSchedulerAPI.Core.Authorization;
-using RoomSchedulerAPI.Core.DB.DBConnection;
-using RoomSchedulerAPI.Core.DB.DBConnection.Interface;
-using RoomSchedulerAPI.Core.DB.UnitOFWork;
-using RoomSchedulerAPI.Core.DB.UnitOFWork.Interfaces;
-using RoomSchedulerAPI.Core.Middleware;
-using RoomSchedulerAPI.Features.AutoMapper;
-using RoomSchedulerAPI.Features.Repositories;
-using RoomSchedulerAPI.Features.Repositories.Interfaces;
-using RoomSchedulerAPI.Features.Services;
-using RoomSchedulerAPI.Features.Services.Interfaces;
 using System.Globalization;
 using System.Text;
 
 
-namespace RoomSchedulerAPI.Core.Extensions;
+namespace GetARoomAPI.Core.Extensions;
 
 public static class ServiceCollectionExtensions
 {
@@ -45,8 +45,8 @@ public static class ServiceCollectionExtensions
 
         // MySqlConnectionFactory
         var connectionString = configuration.GetConnectionString("defaultConnection")?
-                    .Replace("{ROOM_DB_USER}", Environment.GetEnvironmentVariable("ROOM_DB_USER"))
-                    .Replace("{ROOM_DB_PASSWORD}", Environment.GetEnvironmentVariable("ROOM_DB_PASSWORD"));
+                    .Replace("{GETAROOM_DB_USER}", Environment.GetEnvironmentVariable("GETAROOM_DB_USER"))
+                    .Replace("{GETAROOM_DB_PASSWORD}", Environment.GetEnvironmentVariable("GETAROOM_DB_PASSWORD"));
 
         if (string.IsNullOrEmpty(connectionString))
         {

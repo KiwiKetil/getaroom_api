@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace RoomSchedulerAPI.Features.Endpoints.Diagnostics;
+namespace GetARoomAPI.Features.Endpoints.Diagnostics;
 
 public static class ApiHealthCheck
 {
@@ -16,6 +16,6 @@ public static class ApiHealthCheck
             }
             return $"Hello from host: {hostName}\n{sb}";
         })
-        .RequireAuthorization("AdminAndPasswordUpdatedPolicy");
+        .RequireAuthorization("AdminRoleAndPasswordUpdatedPolicy");
     }
 }

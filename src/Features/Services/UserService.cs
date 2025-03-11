@@ -1,13 +1,11 @@
 ﻿using AutoMapper;
-using RoomSchedulerAPI.Core.DB.DBConnection.Interface;
-using RoomSchedulerAPI.Core.DB.UnitOFWork;
-using RoomSchedulerAPI.Core.DB.UnitOFWork.Interfaces;
-using RoomSchedulerAPI.Features.Models.DTOs.UserDTOs;
-using RoomSchedulerAPI.Features.Models.Entities;
-using RoomSchedulerAPI.Features.Repositories.Interfaces;
-using RoomSchedulerAPI.Features.Services.Interfaces;
+using GetARoomAPI.Core.DB.UnitOFWork.Interfaces;
+using GetARoomAPI.Features.Models.DTOs.UserDTOs;
+using GetARoomAPI.Features.Models.Entities;
+using GetARoomAPI.Features.Repositories.Interfaces;
+using GetARoomAPI.Features.Services.Interfaces;
 
-namespace RoomSchedulerAPI.Features.Services;
+namespace GetARoomAPI.Features.Services;
 
 public class UserService(IUserRepository userRepository, IUserRoleRepository userRoleRepository, IPasswordVerificationService passwordVerificationService,
     IPasswordHistoryRepository passwordHistoryRepository, ITokenGenerator tokenGenerator, IMapper mapper, IUnitOfWorkFactory unitOfWorkFactory, ILogger<UserService> logger) : IUserService

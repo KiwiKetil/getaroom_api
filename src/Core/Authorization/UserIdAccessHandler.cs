@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 
-namespace RoomSchedulerAPI.Core.Authorization;
+namespace GetARoomAPI.Core.Authorization;
 
 public class UserIdAccessHandler : AuthorizationHandler<UserIdAccessRequirement, Guid>
 {

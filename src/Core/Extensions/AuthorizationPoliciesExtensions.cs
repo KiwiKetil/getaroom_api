@@ -1,7 +1,7 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using RoomSchedulerAPI.Core.Authorization;
+﻿using GetARoomAPI.Core.Authorization;
+using Microsoft.AspNetCore.Authorization;
 
-namespace RoomSchedulerAPI.Core.Extensions;
+namespace GetARoomAPI.Core.Extensions;
 
 public static class AuthorizationPoliciesExtensions
 {

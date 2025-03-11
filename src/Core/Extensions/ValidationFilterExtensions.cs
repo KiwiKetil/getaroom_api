@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
-using RoomSchedulerAPI.Features.Models.DTOs.ResponseDTOs;
+using GetARoomAPI.Features.Models.DTOs.ResponseDTOs;
 
-namespace RoomSchedulerAPI.Core.Extensions;
+namespace GetARoomAPI.Core.Extensions;
 
 public static class ValidationFilterExtensions
 {

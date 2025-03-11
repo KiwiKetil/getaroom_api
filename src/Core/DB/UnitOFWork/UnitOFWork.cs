@@ -1,13 +1,13 @@
-﻿using RoomSchedulerAPI.Core.DB.DBConnection.Interface;
-using RoomSchedulerAPI.Core.DB.UnitOFWork.Interfaces;
+﻿using GetARoomAPI.Core.DB.DBConnection.Interface;
+using GetARoomAPI.Core.DB.UnitOFWork.Interfaces;
 using System.Data;
 
-namespace RoomSchedulerAPI.Core.DB.UnitOFWork;
+namespace GetARoomAPI.Core.DB.UnitOFWork;
 
-public record struct UnitOfWorkId(Guid Value) 
+public record struct UnitOfWorkId(Guid Value)
 {
-    public static UnitOfWorkId NewId => new (Guid.NewGuid());
-    public static UnitOfWorkId Empty => new (Guid.Empty); 
+    public static UnitOfWorkId NewId => new(Guid.NewGuid());
+    public static UnitOfWorkId Empty => new(Guid.Empty);
 }
 
 public class UnitOFWork(IDbConnectionFactory dbConnectionFactory) : IUnitOfWork
@@ -32,7 +32,7 @@ public class UnitOFWork(IDbConnectionFactory dbConnectionFactory) : IUnitOfWork
         Transaction.Commit();
         Connection.Close();
         return Task.CompletedTask;
-    }  
+    }
 
     public Task RollbackAsync()
     {

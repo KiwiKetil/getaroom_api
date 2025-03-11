@@ -1,20 +1,18 @@
 ﻿using AutoFixture.Xunit2;
 using AutoMapper;
+using GetARoomAPI.Core.DB.UnitOFWork;
+using GetARoomAPI.Core.DB.UnitOFWork.Interfaces;
+using GetARoomAPI.Features.AutoMapper;
+using GetARoomAPI.Features.Models.DTOs.UserDTOs;
+using GetARoomAPI.Features.Models.Entities;
+using GetARoomAPI.Features.Repositories.Interfaces;
+using GetARoomAPI.Features.Services;
+using GetARoomAPI.Features.Services.Interfaces;
+using GetARoomAPI.UnitTests.CustomAutoDataAttributes;
 using Microsoft.Extensions.Logging;
 using Moq;
-using RoomSchedulerAPI.Core.DB.DBConnection;
-using RoomSchedulerAPI.Core.DB.DBConnection.Interface;
-using RoomSchedulerAPI.Core.DB.UnitOFWork;
-using RoomSchedulerAPI.Core.DB.UnitOFWork.Interfaces;
-using RoomSchedulerAPI.Features.AutoMapper;
-using RoomSchedulerAPI.Features.Models.DTOs.UserDTOs;
-using RoomSchedulerAPI.Features.Models.Entities;
-using RoomSchedulerAPI.Features.Repositories.Interfaces;
-using RoomSchedulerAPI.Features.Services;
-using RoomSchedulerAPI.Features.Services.Interfaces;
-using RoomSchedulerAPI.UnitTests.CustomAutoDataAttributes;
 
-namespace RoomSchedulerAPI.UnitTests.ServicesTests;
+namespace GetARoomAPI.UnitTests.ServicesTests;
 public class UserServiceTests
 {
     private readonly UserService _userService;
@@ -310,7 +308,7 @@ public class UserServiceTests
     [Theory]
     [AutoData]
     public async Task UpdatePasswordAsync_WhenUserWasNotFound_ReturnsNull(
-        UpdatePasswordDTO updatePasswordDTO, 
+        UpdatePasswordDTO updatePasswordDTO,
         User user,
         IEnumerable<UserRole> roles)
     {

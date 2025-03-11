@@ -1,4 +1,4 @@
-﻿namespace RoomSchedulerAPI.Core.DB.UnitOFWork.Interfaces;
+﻿namespace GetARoomAPI.Core.DB.UnitOFWork.Interfaces;
 
 public interface IUnitOfWorkFactory
 {

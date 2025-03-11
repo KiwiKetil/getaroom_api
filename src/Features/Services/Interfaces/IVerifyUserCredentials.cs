@@ -1,7 +1,7 @@
-﻿namespace RoomSchedulerAPI.Features.Services.Interfaces;
+﻿namespace GetARoomAPI.Features.Services.Interfaces;
 
 public interface IVerifyUserCredentials
 {
     string Email { get; init; }
-    string Password { get; init;  }
+    string Password { get; init; }
 }

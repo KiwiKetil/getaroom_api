@@ -1,5 +1,4 @@
-﻿
-namespace RoomSchedulerAPI.Features.Models.Entities;
+﻿namespace GetARoomAPI.Features.Models.Entities;
 
 public readonly record struct RoomId(Guid Value)
 {

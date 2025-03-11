@@ -1,7 +1,7 @@
-﻿using RoomSchedulerAPI.Features.HateOAS;
-using RoomSchedulerAPI.Features.Models.Entities;
+﻿using GetARoomAPI.Features.HATEOAS;
+using GetARoomAPI.Features.Models.Entities;
 
-namespace RoomSchedulerAPI.Features.Models.DTOs.RoomReservationDTOs;
+namespace GetARoomAPI.Features.Models.DTOs.RoomReservationDTOs;
 
 public record RoomReservationDTO
 (

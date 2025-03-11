@@ -1,9 +1,9 @@
 using Dapper;
-using RoomSchedulerAPI.Core.DB.TypeHandlers;
-using RoomSchedulerAPI.Core.Extensions;
-using RoomSchedulerAPI.Core.Middleware;
-using RoomSchedulerAPI.Features.Endpoints;
-using RoomSchedulerAPI.Features.Endpoints.Diagnostics;
+using GetARoomAPI.Core.DB.TypeHandlers;
+using GetARoomAPI.Core.Extensions;
+using GetARoomAPI.Core.Middleware;
+using GetARoomAPI.Features.Endpoints;
+using GetARoomAPI.Features.Endpoints.Diagnostics;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);

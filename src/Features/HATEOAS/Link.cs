@@ -1,4 +1,4 @@
-﻿namespace RoomSchedulerAPI.Features.HateOAS;
+﻿namespace GetARoomAPI.Features.HATEOAS;
 
 public record Link
 (

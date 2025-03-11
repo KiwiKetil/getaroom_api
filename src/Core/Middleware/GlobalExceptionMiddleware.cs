@@ -1,10 +1,9 @@
-﻿
-namespace RoomSchedulerAPI.Core.Middleware;
+﻿namespace GetARoomAPI.Core.Middleware;
 
 public class GlobalExceptionMiddleware(ILogger<GlobalExceptionMiddleware> logger) : IMiddleware
 {
     private readonly ILogger<GlobalExceptionMiddleware> _logger = logger;
-   
+
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
         try

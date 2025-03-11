@@ -1,10 +1,9 @@
 ﻿using AutoFixture;
 using AutoFixture.Xunit2;
-using RoomSchedulerAPI.Features.HateOAS;
-using RoomSchedulerAPI.Features.Models.DTOs.UserDTOs;
-using RoomSchedulerAPI.Features.Models.Entities;
+using GetARoomAPI.Features.Models.DTOs.UserDTOs;
+using GetARoomAPI.Features.Models.Entities;
 
-namespace RoomSchedulerAPI.UnitTests.CustomAutoDataAttributes;
+namespace GetARoomAPI.UnitTests.CustomAutoDataAttributes;
 internal class CustomUserAutoDataAttribute : AutoDataAttribute
 {
     public CustomUserAutoDataAttribute() : base(() =>
@@ -52,6 +51,6 @@ internal class CustomUserAutoDataAttribute : AutoDataAttribute
 
         return fixture;
     })
-    { 
+    {
     }
 }

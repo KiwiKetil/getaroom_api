@@ -1,11 +1,11 @@
 ﻿using AutoFixture.Xunit2;
+using GetARoomAPI.Features.Models.DTOs.UserDTOs;
+using GetARoomAPI.Features.Models.Entities;
+using GetARoomAPI.Features.Services;
 using Microsoft.Extensions.Logging;
 using Moq;
-using RoomSchedulerAPI.Features.Models.DTOs.UserDTOs;
-using RoomSchedulerAPI.Features.Models.Entities;
-using RoomSchedulerAPI.Features.Services;
 
-namespace RoomSchedulerAPI.UnitTests.ServicesTests;
+namespace GetARoomAPI.UnitTests.ServicesTests;
 public class PasswordVerificationServiceTests
 {
     private readonly PasswordVerificationService _service;

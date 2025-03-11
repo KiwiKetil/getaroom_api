@@ -1,7 +1,7 @@
-﻿namespace RoomSchedulerAPI.Features.Models.DTOs.ResponseDTOs;
+﻿namespace GetARoomAPI.Features.Models.DTOs.ResponseDTOs;
 
 public record ErrorResponse
 (
-    string? Message = "", 
+    string? Message = "",
     List<string>? Errors = null
 );

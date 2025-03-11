@@ -1,4 +1,4 @@
-﻿namespace RoomSchedulerAPI.Features.Models.DTOs.RoomDTOs;
+﻿namespace GetARoomAPI.Features.Models.DTOs.RoomDTOs;
 
 public class RoomRegistrationDTO
 {
