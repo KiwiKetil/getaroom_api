@@ -18,6 +18,8 @@ Execute the 3 scripts in the `GetARoomAPI/Core/DB/DBScripts` folder in MySQL as 
    Note: All test user passwords are their first name followed by 123!
    For example, if the user's first name is "John", the password is John123!
 
+   Note: Several Endpoints require that password has been changed from the initial password! Follow UpdatePassword endpoint to get new tokenstring.
+
 #### 2. Configure Environment Variables for Database Credentials
 
 Set the following environment variables using the values you specified in `getaroom_create_db.sql`:
