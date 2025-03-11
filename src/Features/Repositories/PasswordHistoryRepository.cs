@@ -23,13 +23,13 @@ public class PasswordHistoryRepository(IDbConnectionFactory mySqlConnectionFacto
         return count > 0;
     }
 
-    public async Task<bool> InsertPasswordUpdateRecordAsync(IUnitOfWork uow, Guid userId)
+    public async Task<bool> InsertPasswordUpdateRecordAsync(Guid userId, IUnitOfWork unitOfWork)
     {
         string sql = @"
         INSERT INTO PasswordHistory (Id, UserId, ChangedDate)
                      VALUES (@Id, @UserId, CURRENT_TIMESTAMP)";
 
-        int rowsAffected = await uow.Connection.ExecuteAsync(sql, new { Id = Guid.NewGuid(), UserId = userId, uow.Transaction });
+        int rowsAffected = await unitOfWork.Connection.ExecuteAsync(sql, new { Id = Guid.NewGuid(), UserId = userId }, unitOfWork.Transaction);
 
         if (rowsAffected != 1)
         {
