@@ -21,13 +21,13 @@ public class UserService(IUserRepository userRepository, IUserRoleRepository use
     private readonly IUnitOfWorkFactory _unitOfWorkFactory = unitOfWorkFactory;
     private readonly ILogger<UserService> _logger = logger;
 
-    public async Task<CompleteUserDTO> GetUsersAsync(UserQuery query)
+    public async Task<UsersWithCountDTO> GetUsersAsync(UserQuery query)
     {
         _logger.LogDebug("Retrieving users");
 
         var (users, totalCount) = await _userRepository.GetUsersAsync(query);
         var dtos = users.Select(user => _mapper.Map<UserDTO>(user)).ToList();
-        return new CompleteUserDTO(totalCount, dtos);
+        return new UsersWithCountDTO(totalCount, dtos);
     }
 
     public async Task<UserDTO?> GetUserByIdAsync(Guid id)

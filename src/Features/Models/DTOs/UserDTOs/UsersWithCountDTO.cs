@@ -1,6 +1,6 @@
 ﻿namespace GetARoomAPI.Features.Models.DTOs.UserDTOs;
 
-public record CompleteUserDTO
+public record UsersWithCountDTO
 (
     int TotalCount,
     IEnumerable<UserDTO> UserDTOs
