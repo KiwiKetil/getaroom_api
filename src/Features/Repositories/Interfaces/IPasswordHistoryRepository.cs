@@ -5,7 +5,6 @@ namespace GetARoomAPI.Features.Repositories.Interfaces;
 
 public interface IPasswordHistoryRepository
 {
-    Task<bool> PasswordUpdateExistsAsync(UserId id);
-
-    Task<bool> InsertPasswordUpdateRecordAsync(IUnitOfWork uow, Guid userId);
+    Task<bool> PasswordUpdateExistsAsync(UserId id);    
+    Task<bool> InsertPasswordUpdateRecordAsync(Guid userId, IUnitOfWork unitOfWork);
 }

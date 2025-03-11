@@ -48,7 +48,7 @@ async function fetchUsers(resetPage = false, filters = {}) {
         }
     });
     // for testing this token lifetime is extended
-      let token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmNDdhYzEwYi01OGNjLTQzNzItYTU2Ny0wZTAyYjJjM2Q0NzEiLCJuYW1lIjoic2FyYWhAZXhhbXBsZS5jb20iLCJwYXNzd29yZFVwZGF0ZWQiOiJ0cnVlIiwiaHR0cDovL3NjaGVtYXMubWljcm9zb2Z0LmNvbS93cy8yMDA4LzA2L2lkZW50aXR5L2NsYWltcy9yb2xlIjpbIkFkbWluIiwiVXNlciJdLCJleHAiOjE4MDM3MjA4NjYsImlzcyI6InJvb21TY2hlZHVsZXJfQVBJIiwiYXVkIjoicm9vbVNjaGVkdWxlcl9BUEkifQ.H3Kuw8PnqLF33lRdOddI5LW8veWq_fONrt2JFlB_z8Y";
+      let token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmNDdhYzEwYi01OGNjLTQzNzItYTU2Ny0wZTAyYjJjM2Q0NzEiLCJ1bmlxdWVfbmFtZSI6InNhcmFoQGV4YW1wbGUuY29tIiwicGFzc3dvcmRVcGRhdGVkIjoidHJ1ZSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6WyJBZG1pbiIsIlVzZXIiXSwiZXhwIjoxNzczMjE4MTQxLCJpc3MiOiJnZXRBcm9vbV9BUEkiLCJhdWQiOiJnZXRBcm9vbV9BUEkifQ.SUMYes6mCCjciRkpvvwazgI6QH_lhME5Y9IsENlUEuM";
     // Build the fetch options object with headers
     const fetchOptions = {
         headers: {

@@ -1,4 +1,5 @@
 ﻿using GetARoomAPI.Features.Models.DTOs.UserDTOs;
+using GetARoomAPI.Features.Models.Enums;
 
 namespace GetARoomAPI.Features.Services.Interfaces;
 
@@ -8,7 +9,7 @@ public interface IUserService
     Task<UserDTO?> GetUserByIdAsync(Guid id);
     Task<UserDTO?> UpdateUserAsync(Guid id, UserUpdateDTO dto);
     Task<UserDTO?> DeleteUserAsync(Guid id);
-    Task<UserDTO?> RegisterUserAsync(UserRegistrationDTO dto);
+    Task<UserDTO?> RegisterUserAsync(UserRegistrationDTO dto, UserRoles role);
     Task<string?> UserLoginAsync(LoginDTO dto);
     Task<string?> UpdatePasswordAsync(UpdatePasswordDTO dto);
 }

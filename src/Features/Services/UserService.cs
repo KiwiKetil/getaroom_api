@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
+using GetARoomAPI.Core.DB.UnitOFWork;
 using GetARoomAPI.Core.DB.UnitOFWork.Interfaces;
 using GetARoomAPI.Features.Models.DTOs.UserDTOs;
 using GetARoomAPI.Features.Models.Entities;
+using GetARoomAPI.Features.Models.Enums;
 using GetARoomAPI.Features.Repositories.Interfaces;
 using GetARoomAPI.Features.Services.Interfaces;
 
@@ -59,7 +61,7 @@ public class UserService(IUserRepository userRepository, IUserRoleRepository use
         return userDTO;
     }
 
-    public async Task<UserDTO?> RegisterUserAsync(UserRegistrationDTO dto)
+    public async Task<UserDTO?> RegisterUserAsync(UserRegistrationDTO dto, UserRoles role)
     {
         _logger.LogDebug("Registering user");
 
@@ -67,7 +69,7 @@ public class UserService(IUserRepository userRepository, IUserRoleRepository use
 
         if (existingUser != null)
         {
-            _logger.LogDebug("User already exists");
+            _logger.LogDebug("user already exists");
             return null;
         }
 
@@ -75,10 +77,38 @@ public class UserService(IUserRepository userRepository, IUserRoleRepository use
         user.Id = UserId.NewId;
         user.HashedPassword = BCrypt.Net.BCrypt.HashPassword(dto.Password);
 
-        var res = await _userRepository.RegisterUserAsync(user);
+        var unitOfWork = _unitOfWorkFactory.Create();
+        try
+        {
+            await unitOfWork.BeginAsync();
 
-        var userDTO = _mapper.Map<UserDTO>(res);
-        return userDTO;
+            var res = await _userRepository.RegisterUserAsync(user, unitOfWork);
+
+            bool roleAdded = role switch
+            {
+                UserRoles.Employee => await _userRoleRepository.AddUserRoleAsync(user.Id, UserRoles.Employee, unitOfWork),
+                UserRoles.Client => await _userRoleRepository.AddUserRoleAsync(user.Id, UserRoles.Client, unitOfWork),
+                _ => throw new ArgumentException("Invalid role", nameof(role))
+            };
+
+            if (!roleAdded)
+            {
+                _logger.LogDebug("Assigning role failed");
+                throw new InvalidOperationException("Failed to assign role to the user.");
+            }
+
+            await unitOfWork.CommitAsync();
+            _logger.LogInformation("Committed UoW with ID: {UnitOfWorkId}", unitOfWork.Id);
+
+            var userDTO = _mapper.Map<UserDTO>(res);
+            return userDTO;
+        }
+        catch (Exception ex) 
+        {
+            _logger.LogCritical(ex, "Error in UoW with ID: {UnitOfWorkId}. Rolling back...", unitOfWork.Id);
+            await unitOfWork.RollbackAsync();
+            return null;
+        }      
     }
 
     public async Task<string?> UserLoginAsync(LoginDTO dto)
@@ -133,13 +163,13 @@ public class UserService(IUserRepository userRepository, IUserRoleRepository use
         {
             await unitOfWork.BeginAsync();
 
-            var updateSuccess = await _userRepository.UpdatePasswordAsync(unitOfWork, user.Id, newHashedPassword);
+            var updateSuccess = await _userRepository.UpdatePasswordAsync(user.Id, newHashedPassword, unitOfWork);
             if (!updateSuccess)
             {
                 throw new InvalidOperationException("Failed to update user password.");
             }
 
-            var historySuccess = await _passwordHistoryRepository.InsertPasswordUpdateRecordAsync(unitOfWork, user.Id.Value);
+            var historySuccess = await _passwordHistoryRepository.InsertPasswordUpdateRecordAsync(user.Id.Value, unitOfWork);
             if (!historySuccess)
             {
                 throw new InvalidOperationException("Password history record was not inserted.");
@@ -160,5 +190,5 @@ public class UserService(IUserRepository userRepository, IUserRoleRepository use
         var userRoles = await _userRoleRepository.GetUserRolesAsync(user.Id);
         var token = _tokenGenerator.GenerateToken(user, true, userRoles);
         return token;
-    }
+    }   
 }

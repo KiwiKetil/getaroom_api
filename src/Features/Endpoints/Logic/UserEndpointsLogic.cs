@@ -1,5 +1,6 @@
 ﻿using GetARoomAPI.Features.Models.DTOs.ResponseDTOs;
 using GetARoomAPI.Features.Models.DTOs.UserDTOs;
+using GetARoomAPI.Features.Models.Enums;
 using GetARoomAPI.Features.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -81,17 +82,30 @@ public static class UserEndpointsLogic
             : Results.Conflict(new ErrorResponse(Message: "User could not be deleted"));
     }
 
-    public static async Task<IResult> RegisterUserLogicAsync(
+    public static async Task<IResult> RegisterEmployeeLogicAsync(
         [FromBody] UserRegistrationDTO dto,
         IUserService userService,
         ILogger<Program> logger)
     {
-        logger.LogDebug("Registering new user");
+        logger.LogDebug("Registering new employee");
 
-        var userDTO = await userService.RegisterUserAsync(dto);
+        var userDTO = await userService.RegisterUserAsync(dto, UserRoles.Employee);
         return userDTO != null
             ? Results.Ok(userDTO)
-            : Results.Conflict(new ErrorResponse(Message: "User could not be registered"));
+            : Results.Conflict(new ErrorResponse(Message: "Employee could not be registered"));
+    }
+
+    public static async Task<IResult> RegisterClientLogicAsync(
+        [FromBody] UserRegistrationDTO dto,
+        IUserService userService,
+        ILogger<Program> logger)
+    {
+        logger.LogDebug("Registering new client");
+
+        var userDTO = await userService.RegisterUserAsync(dto, UserRoles.Client);
+        return userDTO != null
+            ? Results.Ok(userDTO)
+            : Results.Conflict(new ErrorResponse(Message: "client could not be registered"));
     }
 
     public static async Task<IResult> UserLoginLogicAsync(

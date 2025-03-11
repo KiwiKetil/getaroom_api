@@ -173,59 +173,45 @@ public class UserRepository(IDbConnectionFactory mySqlConnectionFactory, ILogger
         return await dbConnection.QueryFirstOrDefaultAsync<User>(getUserbyEmailSql, new { email });
     }
 
-    public async Task<User?> RegisterUserAsync(User user)
+    public async Task<User?> RegisterUserAsync(User user, IUnitOfWork unitOfWork)
     {
         _logger.LogDebug("Adding new user to DB");
+       
+        string registerUser = @"INSERT INTO Users (Id, FirstName, LastName, PhoneNumber, Email, HashedPassword)
+                                VALUES (@Id, @FirstName, @LastName, @PhoneNumber, @Email, @HashedPassword)";
 
-        using var dbConnection = await _mySqlConnectionFactory.CreateConnectionAsync();
-        using var transaction = dbConnection.BeginTransaction();
-
-        try
+        var parameters = new
         {
-            string registerUserSql = @"INSERT INTO Users (Id, FirstName, LastName, PhoneNumber, Email, HashedPassword)
-                                   VALUES (@Id, @FirstName, @LastName, @PhoneNumber, @Email, @HashedPassword)";
+            user.Id,
+            user.FirstName,
+            user.LastName,
+            user.PhoneNumber,
+            user.Email,
+            user.HashedPassword
+        };
 
-            var parameters = new
-            {
-                user.Id,
-                user.FirstName,
-                user.LastName,
-                user.PhoneNumber,
-                user.Email,
-                user.HashedPassword
-            };
+        int rowsAffected = await unitOfWork.Connection.ExecuteAsync(registerUser, parameters, unitOfWork.Transaction);
 
-            int rowsAffected = await dbConnection.ExecuteAsync(registerUserSql, parameters, transaction);
-
-            if (rowsAffected != 1)
-            {
-                throw new InvalidOperationException($"Unexpected rows affected ({rowsAffected}) while registering user.");
-            }
-
-            string getNewUserSql = @"SELECT Id, FirstName, LastName, PhoneNumber, Email FROM Users WHERE Id = @Id";
-            var registeredUser = await dbConnection.QueryFirstOrDefaultAsync<User>(getNewUserSql, new { user.Id.Value }, transaction);
-
-            transaction.Commit();
-            _logger.LogInformation("New user successfully registered.");
-
-            return registeredUser;
-        }
-        catch (Exception ex)
+        if (rowsAffected != 1)
         {
-            _logger.LogError(ex, "Error registering user. Rolling back transaction.");
-            transaction.Rollback();
-            return null;
+            throw new InvalidOperationException($"Unexpected rows affected ({rowsAffected}) while registering user.");
         }
-    }
 
-    public async Task<bool> UpdatePasswordAsync(IUnitOfWork uow, UserId id, string newHashedPassword)
+        string getNewUserSql = @"SELECT Id, FirstName, LastName, PhoneNumber, Email FROM Users WHERE Id = @Id";
+        var registeredUser = await unitOfWork.Connection.QueryFirstOrDefaultAsync<User>(getNewUserSql, new { Id = user.Id.Value }, unitOfWork.Transaction);
+    
+        _logger.LogInformation("New user successfully registered.");
+        return registeredUser;
+    }             
+
+    public async Task<bool> UpdatePasswordAsync(UserId id, string newHashedPassword, IUnitOfWork unitOfWork)
     {
         _logger.LogDebug("Updating password in DB");
 
         string updateUserPasswordSql = "UPDATE Users SET HashedPassword = @HashedPassword WHERE Id = @Id";
 
-        int rowsAffected = await uow.Connection.ExecuteAsync(updateUserPasswordSql,
-            new { HashedPassword = newHashedPassword, Id = id.Value, uow.Transaction });
+        int rowsAffected = await unitOfWork.Connection.ExecuteAsync(updateUserPasswordSql,
+            new { HashedPassword = newHashedPassword, Id = id.Value}, unitOfWork.Transaction);
 
         if (rowsAffected > 1)
         {
