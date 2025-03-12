@@ -9,9 +9,9 @@ public static class AuthorizationPoliciesExtensions
     {
         return builder
             // endpoint policies
-            .AddPolicy("UserOrAdminRoleAndPasswordUpdatedPolicy", policy =>
+            .AddPolicy("EmployeeOrAdminRoleAndPasswordUpdatedPolicy", policy =>
             {
-                policy.RequireRole("User", "Admin");
+                policy.RequireRole("Employee", "Admin");
                 policy.RequireClaim("passwordUpdated", "true");
             })
 

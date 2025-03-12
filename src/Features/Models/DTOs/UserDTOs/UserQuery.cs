@@ -1,4 +1,6 @@
-﻿namespace GetARoomAPI.Features.Models.DTOs.UserDTOs;
+﻿using Microsoft.AspNetCore.Mvc;
+
+namespace GetARoomAPI.Features.Models.DTOs.UserDTOs;
 
 public record UserQuery
 (
@@ -10,5 +12,5 @@ public record UserQuery
     string Order = "ASC",
     int Page = 1,
     int PageSize = 10,
-    string? Roles = null
-);
+    [FromQuery] string[]? Roles = null
+    );

@@ -9,20 +9,10 @@ public static class UserEndpoints
 {
     public static void MapUserEndpoints(this WebApplication app)
     {
-        // https://localhost:7089/api/v1/users?page=1&pageSize=10     // admin only - Get All Users // must add role!!! // add filter Role(?)
+        // https://localhost:7089/api/v1/users?page=1&pageSize=10     
         app.MapGet("/api/v1/users", UserEndpointsLogic.GetUsersLogicAsync)
-        //.RequireAuthorization("AdminRoleAndPasswordUpdatedPolicy")
-        .WithName("GetUsers");
-
-        //// https://localhost:7089/api/v1/employees?page=1&pageSize=10     // admin only -  GET EMPLOYEES
-        //app.MapGet("/api/v1/employees", UserEndpointsLogic.GetUsersLogicAsync)
-        ////.RequireAuthorization("AdminRoleAndPasswordUpdatedPolicy")
-        //.WithName("GetEmployees");
-
-        //// https://localhost:7089/api/v1/clients?page=1&pageSize=10     // admin and employees -  GET CLIENTS
-        //app.MapGet("/api/v1/clients", UserEndpointsLogic.GetUserssLogicAsync)
-        ////.RequireAuthorization("AdminRoleAndPasswordUpdatedPolicy")
-        //.WithName("GetClients");
+        //.RequireAuthorization("EmployeeOrAdminRoleAndPasswordUpdatedPolicy")
+        .WithName("GetUsers"); 
 
         //// https://localhost:7089/api/v1/users/887ac10b-58cc-4372-a567-0e02b2c3d493 // admin only
         //app.MapGet("/api/v1/users/{id}", UserEndpointsLogic.GetUserByIdLogicAsync)

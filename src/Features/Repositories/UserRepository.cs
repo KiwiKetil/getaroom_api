@@ -45,16 +45,10 @@ public class UserRepository(IDbConnectionFactory mySqlConnectionFactory, ILogger
             parameters.Add("Email", $"{query.Email}%");
         }
 
-        if (isAdmin && !string.IsNullOrEmpty(query.Roles) && !query.Roles.Equals("All", StringComparison.OrdinalIgnoreCase))
+        if (query.Roles != null && query.Roles.Length != 0 && !query.Roles.Contains("All", StringComparer.OrdinalIgnoreCase))
         {
-            baseSql += " AND Id IN (SELECT UserId FROM UserRoles WHERE RoleName = @RoleName)";
-            parameters.Add("RoleName", query.Roles);
-        }
-
-        if (!isAdmin)
-        {
-            baseSql += " AND Id IN (SELECT UserId FROM UserRoles WHERE RoleName = @RoleName)";
-            parameters.Add("RoleName", "Client");
+            baseSql += " AND Id IN (SELECT UserID FROM UserRoles WHERE Rolename IN @RoleNames)";
+            parameters.Add("RoleNames", query.Roles);
         }
 
         var skipNumber = (query.Page - 1) * query.PageSize;

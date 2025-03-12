@@ -5,6 +5,7 @@ using GetARoomAPI.Features.Models.Entities;
 using GetARoomAPI.Features.Models.Enums;
 using GetARoomAPI.Features.Repositories.Interfaces;
 using GetARoomAPI.Features.Services.Interfaces;
+using MySqlX.XDevAPI;
 using System.Security.Claims;
 
 namespace GetARoomAPI.Features.Services;
@@ -25,8 +26,14 @@ public class UserService(IUserRepository userRepository, IUserRoleRepository use
     public async Task<UsersWithCountDTO> GetUsersAsync(UserQuery query)
     {
         _logger.LogDebug("Retrieving users");
+
         var claimsPrincipal = _httpContextAccessor.HttpContext?.User!;
         var isAdmin = claimsPrincipal.Claims.Any(c => c.Type == ClaimTypes.Role && c.Value.Equals("admin", StringComparison.OrdinalIgnoreCase));
+
+        if (!isAdmin)
+        {
+            query = query with { Roles = ["Client"] };
+        }
 
         var (users, totalCount) = await _userRepository.GetUsersAsync(query, isAdmin);
         var dtos = users.Select(user => _mapper.Map<UserDTO>(user)).ToList();
