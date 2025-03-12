@@ -6,7 +6,7 @@ namespace GetARoomAPI.Features.Repositories.Interfaces;
 
 public interface IUserRepository
 {
-    Task<(IEnumerable<User> Users, int TotalCount)> GetUsersAsync(UserQuery query);
+    Task<(IEnumerable<User> Users, int TotalCount)> GetUsersAsync(UserQuery query, bool isAdmin);
     Task<User?> GetUserByIdAsync(UserId Id);
     Task<User?> UpdateUserAsync(UserId id, User user);
     Task<User?> DeleteUserAsync(UserId id);

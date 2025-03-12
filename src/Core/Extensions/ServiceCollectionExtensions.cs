@@ -109,6 +109,9 @@ public static class ServiceCollectionExtensions
         // UnitOfWorkFactory
         services.AddScoped<IUnitOfWorkFactory, UnitOfWorkFactory>();
 
+        // HttpContextAccessor
+        services.AddHttpContextAccessor();
+
         return services;
     }
 }
