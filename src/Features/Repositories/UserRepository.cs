@@ -12,7 +12,7 @@ public class UserRepository(IDbConnectionFactory mySqlConnectionFactory, ILogger
     private readonly IDbConnectionFactory _mySqlConnectionFactory = mySqlConnectionFactory;
     private readonly ILogger<UserRepository> _logger = logger;
 
-    public async Task<(IEnumerable<User> Users, int TotalCount)> GetUsersAsync(UserQuery query)
+    public async Task<(IEnumerable<User> Users, int TotalCount)> GetUsersAsync(UserQuery query, bool isAdmin)
     {
         _logger.LogDebug("Retrieving users from DB");
 
@@ -43,6 +43,18 @@ public class UserRepository(IDbConnectionFactory mySqlConnectionFactory, ILogger
         {
             baseSql += " AND Email LIKE @Email";
             parameters.Add("Email", $"{query.Email}%");
+        }
+
+        if (isAdmin && !string.IsNullOrEmpty(query.Roles) && !query.Roles.Equals("All", StringComparison.OrdinalIgnoreCase))
+        {
+            baseSql += " AND Id IN (SELECT UserId FROM UserRoles WHERE RoleName = @RoleName)";
+            parameters.Add("RoleName", query.Roles);
+        }
+
+        if (!isAdmin)
+        {
+            baseSql += " AND Id IN (SELECT UserId FROM UserRoles WHERE RoleName = @RoleName)";
+            parameters.Add("RoleName", "Client");
         }
 
         var skipNumber = (query.Page - 1) * query.PageSize;

@@ -51,17 +51,17 @@ public static class UserEndpoints
         // .RequireAuthorization("AdminRoleAndPasswordUpdatedPolicy")
         .EndpointValidationFilter<UserRegistrationDTO>()
         .WithName("RegisterClient");
-        
-        //// https://localhost:7089/api/v1/login
-        //app.MapPost("/api/v1/login", UserEndpointsLogic.UserLoginLogicAsync)
-        //.EndpointValidationFilter<LoginDTO>()
-        //.WithName("UserLogin");
 
-        //// https://localhost:7089/api/v1/users/update-password
-        //app.MapPost("/api/v1/users/update-password", UserEndpointsLogic.UpdatePasswordLogicAsync)
-        //.RequireAuthorization()
-        //.EndpointValidationFilter<UpdatePasswordDTO>()
-        //.WithName("UpdatePassword");
-        
+        // https://localhost:7089/api/v1/login
+        app.MapPost("/api/v1/login", UserEndpointsLogic.UserLoginLogicAsync)
+        .EndpointValidationFilter<LoginDTO>()
+        .WithName("UserLogin");
+
+        // https://localhost:7089/api/v1/users/update-password
+        app.MapPost("/api/v1/users/update-password", UserEndpointsLogic.UpdatePasswordLogicAsync)
+        .RequireAuthorization()
+        .EndpointValidationFilter<UpdatePasswordDTO>()
+        .WithName("UpdatePassword");
+
     }
 }

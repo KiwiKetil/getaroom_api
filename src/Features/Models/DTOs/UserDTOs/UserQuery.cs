@@ -9,5 +9,6 @@ public record UserQuery
     string SortBy = "LastName",
     string Order = "ASC",
     int Page = 1,
-    int PageSize = 10
+    int PageSize = 10,
+    string? Roles = null
 );

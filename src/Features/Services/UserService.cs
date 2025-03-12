@@ -1,16 +1,16 @@
 ﻿using AutoMapper;
-using GetARoomAPI.Core.DB.UnitOFWork;
 using GetARoomAPI.Core.DB.UnitOFWork.Interfaces;
 using GetARoomAPI.Features.Models.DTOs.UserDTOs;
 using GetARoomAPI.Features.Models.Entities;
 using GetARoomAPI.Features.Models.Enums;
 using GetARoomAPI.Features.Repositories.Interfaces;
 using GetARoomAPI.Features.Services.Interfaces;
+using System.Security.Claims;
 
 namespace GetARoomAPI.Features.Services;
 
 public class UserService(IUserRepository userRepository, IUserRoleRepository userRoleRepository, IPasswordVerificationService passwordVerificationService,
-    IPasswordHistoryRepository passwordHistoryRepository, ITokenGenerator tokenGenerator, IMapper mapper, IUnitOfWorkFactory unitOfWorkFactory, ILogger<UserService> logger) : IUserService
+    IPasswordHistoryRepository passwordHistoryRepository, ITokenGenerator tokenGenerator, IMapper mapper, IUnitOfWorkFactory unitOfWorkFactory, IHttpContextAccessor httpContextAccessor, ILogger<UserService> logger) : IUserService
 {
     private readonly IUserRepository _userRepository = userRepository;
     private readonly IUserRoleRepository _userRoleRepository = userRoleRepository;
@@ -19,13 +19,16 @@ public class UserService(IUserRepository userRepository, IUserRoleRepository use
     private readonly ITokenGenerator _tokenGenerator = tokenGenerator;
     private readonly IMapper _mapper = mapper;
     private readonly IUnitOfWorkFactory _unitOfWorkFactory = unitOfWorkFactory;
+    private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
     private readonly ILogger<UserService> _logger = logger;
 
     public async Task<UsersWithCountDTO> GetUsersAsync(UserQuery query)
     {
         _logger.LogDebug("Retrieving users");
+        var claimsPrincipal = _httpContextAccessor.HttpContext?.User!;
+        var isAdmin = claimsPrincipal.Claims.Any(c => c.Type == ClaimTypes.Role && c.Value.Equals("admin", StringComparison.OrdinalIgnoreCase));
 
-        var (users, totalCount) = await _userRepository.GetUsersAsync(query);
+        var (users, totalCount) = await _userRepository.GetUsersAsync(query, isAdmin);
         var dtos = users.Select(user => _mapper.Map<UserDTO>(user)).ToList();
         return new UsersWithCountDTO(totalCount, dtos);
     }
@@ -103,12 +106,12 @@ public class UserService(IUserRepository userRepository, IUserRoleRepository use
             var userDTO = _mapper.Map<UserDTO>(res);
             return userDTO;
         }
-        catch (Exception ex) 
+        catch (Exception ex)
         {
             _logger.LogCritical(ex, "Error in UoW with ID: {UnitOfWorkId}. Rolling back...", unitOfWork.Id);
             await unitOfWork.RollbackAsync();
             return null;
-        }      
+        }
     }
 
     public async Task<string?> UserLoginAsync(LoginDTO dto)
@@ -190,5 +193,5 @@ public class UserService(IUserRepository userRepository, IUserRoleRepository use
         var userRoles = await _userRoleRepository.GetUserRolesAsync(user.Id);
         var token = _tokenGenerator.GenerateToken(user, true, userRoles);
         return token;
-    }   
+    }
 }
