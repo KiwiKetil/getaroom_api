@@ -11,7 +11,7 @@ public static class UserEndpoints
     {
         // https://localhost:7089/api/v1/users?page=1&pageSize=10     
         app.MapGet("/api/v1/users", UserEndpointsLogic.GetUsersLogicAsync)
-        //.RequireAuthorization("EmployeeOrAdminRoleAndPasswordUpdatedPolicy")
+        .RequireAuthorization("EmployeeOrAdminRoleAndPasswordUpdatedPolicy")
         .WithName("GetUsers"); 
 
         //// https://localhost:7089/api/v1/users/887ac10b-58cc-4372-a567-0e02b2c3d493 // admin only
