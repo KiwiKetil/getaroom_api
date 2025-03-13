@@ -247,7 +247,7 @@ public class UserServiceTests
     public async Task UserLoginAsync_WhenUserWasNotFound_ReturnsNull(LoginDTO loginDTO, User user, IEnumerable<UserRole> roles)
     {
         // Arrange
-        _userRepositoryMock.Setup(x => x.GetUserByEmailAsync(loginDTO.Email))
+        _userRepositoryMock.Setup(x => x.GetUserByEmailAsync(loginDTO.Username))
             .ReturnsAsync((User?)null);
 
         // Act
@@ -265,7 +265,7 @@ public class UserServiceTests
     public async Task UserLoginAsync_WhenPasswordVerificationFails_ReturnsNull(LoginDTO loginDTO, User user, IEnumerable<UserRole> roles)
     {
         // Arrange
-        _userRepositoryMock.Setup(x => x.GetUserByEmailAsync(loginDTO.Email))
+        _userRepositoryMock.Setup(x => x.GetUserByEmailAsync(loginDTO.Username))
             .ReturnsAsync(user);
         _passwordVerificationServiceMock.Setup(x => x.VerifyPassword(loginDTO, user))
             .Returns(false);
@@ -284,7 +284,7 @@ public class UserServiceTests
     public async Task UserLoginAsync_WhenSuccess_ReturnsValidToken(LoginDTO loginDTO, User user, IEnumerable<UserRole> roles)
     {
         // Arrange
-        _userRepositoryMock.Setup(x => x.GetUserByEmailAsync(loginDTO.Email))
+        _userRepositoryMock.Setup(x => x.GetUserByEmailAsync(loginDTO.Username))
             .ReturnsAsync(user);
         _passwordVerificationServiceMock.Setup(x => x.VerifyPassword(loginDTO, user))
             .Returns(true);
@@ -313,7 +313,7 @@ public class UserServiceTests
         IEnumerable<UserRole> roles)
     {
         //Arrange
-        _userRepositoryMock.Setup(x => x.GetUserByEmailAsync(updatePasswordDTO.Email))
+        _userRepositoryMock.Setup(x => x.GetUserByEmailAsync(updatePasswordDTO.Username))
             .ReturnsAsync((User?)null);
 
         //Act
@@ -335,7 +335,7 @@ public class UserServiceTests
         IEnumerable<UserRole> roles)
     {
         //Arrange
-        _userRepositoryMock.Setup(x => x.GetUserByEmailAsync(updatePasswordDTO.Email))
+        _userRepositoryMock.Setup(x => x.GetUserByEmailAsync(updatePasswordDTO.Username))
             .ReturnsAsync(user);
         _passwordVerificationServiceMock.Setup(x => x.VerifyPassword(updatePasswordDTO, user))
             .Returns(false);
@@ -358,7 +358,7 @@ public class UserServiceTests
         IEnumerable<UserRole> roles)
     {
         //Arrange
-        _userRepositoryMock.Setup(x => x.GetUserByEmailAsync(updatePasswordDTO.Email))
+        _userRepositoryMock.Setup(x => x.GetUserByEmailAsync(updatePasswordDTO.Username))
             .ReturnsAsync(user);
         _passwordVerificationServiceMock.Setup(x => x.VerifyPassword(updatePasswordDTO, user))
             .Returns(true);
@@ -396,7 +396,7 @@ public class UserServiceTests
     IEnumerable<UserRole> roles)
     {
         //Arrange
-        _userRepositoryMock.Setup(x => x.GetUserByEmailAsync(updatePasswordDTO.Email))
+        _userRepositoryMock.Setup(x => x.GetUserByEmailAsync(updatePasswordDTO.Username))
             .ReturnsAsync(user);
         _passwordVerificationServiceMock.Setup(x => x.VerifyPassword(updatePasswordDTO, user))
             .Returns(true);
@@ -434,7 +434,7 @@ public class UserServiceTests
     public async Task UpdatePasswordAsync_WhenSuccess_ReturnsTokenWithValidData(UpdatePasswordDTO updatePasswordDTO, User user, IEnumerable<UserRole> roles)
     {
         // Arrange
-        _userRepositoryMock.Setup(x => x.GetUserByEmailAsync(updatePasswordDTO.Email))
+        _userRepositoryMock.Setup(x => x.GetUserByEmailAsync(updatePasswordDTO.Username))
             .ReturnsAsync(user);
         _passwordVerificationServiceMock.Setup(x => x.VerifyPassword(updatePasswordDTO, user))
             .Returns(true);

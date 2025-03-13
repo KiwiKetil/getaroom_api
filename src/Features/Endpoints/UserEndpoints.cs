@@ -14,7 +14,7 @@ public static class UserEndpoints
         .RequireAuthorization("EmployeeOrAdminWithUpdatedPasswordPolicy")
         .WithName("GetUsers");
 
-        // https://localhost:7089/api/v1/users/887ac10b-58cc-4372-a567-0e02b2c3d493 // admin only
+        // https://localhost:7089/api/v1/users/887ac10b-58cc-4372-a567-0e02b2c3d493 
         app.MapGet("/api/v1/users/{id}", UserEndpointsLogic.GetUserByIdLogicAsync)
         .RequireAuthorization("AdminWithUpdatedPasswordPolicy")
         .WithName("GetUserById");
@@ -25,18 +25,20 @@ public static class UserEndpoints
         .EndpointValidationFilter<UserUpdateDTO>()
         .WithName("UpdateUser");
 
-        //// https://localhost:7089/api/v1/users/6d7b1ca5-54f6-4859-a746-fc712d564128  // admin only
-        //app.MapDelete("/api/v1/users/{id}", UserEndpointsLogic.DeleteUserLogicAsync)
-        //.RequireAuthorization("AdminRoleAndPasswordUpdatedPolicy")
-        //.WithName("DeleteUser");
+        // https://localhost:7089/api/v1/users/6d7b1ca5-54f6-4859-a746-fc712d564128 
+        app.MapDelete("/api/v1/users/{id}", UserEndpointsLogic.DeleteUserLogicAsync)
+        .RequireAuthorization("AdminRoleAndPasswordUpdatedPolicy")
+        .WithName("DeleteUser");
 
-        // https://localhost:7089/api/v1/employees/register  // register employee, admin only
+        // https://localhost:7089/api/v1/employees/register  // register employee, admin only // samel emd den under, kun 1 register? hmm.. when register employee - employee gets email to set own passsword!
         app.MapPost("/api/v1/employees/register", UserEndpointsLogic.RegisterEmployeeLogicAsync)
         //.RequireAuthorization("AdminRoleAndPasswordUpdatedPolicy")
         .EndpointValidationFilter<UserRegistrationDTO>()
         .WithName("RegisterEmployee");
 
-        // https://localhost:7089/api/v1/clients/register   // this will register client, employee only
+        // https://localhost:7089/api/v1/clients/register   // this will register client. Employee can register at desk and client can at home, admin can. If register at desk, client gets
+                                                            // email - confirm and set password? if they want acceess to bookings etc. If register at home - client sets password and done.
+                                                            
         app.MapPost("/api/v1/clients/register", UserEndpointsLogic.RegisterClientLogicAsync)
         // .RequireAuthorization("AdminRoleAndPasswordUpdatedPolicy")
         .EndpointValidationFilter<UserRegistrationDTO>()

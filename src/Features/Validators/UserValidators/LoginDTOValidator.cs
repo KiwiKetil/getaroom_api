@@ -9,7 +9,7 @@ public class LoginDTOValidator : AbstractValidator<LoginDTO>
 
     public LoginDTOValidator()
     {
-        RuleFor(x => x.Email)
+        RuleFor(x => x.Username)
             .NotEmpty()
             .EmailAddress();
 
