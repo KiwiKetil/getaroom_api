@@ -35,12 +35,6 @@ public static class UserEndpointsLogic
     {
         logger.LogDebug("Retrieving user with ID {userId}", id);
 
-        var authorizationResult = await authorizationService.AuthorizeAsync(claims, id, "UserIdAccessPolicy");
-        if (!authorizationResult.Succeeded)
-        {
-            return Results.Forbid();
-        }
-
         var userDTO = await userService.GetUserByIdAsync(id);
         return userDTO != null
             ? Results.Ok(userDTO)
@@ -56,12 +50,6 @@ public static class UserEndpointsLogic
         ILogger<Program> logger)
     {
         logger.LogDebug("Updating user with ID {userId}", id);
-
-        var authorizationResult = await authorizationService.AuthorizeAsync(claims, id, "UserIdAccessPolicy");
-        if (!authorizationResult.Succeeded)
-        {
-            return Results.Forbid();
-        }
 
         var userDTO = await userService.UpdateUserAsync(id, dto);
         return userDTO != null

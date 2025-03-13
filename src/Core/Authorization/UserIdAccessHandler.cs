@@ -3,7 +3,7 @@ using System.Security.Claims;
 
 namespace GetARoomAPI.Core.Authorization;
 
-public class UserIdAccessHandler : AuthorizationHandler<UserIdAccessRequirement, Guid>
+public class UserIdAccessHandler : AuthorizationHandler<UserIdAccessRequirement, Guid> // This handler/ requirement might be obsolete after changes/ update to getARoomapi
 {
     protected override Task HandleRequirementAsync(AuthorizationHandlerContext context,
                                                     UserIdAccessRequirement requirement,
@@ -14,6 +14,7 @@ public class UserIdAccessHandler : AuthorizationHandler<UserIdAccessRequirement,
             context.Succeed(requirement);
             return Task.CompletedTask;
         }
+
         var userIdClaim = context.User.FindFirst("sub") ?? context.User.FindFirst(ClaimTypes.NameIdentifier);
 
         if (userIdClaim != null && userIdClaim.Value == resource.ToString())
