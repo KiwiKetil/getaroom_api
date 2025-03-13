@@ -21,14 +21,14 @@ public static class UserEndpoints
 
         // https://localhost:7089/api/v1/users/b97ac10b-58cc-4372-a567-0e02b2c3d490
         app.MapPut("/api/v1/users/{id}", UserEndpointsLogic.UpdateUserLogicAsync)
-        .RequireAuthorization("EmployeeOrAdminWithUpdatedPasswordPolicy") // employee can update all clients, or self. if admin can update any. If client nada as its a closed system.
+        .RequireAuthorization("EmployeeOrAdminWithUpdatedPasswordPolicy") 
         .EndpointValidationFilter<UserUpdateDTO>()
         .WithName("UpdateUser");
 
-        //// https://localhost:7089/api/v1/users/6d7b1ca5-54f6-4859-a746-fc712d564128  // admin only
-        //app.MapDelete("/api/v1/users/{id}", UserEndpointsLogic.DeleteUserLogicAsync)
-        //.RequireAuthorization("AdminRoleAndPasswordUpdatedPolicy")
-        //.WithName("DeleteUser");
+        // https://localhost:7089/api/v1/users/6d7b1ca5-54f6-4859-a746-fc712d564128  // admin only
+        app.MapDelete("/api/v1/users/{id}", UserEndpointsLogic.DeleteUserLogicAsync)
+        .RequireAuthorization("AdminRoleAndPasswordUpdatedPolicy")
+        .WithName("DeleteUser");
 
         // https://localhost:7089/api/v1/employees/register  // register employee, admin only
         app.MapPost("/api/v1/employees/register", UserEndpointsLogic.RegisterEmployeeLogicAsync)
