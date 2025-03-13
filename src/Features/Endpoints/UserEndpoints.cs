@@ -23,9 +23,9 @@ public static class UserEndpoints
         app.MapPut("/api/v1/users/{id}", UserEndpointsLogic.UpdateUserLogicAsync)
         .RequireAuthorization(/*"EmployeeOrAdminWithUpdatedPasswordPolicy"*/) // employees can only update clients. Admin can update all. Missing: Client can update self // chenge policy chained..
         .EndpointValidationFilter<UserUpdateDTO>()
-        .WithName("UpdateUser");
+        .WithName("UpdateUser");       
 
-        // https://localhost:7089/api/v1/users/6d7b1ca5-54f6-4859-a746-fc712d564128 
+        // https://localhost:7089/api/v1/users/6d7b1ca5-54f6-4859-a746-fc712d564128  // admin only
         app.MapDelete("/api/v1/users/{id}", UserEndpointsLogic.DeleteUserLogicAsync)
         .RequireAuthorization("AdminRoleAndPasswordUpdatedPolicy")
         .WithName("DeleteUser");
