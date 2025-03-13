@@ -2,6 +2,6 @@
 
 public interface IVerifyUserCredentials
 {
-    string Email { get; init; }
+    string Username { get; init; }
     string Password { get; init; }
 }

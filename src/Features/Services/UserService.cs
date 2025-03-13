@@ -68,7 +68,7 @@ public class UserService(
             .Select(c => c.Value)
             .ToList();
 
-        if (!roles.Contains("Admin")) 
+        if (!(roles.Contains("Admin") || roles.Contains("Client")))
         {
             var userRoles = await _userRoleRepository.GetUserRolesAsync(new UserId(id));
 
@@ -148,7 +148,7 @@ public class UserService(
     {
         _logger.LogDebug("User logging in");
 
-        var user = await _userRepository.GetUserByEmailAsync(dto.Email);
+        var user = await _userRepository.GetUserByEmailAsync(dto.Username);
         if (user == null)
         {
             _logger.LogDebug("User not found");
@@ -175,7 +175,7 @@ public class UserService(
     {
         _logger.LogDebug("Updating password");
 
-        var user = await _userRepository.GetUserByEmailAsync(dto.Email);
+        var user = await _userRepository.GetUserByEmailAsync(dto.Username);
         if (user is null)
         {
             _logger.LogInformation("User not found");
@@ -218,7 +218,7 @@ public class UserService(
             return null;
         }
 
-        _logger.LogInformation("Password updated successfully for user {Email}", dto.Email);
+        _logger.LogInformation("Password updated successfully for user {Email}", dto.Username);
 
         var userRoles = await _userRoleRepository.GetUserRolesAsync(user.Id);
         var token = _tokenGenerator.GenerateToken(user, true, userRoles);

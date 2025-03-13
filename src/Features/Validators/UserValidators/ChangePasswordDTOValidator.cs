@@ -9,7 +9,7 @@ public class ChangePasswordDTOValidator : AbstractValidator<UpdatePasswordDTO>
 
     public ChangePasswordDTOValidator()
     {
-        RuleFor(x => x.Email)
+        RuleFor(x => x.Username)
             .NotEmpty()
             .EmailAddress();
 

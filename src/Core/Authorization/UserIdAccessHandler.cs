@@ -3,13 +3,13 @@ using System.Security.Claims;
 
 namespace GetARoomAPI.Core.Authorization;
 
-public class UserIdAccessHandler : AuthorizationHandler<UserIdAccessRequirement, Guid> // This handler/ requirement might be obsolete after changes/ update to getARoomapi
+public class UserIdAccessHandler : AuthorizationHandler<UserIdAccessRequirement, Guid> 
 {
     protected override Task HandleRequirementAsync(AuthorizationHandlerContext context,
                                                     UserIdAccessRequirement requirement,
                                                     Guid resource)
     {
-        if (context.User.IsInRole("Admin"))
+        if (context.User.IsInRole("Admin") || context.User.IsInRole("Employee"))
         {
             context.Succeed(requirement);
             return Task.CompletedTask;
