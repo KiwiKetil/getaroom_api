@@ -19,9 +19,9 @@ public static class UserEndpoints
         .RequireAuthorization("AdminWithUpdatedPasswordPolicy")
         .WithName("GetUserById");
 
-        // https://localhost:7089/api/v1/users/b97ac10b-58cc-4372-a567-0e02b2c3d490
+        // https://localhost:7089/api/v1/users/b97ac10b-58cc-4372-a567-0e02b2c3d490 // jobb med og test denne først
         app.MapPut("/api/v1/users/{id}", UserEndpointsLogic.UpdateUserLogicAsync)
-        .RequireAuthorization("EmployeeOrAdminWithUpdatedPasswordPolicy") // employee can update all clients, or self. if admin can update any. If client nada as its a closed system.
+        .RequireAuthorization(/*"EmployeeOrAdminWithUpdatedPasswordPolicy"*/) // employees can only update clients. Admin can update all. Missing: Client can update self // chenge policy chained..
         .EndpointValidationFilter<UserUpdateDTO>()
         .WithName("UpdateUser");
 

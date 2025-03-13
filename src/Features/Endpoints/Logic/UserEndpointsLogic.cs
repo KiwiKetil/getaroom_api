@@ -51,6 +51,12 @@ public static class UserEndpointsLogic
     {
         logger.LogDebug("Updating user with ID {userId}", id);
 
+        var authorizationResult = await authorizationService.AuthorizeAsync(claims, id, "UserIdAccessPolicy");
+        if (!authorizationResult.Succeeded)
+        {
+            return Results.Forbid();
+        }
+
         var userDTO = await userService.UpdateUserAsync(id, dto);
         return userDTO != null
             ? Results.Ok(userDTO)

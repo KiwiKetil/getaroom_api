@@ -68,7 +68,7 @@ public class UserService(
             .Select(c => c.Value)
             .ToList();
 
-        if (!roles.Contains("Admin")) 
+        if (!(roles.Contains("Admin") || roles.Contains("Client")))
         {
             var userRoles = await _userRoleRepository.GetUserRolesAsync(new UserId(id));
 
