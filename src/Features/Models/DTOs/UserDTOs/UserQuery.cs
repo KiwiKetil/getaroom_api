@@ -12,5 +12,5 @@ public record UserQuery
     string Order = "ASC",
     int Page = 1,
     int PageSize = 10,
-    [FromQuery] string[]? Roles = null
+    string[]? Roles = null
     );

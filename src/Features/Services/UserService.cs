@@ -6,12 +6,21 @@ using GetARoomAPI.Features.Models.Enums;
 using GetARoomAPI.Features.Repositories.Interfaces;
 using GetARoomAPI.Features.Services.Interfaces;
 using MySqlX.XDevAPI;
+using System.Linq;
 using System.Security.Claims;
 
 namespace GetARoomAPI.Features.Services;
 
-public class UserService(IUserRepository userRepository, IUserRoleRepository userRoleRepository, IPasswordVerificationService passwordVerificationService,
-    IPasswordHistoryRepository passwordHistoryRepository, ITokenGenerator tokenGenerator, IMapper mapper, IUnitOfWorkFactory unitOfWorkFactory, IHttpContextAccessor httpContextAccessor, ILogger<UserService> logger) : IUserService
+public class UserService(
+    IUserRepository userRepository,
+    IUserRoleRepository userRoleRepository, 
+    IPasswordVerificationService passwordVerificationService,
+    IPasswordHistoryRepository passwordHistoryRepository,
+    ITokenGenerator tokenGenerator, 
+    IMapper mapper,
+    IUnitOfWorkFactory unitOfWorkFactory, 
+    IHttpContextAccessor httpContextAccessor, 
+    ILogger<UserService> logger) : IUserService
 {
     private readonly IUserRepository _userRepository = userRepository;
     private readonly IUserRoleRepository _userRoleRepository = userRoleRepository;
@@ -54,6 +63,21 @@ public class UserService(IUserRepository userRepository, IUserRoleRepository use
     {
         _logger.LogDebug("Updating user with ID {userId}", id);
 
+        var claimsPrincipal = _httpContextAccessor.HttpContext?.User!;
+        var roles = claimsPrincipal.FindAll(ClaimTypes.Role)
+            .Select(c => c.Value)
+            .ToList();
+
+        if (!roles.Contains("Admin")) 
+        {
+            var userRoles = await _userRoleRepository.GetUserRolesAsync(new UserId(id));
+
+            if (!userRoles.Any(r => r.RoleName == "Client"))
+            {
+                throw new UnauthorizedAccessException("Employees can only update client users.");
+            }
+        }
+
         var user = _mapper.Map<User>(dto);
         var res = await _userRepository.UpdateUserAsync(new UserId(id), user);
 
@@ -73,7 +97,7 @@ public class UserService(IUserRepository userRepository, IUserRoleRepository use
 
     public async Task<UserDTO?> RegisterUserAsync(UserRegistrationDTO dto, UserRoles role)
     {
-        _logger.LogDebug("Registering user");
+        _logger.LogInformation("Registering user");
 
         var existingUser = await _userRepository.GetUserByEmailAsync(dto.Email);
 
@@ -103,7 +127,6 @@ public class UserService(IUserRepository userRepository, IUserRoleRepository use
 
             if (!roleAdded)
             {
-                _logger.LogDebug("Assigning role failed");
                 throw new InvalidOperationException("Failed to assign role to the user.");
             }
 
@@ -150,19 +173,19 @@ public class UserService(IUserRepository userRepository, IUserRoleRepository use
 
     public async Task<string?> UpdatePasswordAsync(UpdatePasswordDTO dto)
     {
-        _logger.LogDebug("Updating password for user {Email}", dto.Email);
+        _logger.LogDebug("Updating password");
 
         var user = await _userRepository.GetUserByEmailAsync(dto.Email);
         if (user is null)
         {
-            _logger.LogError("User not found by email {Email}", dto.Email);
+            _logger.LogInformation("User not found");
             return null;
         }
 
         var verified = _passwordVerificationService.VerifyPassword(dto, user);
         if (!verified)
         {
-            _logger.LogError("Verification failed");
+            _logger.LogInformation("Verification failed");
             return null;
         }
 

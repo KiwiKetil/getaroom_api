@@ -10,6 +10,11 @@ public class GlobalExceptionMiddleware(ILogger<GlobalExceptionMiddleware> logger
         {
             await next(context);
         }
+        catch (UnauthorizedAccessException ex)
+        {
+            context.Response.StatusCode = StatusCodes.Status403Forbidden;
+            await context.Response.WriteAsync(ex.Message);
+        }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Something went wrong - test exception {@Machine} {@TraceId}",

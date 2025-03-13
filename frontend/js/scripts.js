@@ -5,6 +5,9 @@ let currentPage = 1;
 const pageSize = 10;
 let currentFilters = {};
 
+ // for testing this token lifetime is extended
+ let token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmNDdhYzEwYi01OGNjLTQzNzItYTU2Ny0wZTAyYjJjM2Q0NzEiLCJ1bmlxdWVfbmFtZSI6InNhcmFoQGV4YW1wbGUuY29tIiwicGFzc3dvcmRVcGRhdGVkIjoidHJ1ZSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6WyJBZG1pbiIsIlVzZXIiXSwiZXhwIjoxNzczMjE4MTQxLCJpc3MiOiJnZXRBcm9vbV9BUEkiLCJhdWQiOiJnZXRBcm9vbV9BUEkifQ.SUMYes6mCCjciRkpvvwazgI6QH_lhME5Y9IsENlUEuM";
+
 if(currentHtmlPage === "usersBody")
     window.onload = function () {
         fetchUsers(true);
@@ -47,8 +50,7 @@ async function fetchUsers(resetPage = false, filters = {}) {
             url += `&${encodeURIComponent(key)}=${encodeURIComponent(filters[key])}`;
         }
     });
-    // for testing this token lifetime is extended
-      let token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmNDdhYzEwYi01OGNjLTQzNzItYTU2Ny0wZTAyYjJjM2Q0NzEiLCJ1bmlxdWVfbmFtZSI6InNhcmFoQGV4YW1wbGUuY29tIiwicGFzc3dvcmRVcGRhdGVkIjoidHJ1ZSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6WyJBZG1pbiIsIlVzZXIiXSwiZXhwIjoxNzczMjE4MTQxLCJpc3MiOiJnZXRBcm9vbV9BUEkiLCJhdWQiOiJnZXRBcm9vbV9BUEkifQ.SUMYes6mCCjciRkpvvwazgI6QH_lhME5Y9IsENlUEuM";
+   
     // Build the fetch options object with headers
     const fetchOptions = {
         headers: {
@@ -108,8 +110,15 @@ async function fetchUserById (userId) {
 
     const url = `${apiBaseUrl}/api/v1/users/${userId}`;
 
+        // Build the fetch options object with headers
+        const fetchOptions = {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        };      
+
     try {
-        const response = await fetch(url);
+        const response = await fetch(url, fetchOptions);
 
         if (!response.ok) {
             if (response.status === 404) {
