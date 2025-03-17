@@ -63,20 +63,20 @@ public class UserService(
     {
         _logger.LogDebug("Updating user with ID {userId}", id);
 
-        var claimsPrincipal = _httpContextAccessor.HttpContext?.User!;
-        var roles = claimsPrincipal.FindAll(ClaimTypes.Role)
-            .Select(c => c.Value)
-            .ToList();
+        //var claimsPrincipal = _httpContextAccessor.HttpContext?.User!;
+        //var roles = claimsPrincipal.FindAll(ClaimTypes.Role)
+        //    .Select(c => c.Value)
+        //    .ToList();
 
-        if (!(roles.Contains("Admin") || roles.Contains("Client")))
-        {
-            var userRoles = await _userRoleRepository.GetUserRolesAsync(new UserId(id));
+        //if (!(roles.Contains("Admin") || roles.Contains("Client")))
+        //{
+        //    var userRoles = await _userRoleRepository.GetUserRolesAsync(new UserId(id));
 
-            if (!userRoles.Any(r => r.RoleName == "Client"))
-            {
-                throw new UnauthorizedAccessException("Employees can only update client users.");
-            }
-        }
+        //    if (!userRoles.Any(r => r.RoleName == "Client"))
+        //    {
+        //        throw new UnauthorizedAccessException("Employees can only update client users.");
+        //    }
+        //}
 
         var user = _mapper.Map<User>(dto);
         var res = await _userRepository.UpdateUserAsync(new UserId(id), user);
@@ -88,6 +88,12 @@ public class UserService(
     public async Task<UserDTO?> DeleteUserAsync(Guid id)
     {
         _logger.LogDebug("Deleting user with ID {userId}", id);
+
+        var userTodeleteRoles = await _userRoleRepository.GetUserRolesAsync(new UserId(id));
+        if (userTodeleteRoles.Any(role => role.RoleName.Equals("Admin", StringComparison.OrdinalIgnoreCase)))
+        {
+            throw new UnauthorizedAccessException("Admin users cannot be deleted.");
+        }
 
         var user = await _userRepository.DeleteUserAsync(new UserId(id));
 

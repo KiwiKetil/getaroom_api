@@ -21,18 +21,18 @@ public static class UserEndpoints
 
         // https://localhost:7089/api/v1/users/b97ac10b-58cc-4372-a567-0e02b2c3d490 // jobb med og test denne først
         app.MapPut("/api/v1/users/{id}", UserEndpointsLogic.UpdateUserLogicAsync)
-        .RequireAuthorization(/*"EmployeeOrAdminWithUpdatedPasswordPolicy"*/) // employees can only update clients. Admin can update all. Missing: Client can update self // chenge policy chained..
+        .RequireAuthorization(/*"EmployeeOrAdminWithUpdatedPasswordPolicy"*/) // employees can only update clients. Admin can update all. Missing: Client can update self // change policy chained..
         .EndpointValidationFilter<UserUpdateDTO>()
         .WithName("UpdateUser");       
 
-        // https://localhost:7089/api/v1/users/6d7b1ca5-54f6-4859-a746-fc712d564128  // admin only
+        // https://localhost:7089/api/v1/users/6d7b1ca5-54f6-4859-a746-fc712d564128  // admin only // add so that admin cannot delete admin
         app.MapDelete("/api/v1/users/{id}", UserEndpointsLogic.DeleteUserLogicAsync)
-        .RequireAuthorization("AdminRoleAndPasswordUpdatedPolicy")
+        .RequireAuthorization("AdminWithUpdatedPasswordPolicy")
         .WithName("DeleteUser");
 
         // https://localhost:7089/api/v1/employees/register  // register employee, admin only // samel emd den under, kun 1 register? hmm.. when register employee - employee gets email to set own passsword!
         app.MapPost("/api/v1/employees/register", UserEndpointsLogic.RegisterEmployeeLogicAsync)
-        //.RequireAuthorization("AdminRoleAndPasswordUpdatedPolicy")
+        //.RequireAuthorization("AdminWithUpdatedPasswordPolicy")
         .EndpointValidationFilter<UserRegistrationDTO>()
         .WithName("RegisterEmployee");
 
@@ -40,7 +40,7 @@ public static class UserEndpoints
                                                             // email - confirm and set password? if they want acceess to bookings etc. If register at home - client sets password and done.
                                                             
         app.MapPost("/api/v1/clients/register", UserEndpointsLogic.RegisterClientLogicAsync)
-        // .RequireAuthorization("AdminRoleAndPasswordUpdatedPolicy")
+        // .RequireAuthorization("AdminWithUpdatedPasswordPolicy")
         .EndpointValidationFilter<UserRegistrationDTO>()
         .WithName("RegisterClient");
 
