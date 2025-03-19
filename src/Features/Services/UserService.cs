@@ -61,22 +61,7 @@ public class UserService(
 
     public async Task<UserDTO?> UpdateUserAsync(Guid id, UserUpdateDTO dto)
     {
-        _logger.LogDebug("Updating user with ID {userId}", id);
-
-        //var claimsPrincipal = _httpContextAccessor.HttpContext?.User!;
-        //var roles = claimsPrincipal.FindAll(ClaimTypes.Role)
-        //    .Select(c => c.Value)
-        //    .ToList();
-
-        //if (!(roles.Contains("Admin") || roles.Contains("Client")))
-        //{
-        //    var userRoles = await _userRoleRepository.GetUserRolesAsync(new UserId(id));
-
-        //    if (!userRoles.Any(r => r.RoleName == "Client"))
-        //    {
-        //        throw new UnauthorizedAccessException("Employees can only update client users.");
-        //    }
-        //}
+        _logger.LogDebug("Updating user with ID {userId}", id);  
 
         var user = _mapper.Map<User>(dto);
         var res = await _userRepository.UpdateUserAsync(new UserId(id), user);

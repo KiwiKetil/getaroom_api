@@ -31,13 +31,13 @@ public static class UserEndpoints
         .WithName("DeleteUser");
 
         // https://localhost:7089/api/v1/employees/register 
-        app.MapPost("/api/v1/employees/register", UserEndpointsLogic.RegisterEmployeeLogicAsync) 
+        app.MapPost("/api/v1/employees/register", UserEndpointsLogic.RegisterEmployeeLogicAsync)
+        .RequireAuthorization("AdminWithUpdatedPasswordPolicy")
         .EndpointValidationFilter<UserRegistrationDTO>()
         .WithName("RegisterEmployee");
 
         // https://localhost:7089/api/v1/clients/register                                                               
         app.MapPost("/api/v1/clients/register", UserEndpointsLogic.RegisterClientLogicAsync)
-        // .RequireAuthorization("AdminWithUpdatedPasswordPolicy")
         .EndpointValidationFilter<UserRegistrationDTO>()
         .WithName("RegisterClient");
 

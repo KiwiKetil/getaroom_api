@@ -29,8 +29,6 @@ public static class UserEndpointsLogic
     public static async Task<IResult> GetUserByIdLogicAsync(
         [FromRoute] Guid id,
         IUserService userService,
-        IAuthorizationService authorizationService,
-        ClaimsPrincipal claims,
         ILogger<Program> logger)
     {
         logger.LogDebug("Retrieving user with ID {userId}", id);
@@ -99,7 +97,7 @@ public static class UserEndpointsLogic
         var userDTO = await userService.RegisterUserAsync(dto, UserRoles.Client);
         return userDTO != null
             ? Results.Ok(userDTO)
-            : Results.Conflict(new ErrorResponse(Message: "client could not be registered"));
+            : Results.Conflict(new ErrorResponse(Message: "Client could not be registered"));
     }
 
     public static async Task<IResult> UserLoginLogicAsync(
