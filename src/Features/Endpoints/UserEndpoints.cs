@@ -30,15 +30,12 @@ public static class UserEndpoints
         .RequireAuthorization("AdminWithUpdatedPasswordPolicy")
         .WithName("DeleteUser");
 
-        // https://localhost:7089/api/v1/employees/register  // register employee, admin only // samel emd den under, kun 1 register? hmm.. when register employee - employee gets email to set own passsword!
-        app.MapPost("/api/v1/employees/register", UserEndpointsLogic.RegisterEmployeeLogicAsync) // husk if user already exist må kun throw ex alreadyexist dersom rollen er den samme.. 
-        //.RequireAuthorization("AdminWithUpdatedPasswordPolicy")
+        // https://localhost:7089/api/v1/employees/register 
+        app.MapPost("/api/v1/employees/register", UserEndpointsLogic.RegisterEmployeeLogicAsync) 
         .EndpointValidationFilter<UserRegistrationDTO>()
         .WithName("RegisterEmployee");
 
-        // https://localhost:7089/api/v1/clients/register   // this will register client. Employee can register at desk and client can at home, admin can. If register at desk, client gets
-                                                            // email - confirm and set password? if they want acceess to bookings etc. If register at home - client sets password and done.
-                                                            
+        // https://localhost:7089/api/v1/clients/register                                                               
         app.MapPost("/api/v1/clients/register", UserEndpointsLogic.RegisterClientLogicAsync)
         // .RequireAuthorization("AdminWithUpdatedPasswordPolicy")
         .EndpointValidationFilter<UserRegistrationDTO>()
