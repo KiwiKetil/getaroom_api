@@ -1,0 +1,12 @@
+DROP DATABASE IF EXISTS getaroom;
+CREATE DATABASE getaroom;
+USE getaroom;
+
+# create user
+CREATE USER IF NOT EXISTS 'YOUR_USERNAME'@'localhost' IDENTIFIED BY 'YOUR_PASSWORD';
+CREATE USER IF NOT EXISTS 'YOUR_USERNAME'@'%' IDENTIFIED BY 'YOUR_PASSWORD';
+ 
+ # grant access:
+GRANT ALL privileges ON getaroom.* TO 'YOUR_USERNAME'@'%';
+GRANT ALL privileges ON getaroom.* TO 'YOUR_USERNAME'@'localhost';
+FLUSH PRIVILEGES

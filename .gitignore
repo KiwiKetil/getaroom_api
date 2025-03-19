@@ -7,9 +7,9 @@
 *.sql
 
 # Allow these sql:
-!room_scheduler_create_tables.sql
-!room_scheduler_create_testdata.sql
-!room_scheduler_create_db.sql
+!getaroom_create_tables.sql
+!getaroom_create_testdata.sql
+!getaroom_create_db.sql
 
 .gitattributes
 
