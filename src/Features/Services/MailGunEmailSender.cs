@@ -1,45 +1,43 @@
-﻿/*using GetARoomAPI.Features.Services.Interfaces;
-using System.Net.Http.Headers;
+﻿using GetARoomAPI.Features.Services.Interfaces;
+using RestSharp;
+using RestSharp.Authenticators;
 
 namespace GetARoomAPI.Features.Services;
 
 public class MailgunEmailSender : IEmailSender
 {
-    // Replace these with your actual Mailgun details.
-    private readonly string _mailgunDomain = "YOUR_DOMAIN_NAME"; // e.g., mg.yourdomain.com
-    private readonly string _mailgunApiKey = "YOUR_MAILGUN_API_KEY";
-    private readonly string _fromEmail = "no-reply@yourdomain.com";
-    private readonly string _fromName = "Your App Name";
-
-    public async Task SendEmailAsync(string recipientEmail, string subject, string htmlMessage)
+    public async Task<RestResponse> SendEmailAsync()
     {
-        using (var client = new HttpClient())
+        // Set up the RestClient with the Mailgun API base URL and Basic Authentication.
+        var options = new RestClientOptions("https://api.mailgun.net/v3")
         {
-            // Mailgun requires HTTP Basic Auth with username "api" and the API key as the password.
-            var authToken = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes($"api:{_mailgunApiKey}"));
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", authToken);
+            // The username is "api" and the password is your API key.
+            // This code checks for an environment variable "API_KEY" and falls back to "API_KEY" if not found.
+            Authenticator = new HttpBasicAuthenticator("api", Environment.GetEnvironmentVariable("API_KEY") ?? "API_KEY")
+        };
 
-            // Mailgun endpoint for sending messages.
-            var endpoint = $"https://api.mailgun.net/v3/{_mailgunDomain}/messages";
+        var client = new RestClient(options);
 
-            // Build form content for the email.
-            var content = new MultipartFormDataContent
-            {
-                { new StringContent($"{_fromName} <{_fromEmail}>"), "from" },
-                { new StringContent(recipientEmail), "to" },
-                { new StringContent(subject), "subject" },
-                { new StringContent(htmlMessage), "html" }
-            };
+        // The endpoint includes your sandbox domain.
+        var request = new RestRequest("/sandboxb338dc2853664d609b7a2980a5e25fd7.mailgun.org/messages", Method.Post);
 
-            // Send the POST request.
-            var response = await client.PostAsync(endpoint, content);
+        // We indicate that the request body will be sent as multipart form data.
+        request.AlwaysMultipartFormData = true;
 
-            if (!response.IsSuccessStatusCode)
-            {
-                var errorContent = await response.Content.ReadAsStringAsync();
-                throw new Exception($"Error sending email via Mailgun: {response.StatusCode} - {errorContent}");
-            }
-        }
+        // Adding parameters required by Mailgun:
+        // "from" is the sender address. For sandbox, it's usually provided by Mailgun.
+        request.AddParameter("from", "Mailgun Sandbox <postmaster@sandboxb338dc2853664d609b7a2980a5e25fd7.mailgun.org>");
+        // "to" is the recipient's email address.
+        request.AddParameter("to", "ketil sveberg <ketilsveberg@gmail.com>");
+        // "subject" is the subject line.
+        request.AddParameter("subject", "Hello ketil sveberg");
+        // "text" is the plain text content of the email.
+        request.AddParameter("text", "Congratulations ketil sveberg, you just sent an email with Mailgun! You are truly awesome!");
+
+        // Execute the request asynchronously and return the response.
+        var response = await client.ExecuteAsync(request);
+        Console.WriteLine($"Status: {response.StatusCode}");
+        Console.WriteLine($"Content: {response.Content}");
+        return response;
     }
 }
-*/

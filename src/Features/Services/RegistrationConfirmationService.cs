@@ -42,13 +42,7 @@ namespace GetARoomAPI.Features.Services
             var subject = "Confirm Your Email Address";
             var message = $"Please confirm your email by clicking the following link: {confirmationUrl}";
 
-            // Log the outgoing email details.
-            Console.WriteLine($"Sending email to {email} with subject '{subject}' and message: {message}");
-
-            // Acquire the access token for Microsoft Graph via your TokenProvider.
-            var accessToken = await _tokenProvider.GetAccessTokenAsync();
-
-            await _emailSender.SendEmailAsync(accessToken, email, subject, message);
+            await _emailSender.SendEmailAsync();
         }
 
         public async Task<bool> ConfirmRegistrationAsync(string token)
