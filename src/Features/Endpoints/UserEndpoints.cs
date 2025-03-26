@@ -52,5 +52,8 @@ public static class UserEndpoints
         .EndpointValidationFilter<UpdatePasswordDTO>()
         .WithName("UpdatePassword");
 
+        // https://localhost:7089/api/v1/users/confirm-registration
+        app.MapGet("/api/v1/users/confirm-registration", UserEndpointsLogic.ConfirmRegistrationAsync)
+        .WithName("ConfirmRegistration");
     }
 }

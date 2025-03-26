@@ -1,6 +1,5 @@
 ﻿using GetARoomAPI.Features.Models.DTOs.UserDTOs;
 using GetARoomAPI.Features.Models.Enums;
-using System.Security.Claims;
 
 namespace GetARoomAPI.Features.Services.Interfaces;
 
