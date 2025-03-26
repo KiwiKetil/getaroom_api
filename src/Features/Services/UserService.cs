@@ -20,6 +20,7 @@ public class UserService(
     IMapper mapper,
     IUnitOfWorkFactory unitOfWorkFactory, 
     IHttpContextAccessor httpContextAccessor, 
+    IRegistrationConfirmationService registrationConfirmationService,
     ILogger<UserService> logger) : IUserService
 {
     private readonly IUserRepository _userRepository = userRepository;
@@ -30,6 +31,7 @@ public class UserService(
     private readonly IMapper _mapper = mapper;
     private readonly IUnitOfWorkFactory _unitOfWorkFactory = unitOfWorkFactory;
     private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
+    private readonly IRegistrationConfirmationService _registrationConfirmationService = registrationConfirmationService;
     private readonly ILogger<UserService> _logger = logger;
 
     public async Task<UsersWithCountDTO> GetUsersAsync(UserQuery query)
@@ -123,9 +125,7 @@ public class UserService(
 
             await unitOfWork.CommitAsync();
             _logger.LogInformation("Committed UoW with ID: {UnitOfWorkId}", unitOfWork.Id);
-
-            var userDTO = _mapper.Map<UserDTO>(res);
-            return userDTO;
+           
         }
         catch (Exception ex)
         {
@@ -133,6 +133,17 @@ public class UserService(
             await unitOfWork.RollbackAsync();
             return null;
         }
+        // Handle email sending outside the unit of work transaction.
+        try
+        {
+            await _registrationConfirmationService.SendConfirmationEmailAsync(user.Id, user.Email);
+        }
+        catch (Exception emailEx)
+        {
+            _logger.LogError(emailEx, "Error sending confirmation email. The user was registered but email confirmation failed.");
+        }
+        var userDTO = _mapper.Map<UserDTO>(user);
+        return userDTO;
     }
 
     public async Task<string?> UserLoginAsync(LoginDTO dto)
@@ -214,5 +225,5 @@ public class UserService(
         var userRoles = await _userRoleRepository.GetUserRolesAsync(user.Id);
         var token = _tokenGenerator.GenerateToken(user, true, userRoles);
         return token;
-    }
+    } 
 }

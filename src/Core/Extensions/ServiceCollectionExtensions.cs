@@ -71,11 +71,13 @@ public static class ServiceCollectionExtensions
 
         // ServiceLayers
         services.AddScoped<IUserService, UserService>();
+        services.AddScoped<IRegistrationConfirmationService, RegistrationConfirmationService>();
 
         // Repositories
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IUserRoleRepository, UserRoleRepository>();
         services.AddScoped<IPasswordHistoryRepository, PasswordHistoryRepository>();
+        services.AddScoped<IRegistrationConfirmationRepository, RegistrationConfirmationRepository>();
 
         // AuthenticationService
         services.AddScoped<IPasswordVerificationService, PasswordVerificationService>();
@@ -111,6 +113,9 @@ public static class ServiceCollectionExtensions
 
         // HttpContextAccessor
         services.AddHttpContextAccessor();
+
+        // EmailSender
+        services.AddScoped<IEmailSender, GraphEmailSender>();
 
         return services;
     }
