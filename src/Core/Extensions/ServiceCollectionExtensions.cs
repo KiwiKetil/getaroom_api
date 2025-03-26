@@ -115,7 +115,7 @@ public static class ServiceCollectionExtensions
         services.AddHttpContextAccessor();
 
         // EmailSender
-        services.AddScoped<IEmailSender, GraphEmailSender>();
+        services.AddScoped<IEmailSender, MailgunEmailSender>();
 
         return services;
     }
