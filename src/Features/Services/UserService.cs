@@ -162,13 +162,14 @@ public class UserService(
             _logger.LogDebug("Could not verify password");
             return null;
         }
-        var hasUpdatedPasswordTask = _passwordHistoryRepository.PasswordUpdateExistsAsync(user.Id);
+        var hasConfirmedRegistrationTask = _registrationConfirmationService.HasConfirmedRegistrationAsync(user.Id);
+
         var userRolesTask = _userRoleRepository.GetUserRolesAsync(user.Id);
-        await Task.WhenAll(hasUpdatedPasswordTask, userRolesTask);
-        var hasUpdatedPassword = await hasUpdatedPasswordTask;
+        await Task.WhenAll(hasConfirmedRegistrationTask, userRolesTask);
+        var hasConfirmedRegistration = await hasConfirmedRegistrationTask;
         var userRoles = await userRolesTask;
 
-        var token = _tokenGenerator.GenerateToken(user, hasUpdatedPassword, userRoles);
+        var token = _tokenGenerator.GenerateToken(user, hasConfirmedRegistration, userRoles);
         return token;
     }
 

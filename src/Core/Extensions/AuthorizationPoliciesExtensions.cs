@@ -9,16 +9,16 @@ public static class AuthorizationPoliciesExtensions
     {
         return builder
             // endpoint policies
-            .AddPolicy("EmployeeOrAdminWithUpdatedPasswordPolicy", policy =>
+            .AddPolicy("EmployeeOrAdminWithConfirmedRegistrationPolicy", policy =>
             {
                 policy.RequireRole("Employee", "Admin");
-                policy.RequireClaim("passwordUpdated", "true");
+                policy.RequireClaim("hasConfirmedRegistration", "true");
             })
 
-            .AddPolicy("AdminWithUpdatedPasswordPolicy", policy =>
+            .AddPolicy("AdminWithConfirmedRegistrationPolicy", policy =>
             {
                 policy.RequireRole("Admin");
-                policy.RequireClaim("passwordUpdated", "true");
+                policy.RequireClaim("hasConfirmedRegistration", "true");
             })
 
             // authorization policies

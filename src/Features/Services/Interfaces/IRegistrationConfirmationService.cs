@@ -7,4 +7,6 @@ public interface IRegistrationConfirmationService
     string GenerateConfirmationToken();
     Task SendConfirmationEmailAsync(UserId id, string email);
     Task<bool> ConfirmRegistrationAsync(string token);
+    Task<bool> HasConfirmedRegistrationAsync(UserId id);
+
 }

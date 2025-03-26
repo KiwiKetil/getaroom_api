@@ -11,12 +11,12 @@ public static class UserEndpoints
     {
         // https://localhost:7089/api/v1/users?page=1&pageSize=10     
         app.MapGet("/api/v1/users", UserEndpointsLogic.GetUsersLogicAsync)
-        .RequireAuthorization("EmployeeOrAdminWithUpdatedPasswordPolicy")
+        .RequireAuthorization("EmployeeOrAdminWithConfirmedRegistrationPolicy")
         .WithName("GetUsers");
 
         // https://localhost:7089/api/v1/users/887ac10b-58cc-4372-a567-0e02b2c3d493 
         app.MapGet("/api/v1/users/{id}", UserEndpointsLogic.GetUserByIdLogicAsync)
-        .RequireAuthorization("AdminWithUpdatedPasswordPolicy")
+        .RequireAuthorization("AdminWithConfirmedRegistrationPolicy")
         .WithName("GetUserById");
 
         // https://localhost:7089/api/v1/users/b97ac10b-58cc-4372-a567-0e02b2c3d490 
@@ -27,12 +27,12 @@ public static class UserEndpoints
 
         // https://localhost:7089/api/v1/users/6d7b1ca5-54f6-4859-a746-fc712d564128 
         app.MapDelete("/api/v1/users/{id}", UserEndpointsLogic.DeleteUserLogicAsync)
-        .RequireAuthorization("AdminWithUpdatedPasswordPolicy")
+        .RequireAuthorization("AdminWithConfirmedRegistrationPolicy")
         .WithName("DeleteUser");
 
         // https://localhost:7089/api/v1/employees/register 
         app.MapPost("/api/v1/employees/register", UserEndpointsLogic.RegisterEmployeeLogicAsync)
-        .RequireAuthorization("AdminWithUpdatedPasswordPolicy")
+        .RequireAuthorization("AdminWithConfirmedRegistrationPolicy")
         .EndpointValidationFilter<UserRegistrationDTO>()
         .WithName("RegisterEmployee");
 
