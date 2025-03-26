@@ -133,7 +133,6 @@ public class UserService(
             await unitOfWork.RollbackAsync();
             return null;
         }
-        // Handle email sending outside the unit of work transaction.
         try
         {
             await _registrationConfirmationService.SendConfirmationEmailAsync(user.Id, user.Email);
