@@ -59,5 +59,11 @@ namespace GetARoomAPI.Features.Services
             await _registrationConfirmationRepository.UpdateTokenAsync(tokenRecord);
             return true;
         }
+
+        public async Task<bool> HasConfirmedRegistrationAsync(UserId id) 
+        {
+            var hasConfirmedRegistration = await _registrationConfirmationRepository.HasConfirmedRegistrationAsync(id);
+            return hasConfirmedRegistration;
+        }
     }
 }
