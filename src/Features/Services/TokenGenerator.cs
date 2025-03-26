@@ -12,7 +12,7 @@ public class TokenGenerator(IConfiguration config, ILogger<TokenGenerator> logge
     private readonly IConfiguration _config = config;
     private readonly ILogger _logger = logger;
 
-    public string GenerateToken(User authenticatedUser, bool hasUpdatedPassword, IEnumerable<UserRole> userRoles)
+    public string GenerateToken(User authenticatedUser, bool hasConfirmedRegistration, IEnumerable<UserRole> userRoles)
     {
         if (authenticatedUser == null)
         {
@@ -39,7 +39,7 @@ public class TokenGenerator(IConfiguration config, ILogger<TokenGenerator> logge
         List<Claim> claims = [];
         claims.Add(new Claim(JwtRegisteredClaimNames.Sub, userId.Value.ToString()));
         claims.Add(new Claim(JwtRegisteredClaimNames.UniqueName, userName.ToString()));
-        claims.Add(new Claim("passwordUpdated", hasUpdatedPassword ? "true" : "false"));
+        claims.Add(new Claim("hasConfirmedRegistration", hasConfirmedRegistration ? "true" : "false"));
 
         foreach (var role in userRoles)
         {

@@ -1,8 +1,7 @@
-﻿using GetARoomAPI.Core.DB.DBConnection.Interface;
-using GetARoomAPI.Core.DB.DBConnection;
+﻿using Dapper;
+using GetARoomAPI.Core.DB.DBConnection.Interface;
 using GetARoomAPI.Features.Models.Entities;
 using GetARoomAPI.Features.Repositories.Interfaces;
-using Dapper;
 
 namespace GetARoomAPI.Features.Repositories;
 
@@ -29,8 +28,7 @@ public class RegistrationConfirmationRepository : IRegistrationConfirmationRepos
         FROM UserRegistrationTokens 
         WHERE TokenString = @TokenString";
         return await dbConnection.QuerySingleOrDefaultAsync<UserRegistrationToken>(sql, new { TokenString = tokenString });
-    }
-
+    }  
 
     public async Task InsertTokenAsync(UserRegistrationToken token)
     {
@@ -58,5 +56,19 @@ public class RegistrationConfirmationRepository : IRegistrationConfirmationRepos
             IsConfirmed = @IsConfirmed
         WHERE Id = @Id";
         await dbConnection.ExecuteAsync(sql, token);
+    }
+
+    public async Task<bool> HasConfirmedRegistrationAsync(UserId id)
+    {
+        using var dbConnection = await _mySqlConnectionFactory.CreateConnectionAsync();
+
+        var sql = @"
+        SELECT             
+            IsConfirmed 
+        FROM UserRegistrationTokens 
+        WHERE UserId = @UserId";
+
+        var token = await dbConnection.QuerySingleOrDefaultAsync<UserRegistrationToken>(sql, new { UserId = id });
+        return token?.IsConfirmed ?? false; 
     }
 }

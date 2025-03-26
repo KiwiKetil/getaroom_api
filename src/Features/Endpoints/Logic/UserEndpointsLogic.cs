@@ -147,5 +147,5 @@ public static class UserEndpointsLogic
         return res
             ? Results.Ok()
             : Results.Conflict("Somerhing went wrong"); // temp msg
-    }    
+    }
 }
