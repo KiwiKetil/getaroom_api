@@ -7,5 +7,6 @@ namespace GetARoomAPI.Features.Repositories.Interfaces
         Task InsertTokenAsync(UserRegistrationToken token);
         Task<UserRegistrationToken?> GetTokenAsync(string tokenString);
         Task UpdateTokenAsync(UserRegistrationToken token);
+        Task<bool> HasConfirmedRegistrationAsync(UserId id);
     }
 }
