@@ -8,18 +8,12 @@ namespace GetARoomAPI.Features.Services
     {
         private readonly IRegistrationConfirmationRepository _registrationConfirmationRepository;
         private readonly IEmailSender _emailSender;
-        // private readonly AzureTokenProvider _tokenProvider = new AzureTokenProvider(); // when using Graph
 
         public RegistrationConfirmationService(IRegistrationConfirmationRepository registrationConfirmationRepository, IEmailSender emailSender)
         {
             _registrationConfirmationRepository = registrationConfirmationRepository;
             _emailSender = emailSender;
-        }
-
-        public string GenerateConfirmationToken()
-        {
-            return Guid.NewGuid().ToString();
-        }
+        }     
 
         public async Task SendConfirmationEmailAsync(UserId id, string email)
         {
@@ -40,9 +34,14 @@ namespace GetARoomAPI.Features.Services
             var encodedToken = System.Net.WebUtility.UrlEncode(token);
             var confirmationUrl = $"https://localhost:7089/api/v1/users/confirm-registration?token={encodedToken}";
             var subject = "Confirm Your Email Address";
-            var message = $"Please confirm your email by clicking the following link: {confirmationUrl}";
+            var message = $"Please confirm your email within 24 hours by clicking the following link: {confirmationUrl}";
 
-            await _emailSender.SendEmailAsync();
+            await _emailSender.SendEmailAsync(email, subject, message);
+        }
+
+        public string GenerateConfirmationToken()
+        {
+            return Guid.NewGuid().ToString();
         }
 
         public async Task<bool> ConfirmRegistrationAsync(string token)
