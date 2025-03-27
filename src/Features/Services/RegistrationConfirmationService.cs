@@ -48,15 +48,6 @@ namespace GetARoomAPI.Features.Services
         {
             var tokenRecord = await _registrationConfirmationRepository.GetTokenAsync(token);
 
-            if (tokenRecord == null)
-            {
-                Console.WriteLine("Token record not found for token: {0}", token);
-            }
-            else
-            {
-                Console.WriteLine("Retrieved token record: {0}", tokenRecord);
-            }
-
             if (tokenRecord == null ||
                 tokenRecord.DateExpired < DateTime.UtcNow ||
                 tokenRecord.IsConfirmed)
