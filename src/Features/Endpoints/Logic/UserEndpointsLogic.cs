@@ -134,4 +134,18 @@ public static class UserEndpointsLogic
             ? Results.Ok(new TokenResponse(Token: token))
             : Results.Unauthorized();
     }
+
+    public static async Task<IResult> ConfirmRegistrationAsync(
+    [FromQuery] string token,
+    IRegistrationConfirmationService registrationConfirmationService,
+    ILogger<Program> logger)
+    {
+        logger.LogDebug("User confirming registration");
+
+        var res = await registrationConfirmationService.ConfirmRegistrationAsync(token);
+
+        return res
+            ? Results.Ok()
+            : Results.Conflict("Somerhing went wrong"); // temp msg
+    }
 }
