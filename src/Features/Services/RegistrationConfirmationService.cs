@@ -52,7 +52,7 @@ namespace GetARoomAPI.Features.Services
                 tokenRecord.DateExpired < DateTime.UtcNow ||
                 tokenRecord.IsConfirmed)
             {
-                return false;
+                return false; // if expired do what?
             }
 
             tokenRecord.IsConfirmed = true;

@@ -4,5 +4,5 @@ namespace GetARoomAPI.Features.Services.Interfaces;
 
 public interface ITokenGenerator
 {
-    string GenerateToken(User authenticateduser, bool hasChangedPassword, IEnumerable<UserRole> userRoles);
+    string GenerateToken(User authenticateduser, bool hasConfirmedRegistration, IEnumerable<UserRole> userRoles);
 }
