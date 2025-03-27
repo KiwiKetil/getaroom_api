@@ -223,7 +223,9 @@ public class UserService(
         _logger.LogInformation("Password updated successfully for user {Email}", dto.Username);
 
         var userRoles = await _userRoleRepository.GetUserRolesAsync(user.Id);
-        var token = _tokenGenerator.GenerateToken(user, true, userRoles);
+        var hasConfirmedRegistration = await _registrationConfirmationService.HasConfirmedRegistrationAsync(user.Id);
+
+        var token = _tokenGenerator.GenerateToken(user, hasConfirmedRegistration, userRoles);
         return token;
     } 
 }
