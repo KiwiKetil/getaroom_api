@@ -142,10 +142,11 @@ public static class UserEndpointsLogic
     {
         logger.LogDebug("User confirming registration");
 
+        token = token.Trim();
         var res = await registrationConfirmationService.ConfirmRegistrationAsync(token);
 
         return res
             ? Results.Ok()
-            : Results.Conflict("Somerhing went wrong"); // temp msg
+            : Results.Conflict("Something went wrong"); // temp msg
     }
 }
