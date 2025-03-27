@@ -128,10 +128,10 @@ public static class UserEndpointsLogic
             return Results.Forbid();
         }
 
-        var token = await userService.UpdatePasswordAsync(dto);
+        var res = await userService.UpdatePasswordAsync(dto);
 
-        return token != null
-            ? Results.Ok(new TokenResponse(Token: token))
+        return res
+            ? Results.Ok( new OkResponse(Message: "Password was updated"))
             : Results.Unauthorized();
     }
 

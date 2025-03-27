@@ -173,7 +173,7 @@ public class UserService(
         return token;
     }
 
-    public async Task<string?> UpdatePasswordAsync(UpdatePasswordDTO dto)
+    public async Task<bool> UpdatePasswordAsync(UpdatePasswordDTO dto)
     {
         _logger.LogDebug("Updating password");
 
@@ -181,14 +181,14 @@ public class UserService(
         if (user is null)
         {
             _logger.LogInformation("User not found");
-            return null;
+            return false;
         }
 
         var verified = _passwordVerificationService.VerifyPassword(dto, user);
         if (!verified)
         {
             _logger.LogInformation("Verification failed");
-            return null;
+            return false;
         }
 
         string newHashedPassword = BCrypt.Net.BCrypt.HashPassword(dto.NewPassword);
@@ -217,15 +217,11 @@ public class UserService(
         {
             _logger.LogCritical(ex, "Error in UoW with ID: {UnitOfWorkId}. Rolling back...", unitOfWork.Id);
             await unitOfWork.RollbackAsync();
-            return null;
+            return false;
         }
 
         _logger.LogInformation("Password updated successfully for user {Email}", dto.Username);
 
-        var userRoles = await _userRoleRepository.GetUserRolesAsync(user.Id);
-        var hasConfirmedRegistration = await _registrationConfirmationService.HasConfirmedRegistrationAsync(user.Id);
-
-        var token = _tokenGenerator.GenerateToken(user, hasConfirmedRegistration, userRoles);
-        return token;
+        return true;
     } 
 }
