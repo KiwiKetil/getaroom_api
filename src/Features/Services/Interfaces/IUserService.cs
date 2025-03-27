@@ -11,5 +11,5 @@ public interface IUserService
     Task<UserDTO?> DeleteUserAsync(Guid id);
     Task<UserDTO?> RegisterUserAsync(UserRegistrationDTO dto, UserRoles role);
     Task<string?> UserLoginAsync(LoginDTO dto);
-    Task<string?> UpdatePasswordAsync(UpdatePasswordDTO dto);
+    Task<bool> UpdatePasswordAsync(UpdatePasswordDTO dto);
 }
