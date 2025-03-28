@@ -1,6 +1,6 @@
 ﻿namespace GetARoomAPI.Features.Models.DTOs.UserDTOs;
 
-public record UserRegistrationDTO
+public record ClientRegistrationDTO
 (
     string FirstName,
     string LastName,

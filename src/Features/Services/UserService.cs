@@ -88,7 +88,7 @@ public class UserService(
         return userDTO;
     }
 
-    public async Task<UserDTO?> RegisterUserAsync(UserRegistrationDTO dto, UserRoles role)
+    public async Task<UserDTO?> RegisterUserAsync(ClientRegistrationDTO dto, UserRoles role)
     {
         _logger.LogInformation("Registering user");
 

@@ -203,7 +203,7 @@ public class UserServiceTests
 
     [Theory]
     [AutoData]
-    public async Task RegisterUserAsync_WhenUserAlreadyExists_ReturnsNull(UserRegistrationDTO userRegistrationDTO)
+    public async Task RegisterUserAsync_WhenUserAlreadyExists_ReturnsNull(ClientRegistrationDTO userRegistrationDTO)
     {
         // Arrange
         _userRepositoryMock.Setup(x => x.GetUserByEmailAsync(userRegistrationDTO.Email))
@@ -218,7 +218,7 @@ public class UserServiceTests
 
     [Theory]
     [CustomUserAutoData]
-    public async Task RegisterUserAsync_WhenRegistrationIsSuccessfull_ReturnsUserDTO(UserRegistrationDTO userRegistrationDTO, User user)
+    public async Task RegisterUserAsync_WhenRegistrationIsSuccessfull_ReturnsUserDTO(ClientRegistrationDTO userRegistrationDTO, User user)
     {
         // Arrange
         _userRepositoryMock.Setup(x => x.GetUserByEmailAsync(userRegistrationDTO.Email))
