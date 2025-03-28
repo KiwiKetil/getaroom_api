@@ -32,7 +32,7 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.LastName, opt => opt.MapFrom(src =>
         CultureInfo.CurrentCulture.TextInfo.ToTitleCase(src.LastName.ToLowerInvariant() ?? string.Empty)));
 
-        CreateMap<UserRegistrationDTO, User>()
+        CreateMap<ClientRegistrationDTO, User>()
             .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src =>
         CultureInfo.CurrentCulture.TextInfo.ToTitleCase(src.FirstName.ToLowerInvariant() ?? string.Empty)))
             .ForMember(dest => dest.LastName, opt => opt.MapFrom(src =>

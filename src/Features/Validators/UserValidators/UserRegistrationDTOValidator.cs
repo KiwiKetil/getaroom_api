@@ -3,7 +3,7 @@ using GetARoomAPI.Features.Models.DTOs.UserDTOs;
 
 namespace GetARoomAPI.Features.Validators.UserValidators;
 
-public class UserRegistrationDTOValidator : AbstractValidator<UserRegistrationDTO>
+public class UserRegistrationDTOValidator : AbstractValidator<ClientRegistrationDTO>
 {
     private const string PasswordPattern = @"^(?=.*[0-9])(?=.*[A-Z])(?=.*[a-z])(?=.*[!?*#_-]).{8,24}$";
 

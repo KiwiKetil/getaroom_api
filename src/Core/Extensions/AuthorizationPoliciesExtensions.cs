@@ -9,23 +9,27 @@ public static class AuthorizationPoliciesExtensions
     {
         return builder
             // endpoint policies
-            .AddPolicy("EmployeeOrAdminWithConfirmedRegistrationPolicy", policy =>
+            .AddPolicy("EmployeeOrAdminWithConfirmedRegistrationPolicy",
+            policy =>
             {
                 policy.RequireRole("Employee", "Admin");
                 policy.RequireClaim("hasConfirmedRegistration", "true");
             })
 
-            .AddPolicy("AdminWithConfirmedRegistrationPolicy", policy =>
+            .AddPolicy("AdminWithConfirmedRegistrationPolicy",
+            policy =>
             {
                 policy.RequireRole("Admin");
                 policy.RequireClaim("hasConfirmedRegistration", "true");
             })
 
             // authorization policies
-            .AddPolicy("UserIdAccessPolicy", policy =>
+            .AddPolicy("UserIdAccessPolicy",
+            policy =>
             policy.Requirements.Add(new UserIdAccessRequirement()))
 
-            .AddPolicy("UserNameAccessPolicy", policy =>
+            .AddPolicy("UserNameAccessPolicy",
+            policy =>
             policy.Requirements.Add(new UserNameAccessRequirement())); ;
     }
 }

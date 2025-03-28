@@ -29,4 +29,8 @@
     <PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Features\Models\DTOs\UserDTOs\Interfaces\" />
+  </ItemGroup>
+
 </Project>
