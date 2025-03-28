@@ -37,7 +37,7 @@ internal class CustomUserAutoDataAttribute : AutoDataAttribute
             new(UserId.NewId, "lara", "Sveberg", "92628191", "larasveberg@gmail.com", [])
         ]));
 
-        fixture.Customize<UserRegistrationDTO>(u => u
+        fixture.Customize<ClientRegistrationDTO>(u => u
         .With(x => x.FirstName, "Al")
         .With(x => x.LastName, "Bundy")
         .With(x => x.PhoneNumber, "76544567")

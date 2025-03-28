@@ -75,7 +75,7 @@ public static class UserEndpointsLogic
     }
 
     public static async Task<IResult> RegisterEmployeeLogicAsync(
-        [FromBody] UserRegistrationDTO dto,
+        [FromBody] EmployeeRegistrationDTO dto,
         IUserService userService,
         ILogger<Program> logger)
     {
@@ -88,9 +88,22 @@ public static class UserEndpointsLogic
     }
 
     public static async Task<IResult> RegisterClientLogicAsync(
-        [FromBody] UserRegistrationDTO dto,
+        [FromBody] ClientRegistrationDTO dto,
         IUserService userService,
         ILogger<Program> logger)
+    {
+        logger.LogDebug("Registering new client");
+
+        var userDTO = await userService.RegisterUserAsync(dto, UserRoles.Client);
+        return userDTO != null
+            ? Results.Ok(userDTO)
+            : Results.Conflict(new ErrorResponse(Message: "Client could not be registered"));
+    }
+
+    public static async Task<IResult> EmployeeRegisterClientLogicAsync(
+      [FromBody] ClientRegistrationDTO dto,
+      IUserService userService,
+      ILogger<Program> logger)
     {
         logger.LogDebug("Registering new client");
 

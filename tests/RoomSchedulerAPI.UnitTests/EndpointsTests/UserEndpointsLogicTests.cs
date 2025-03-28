@@ -276,7 +276,7 @@ public class UserEndpointsLogicTests
 
     [Theory]
     [CustomUserAutoData]
-    public async Task RegisterUserLogicAsync_WhenIsSuccess_ReturnsOkAndUserDTO(UserRegistrationDTO userRegistrationDTO, UserDTO userDTO)
+    public async Task RegisterUserLogicAsync_WhenIsSuccess_ReturnsOkAndUserDTO(ClientRegistrationDTO userRegistrationDTO, UserDTO userDTO)
     {
         // Arrange
         _userServiceMock.Setup(x => x.RegisterUserAsync(userRegistrationDTO))
@@ -299,7 +299,7 @@ public class UserEndpointsLogicTests
 
     [Theory]
     [AutoData]
-    public async Task RegisterUserLogicAsync_WhenUserAlreadyExists_ReturnsConflictAndErrorResponse(UserRegistrationDTO userRegistrationDTO)
+    public async Task RegisterUserLogicAsync_WhenUserAlreadyExists_ReturnsConflictAndErrorResponse(ClientRegistrationDTO userRegistrationDTO)
     {
         // Arrange
         _userServiceMock.Setup(x => x.RegisterUserAsync(userRegistrationDTO))
