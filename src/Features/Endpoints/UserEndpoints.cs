@@ -33,12 +33,17 @@ public static class UserEndpoints
         // https://localhost:7089/api/v1/employees/register 
         app.MapPost("/api/v1/employees/register", UserEndpointsLogic.RegisterEmployeeLogicAsync)
         .RequireAuthorization("AdminWithConfirmedRegistrationPolicy")
-        .EndpointValidationFilter<UserRegistrationDTO>()
+        .EndpointValidationFilter<UserRegistrationDTO>() // EmployeeRegistrationDTO? ikke sette passord her, employee gjøre vi email når confirmemail..?
         .WithName("RegisterEmployee");
 
         // https://localhost:7089/api/v1/clients/register                                                               
-        app.MapPost("/api/v1/clients/register", UserEndpointsLogic.RegisterClientLogicAsync)
-        .EndpointValidationFilter<UserRegistrationDTO>()
+        app.MapPost("/api/v1/clients/register", UserEndpointsLogic.RegisterClientLogicAsync) // For clients registering themselves. Set password at this time. Receive confirmationemail to verify.
+        .EndpointValidationFilter<UserRegistrationDTO>() // ClienttregistrationDTO?
+        .WithName("RegisterClient");
+
+        // https://localhost:7089/api/v1/clients/register // only for employees registering clients. No password set must be set during email confirmation.
+        app.MapPost("/api/v1/clients/employee-register", UserEndpointsLogic.RegisterClientLogicAsync)
+        .EndpointValidationFilter<UserRegistrationDTO>() // EmployeeClientregistrationDTO?
         .WithName("RegisterClient");
 
         // https://localhost:7089/api/v1/login
